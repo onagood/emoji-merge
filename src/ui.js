@@ -470,14 +470,17 @@ export class UI {
   }
 
   /** The full merge flourish: sparks, an expanding ring, points and a note. */
-  mergeBurst(x, y, tier, points) {
+  mergeBurst(x, y, tier, points, { triple = false } = {}) {
     const width = this.el.boxInner.clientWidth;
     const colors = ['#ffe36e', '#ff7a59', '#fff', '#8fd45f', '#6fc3f0'];
 
-    for (let i = 0; i < 8; i++) {
+    // A trio throws more sparks, in a ring offset so it does not sit on top of
+    // the ordinary eight.
+    const sparkCount = triple ? 16 : 8;
+    for (let i = 0; i < sparkCount; i++) {
       const spark = document.createElement('div');
       spark.className = 'fx-spark';
-      spark.style.setProperty('--a', `${i * 45}deg`);
+      spark.style.setProperty('--a', `${(i * 360) / sparkCount}deg`);
       spark.style.background = colors[i % colors.length];
       this._place(spark, x, y);
       this._spawn(spark, 640);
@@ -485,12 +488,28 @@ export class UI {
 
     const size = (SIZES[tier] / 100) * width;
     const ring = document.createElement('div');
-    ring.className = 'fx-ring';
+    ring.className = `fx-ring${triple ? ' fx-ring-triple' : ''}`;
     // Likewise, the `ring` keyframes centre it with translate(-50%, -50%).
     ring.style.width = `${size}px`;
     ring.style.height = `${size}px`;
     this._place(ring, x, y);
     this._spawn(ring, 540);
+
+    if (triple) {
+      // A second, wider ring a beat later reads as "that was bigger".
+      const echo = document.createElement('div');
+      echo.className = 'fx-ring fx-ring-echo';
+      echo.style.width = `${size * 1.35}px`;
+      echo.style.height = `${size * 1.35}px`;
+      this._place(echo, x, y);
+      this._spawn(echo, 700);
+
+      const label = document.createElement('div');
+      label.className = 'fx-triple';
+      label.textContent = 'TRIPLE!';
+      this._place(label, x, y);
+      this._spawn(label, 1040);
+    }
 
     const note = document.createElement('div');
     note.className = 'fx-note';
@@ -499,7 +518,7 @@ export class UI {
     this._spawn(note, 1040);
 
     const pts = document.createElement('div');
-    pts.className = 'fx-points';
+    pts.className = `fx-points${triple ? ' fx-points-triple' : ''}`;
     pts.textContent = `+${points}`;
     this._place(pts, x, y);
     this._spawn(pts, 1040);

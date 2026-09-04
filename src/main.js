@@ -39,14 +39,28 @@ const game = new Game({
 
   onImpact: ({ speed, tier }) => audio.impact(speed, tier),
 
-  onMerge: ({ tier, x, y, gain, combo }) => {
+  onMerge: ({ tier, x, y, gain, combo, triple }) => {
     audio.merge(tier, combo);
+    if (triple) audio.triple(tier);
     if (combo >= 2) audio.combo(combo);
-    ui.mergeBurst(x, y, tier, gain);
+    ui.mergeBurst(x, y, tier, gain, { triple });
     ui.shakeBox();
-    if (save.get('haptics') && navigator.vibrate) navigator.vibrate(combo >= 2 ? 24 : 12);
+    if (save.get('haptics') && navigator.vibrate) {
+      navigator.vibrate(triple ? [18, 40, 28] : combo >= 2 ? 24 : 12);
+    }
     if (tutorialStep === 'merge') setTutorial(null);
-    save.update({ merges: save.get('merges') + 1 });
+
+    const patch = { merges: save.get('merges') + 1 };
+    if (triple) {
+      patch.triples = save.get('triples') + 1;
+      // Name the move the first time it happens, so it reads as a skill the
+      // player just pulled off rather than a lucky flash.
+      if (!save.get('seenTriple')) {
+        patch.seenTriple = true;
+        ui.toast('✨', 'Triple! Two tiers at once.');
+      }
+    }
+    save.update(patch);
   },
 
   onScore: (score) => {

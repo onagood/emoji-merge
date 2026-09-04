@@ -42,6 +42,15 @@ const MAX_SPIN = 0.5;
 /** Spin retained per 120 Hz step while a piece is resting against something. */
 const ROLLING_RESISTANCE = 0.94;
 
+/**
+ * Land a third piece across the gap between two of a kind and all three go at
+ * once, skipping a tier. The geometry is forgiving — the two may sit anywhere
+ * up to two diameters apart — but the setup is uncommon, so this stays a rare
+ * flourish rather than a change to the economy of the game.
+ */
+export const TRIPLE_SIZE = 3;
+export const TRIPLE_TIER_SKIP = 2;
+
 export function radiusOf(tier) {
   return (SIZES[tier] / 100) * WORLD_W * 0.5;
 }
@@ -242,7 +251,9 @@ export class MergeWorld {
         bodyB.squashAngle = Math.atan2(bodyA.position.y - bodyB.position.y, bodyA.position.x - bodyB.position.x);
       }
 
-      if (aPiece && bPiece) this._queueMerge(bodyA, bodyB);
+      // Merging is decided once per step in _collectRestingMerges, which sees
+      // every contact at once and so can spot a trio. Queueing pairs here
+      // would consume two of the three before the third was ever considered.
     }
   }
 
@@ -254,6 +265,15 @@ export class MergeWorld {
   _collectRestingMerges() {
     for (const body of this.pieces) body.touching = false;
 
+    /** @type {Map<any, Set<any>>} same-tier contacts found this step */
+    const adjacency = new Map();
+    const link = (a, b) => {
+      if (!adjacency.has(a)) adjacency.set(a, new Set());
+      if (!adjacency.has(b)) adjacency.set(b, new Set());
+      adjacency.get(a).add(b);
+      adjacency.get(b).add(a);
+    };
+
     const list = this.engine.pairs.list;
     for (let i = 0; i < list.length; i++) {
       const pair = list[i];
@@ -264,7 +284,40 @@ export class MergeWorld {
       if (aPiece) bodyA.touching = true;
       if (bPiece) bodyB.touching = true;
       if (!aPiece || !bPiece) continue;
-      this._queueMerge(bodyA, bodyB);
+      if (bodyA.merged || bodyB.merged) continue;
+      if (bodyA.tier !== bodyB.tier || bodyA.tier >= MAX_TIER) continue;
+      link(bodyA, bodyB);
+    }
+
+    if (adjacency.size === 0) return;
+
+    // Group the contacts before deciding anything. Two pieces resting apart
+    // cannot be touching each other — they would already have merged — so a
+    // group of three only ever appears when a third piece lands across the
+    // gap between them in one step. That is the play worth rewarding, and
+    // finding it costs nothing extra because the contacts are already here.
+    const seen = new Set();
+    for (const start of adjacency.keys()) {
+      if (seen.has(start)) continue;
+
+      const group = [];
+      const stack = [start];
+      while (stack.length > 0) {
+        const node = stack.pop();
+        if (seen.has(node)) continue;
+        seen.add(node);
+        group.push(node);
+        for (const next of adjacency.get(node)) {
+          if (!seen.has(next)) stack.push(next);
+        }
+      }
+
+      // Take a trio while one is available, then pair off whatever is left.
+      while (group.length >= 2) {
+        const members = group.splice(0, group.length >= TRIPLE_SIZE ? TRIPLE_SIZE : 2);
+        for (const body of members) body.merged = true;
+        this._pendingMerges.push(members);
+      }
     }
   }
 
@@ -283,34 +336,31 @@ export class MergeWorld {
     }
   }
 
-  _queueMerge(a, b) {
-    if (a.merged || b.merged) return;
-    if (a.tier !== b.tier || a.tier >= MAX_TIER) return;
-    a.merged = true;
-    b.merged = true;
-    this._pendingMerges.push([a, b]);
-  }
 
   _resolveMerges() {
     if (this._pendingMerges.length === 0) return;
     const pending = this._pendingMerges;
     this._pendingMerges = [];
 
-    for (const [a, b] of pending) {
-      const tier = a.tier;
-      const x = (a.position.x + b.position.x) / 2;
-      const y = (a.position.y + b.position.y) / 2;
-      const vx = (a.velocity.x + b.velocity.x) / 2;
-      const vy = (a.velocity.y + b.velocity.y) / 2;
+    for (const members of pending) {
+      const count = members.length;
+      const tier = members[0].tier;
+      const mean = (pick) => members.reduce((sum, body) => sum + pick(body), 0) / count;
 
-      this.removePiece(a);
-      this.removePiece(b);
+      const x = mean((b) => b.position.x);
+      const y = mean((b) => b.position.y);
+      const vx = mean((b) => b.velocity.x);
+      const vy = mean((b) => b.velocity.y);
+      const spin = mean((b) => b.angularVelocity);
 
-      const nextTier = tier + 1;
+      for (const body of members) this.removePiece(body);
+
+      const triple = count >= TRIPLE_SIZE;
+      const nextTier = Math.min(MAX_TIER, tier + (triple ? TRIPLE_TIER_SKIP : 1));
       const born = this.addPiece(nextTier, x, y, {
         vx: vx * 0.5,
-        vy: vy * 0.5 - 1.6,
-        angularVelocity: (a.angularVelocity + b.angularVelocity) * 0.35,
+        vy: vy * 0.5 - (triple ? 2.6 : 1.6),
+        angularVelocity: spin * 0.7,
         bornFromMerge: true,
       });
 
@@ -318,7 +368,9 @@ export class MergeWorld {
       // instead of shoving it sideways in one frame.
       this._relieve(born);
 
-      if (this.onMerge) this.onMerge({ tier: nextTier, x, y, a, b, body: born });
+      if (this.onMerge) {
+        this.onMerge({ tier: nextTier, fromTier: tier, x, y, count, triple, body: born });
+      }
     }
   }
 

@@ -15,6 +15,7 @@ const DEFAULTS = {
   best: 0,
   games: 0,
   merges: 0,
+  triples: 0,
   discovered: 0,
   streak: 1,
   lastPlayed: null,
@@ -25,6 +26,7 @@ const DEFAULTS = {
   haptics: false,
   hints: true,
   seenTutorial: false,
+  seenTriple: false,
 };
 
 function clampInt(value, min, max, fallback) {
@@ -87,6 +89,7 @@ export class Save {
     d.best = clampInt(parsed.best, 0, 1e12, 0);
     d.games = clampInt(parsed.games, 0, 1e9, 0);
     d.merges = clampInt(parsed.merges, 0, 1e9, 0);
+    d.triples = clampInt(parsed.triples, 0, 1e9, 0);
     d.discovered = clampInt(parsed.discovered, 0, MAX_TIER, 0);
     d.streak = clampInt(parsed.streak, 1, 1e6, 1);
     d.lastPlayed = typeof parsed.lastPlayed === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(parsed.lastPlayed)
@@ -99,6 +102,7 @@ export class Save {
     d.haptics = bool(parsed.haptics, DEFAULTS.haptics);
     d.hints = bool(parsed.hints, DEFAULTS.hints);
     d.seenTutorial = bool(parsed.seenTutorial, DEFAULTS.seenTutorial);
+    d.seenTriple = bool(parsed.seenTriple, DEFAULTS.seenTriple);
   }
 
   _updateStreak() {
@@ -155,7 +159,7 @@ export class Save {
       hints: this.data.hints,
       lastPlayed: this.data.lastPlayed,
     };
-    this.data = { ...DEFAULTS, ...keep, streak: 1, seenTutorial: false };
+    this.data = { ...DEFAULTS, ...keep, streak: 1, seenTutorial: false, seenTriple: false };
     this.flush();
   }
 }

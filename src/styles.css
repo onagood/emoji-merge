@@ -675,6 +675,38 @@ a:hover { color: var(--yellow); }
   line-height: 1;
   animation: note 1s ease-out forwards;
 }
+/* Three at once: a hotter ring, a wider echo behind it, and a gold label. */
+.fx-ring-triple {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--ink), 0 0 22px var(--yellow);
+}
+.fx-ring-echo {
+  border-color: var(--yellow);
+  border-width: 3px;
+  box-shadow: 0 0 0 2px var(--ink);
+  animation-duration: 0.7s;
+  opacity: 0.85;
+}
+.fx-triple {
+  position: absolute;
+  font-family: 'Lilita One', 'Baloo 2', sans-serif;
+  font-size: clamp(20px, 3.4vw, 30px);
+  letter-spacing: 1px;
+  color: var(--yellow);
+  -webkit-text-stroke: 1.5px var(--ink);
+  text-shadow: 0 3px 0 var(--ink);
+  white-space: nowrap;
+  /* Rises further than the score so the two do not overlap. */
+  animation: riseHigh 1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes riseHigh {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  20% { opacity: 1; transform: translate(-50%, -170%) scale(1.25); }
+  100% { transform: translate(-50%, -430%) scale(1); opacity: 0; }
+}
+
+.fx-points-triple { color: var(--yellow); }
+
 .fx-points {
   position: absolute;
   font-family: 'Lilita One', 'Baloo 2', sans-serif;

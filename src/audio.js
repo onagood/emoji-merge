@@ -178,6 +178,26 @@ export class Audio {
     this._noise({ duration: 0.16, gain: 0.14, filterFreq: 2600, type: 'highpass' });
   }
 
+  /**
+   * Three at once. A bright rising arpeggio over the merge tone, so the moment
+   * is unmistakable without being louder than everything else.
+   */
+  triple(tier) {
+    if (!this._ready()) return;
+    const root = 523.25 * Math.pow(2, Math.min(tier, 8) / 24);
+    [0, 4, 7, 12].forEach((semitone, i) => {
+      this._tone({
+        freq: root * Math.pow(2, semitone / 12),
+        type: 'triangle',
+        duration: 0.34,
+        gain: 0.26 - i * 0.03,
+        delay: i * 0.055,
+      });
+    });
+    this._tone({ freq: root * 3, type: 'sine', duration: 0.5, gain: 0.1, delay: 0.2 });
+    this._noise({ duration: 0.3, gain: 0.16, filterFreq: 3400, type: 'highpass' });
+  }
+
   /** Extra flourish layered on top of a merge when a combo is running. */
   combo(count) {
     if (!this._ready()) return;

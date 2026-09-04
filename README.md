@@ -73,10 +73,29 @@ to this game.
 - **Rolling resistance** bleeds off spin while a piece rests against something.
   Matter approximates a circle with a polygon, which otherwise rolls further
   than a real one and makes pieces wander away from where the player aimed.
-- Merges are detected two ways: on `collisionStart`, and by scanning active
-  contact pairs each step. The second pass matters because a piece created by
-  a merge can appear already touching a same-tier neighbour, which never fires
-  a fresh collision event.
+- Merging is decided **once per step**, from the full set of active contacts,
+  rather than pair by pair as each collision arrives. Same-tier contacts are
+  grouped into connected clusters first, then resolved. Deciding per pair would
+  consume two pieces before a third was ever considered.
+
+### The triple
+
+Drop a third piece across the gap between two of a kind and all three merge at
+once, **skipping a tier**, for double points.
+
+Two pieces resting apart cannot be touching each other — they would already
+have merged — so a cluster of three only ever appears when a third lands across
+the gap in a single step. That makes the rule self-limiting: it costs no delay,
+no waiting to see whether a third arrives, and it cannot fire by accident.
+
+The geometry is forgiving but bounded. The third piece wedges against both only
+while their centres are less than two diameters apart; past that it falls
+straight between them. Aim near the middle of the gap.
+
+In ordinary play it fires roughly **1% of merges**, so the economy of the game
+is untouched — it is a skill flourish, not a balance change. `TRIPLE_SIZE` and
+`TRIPLE_TIER_SKIP` in `src/physics.js` and `TRIPLE_BONUS` in `src/game.js`
+control it.
 
 Tuning lives at the top of `src/physics.js` and `src/game.js`. The values worth
 knowing:
@@ -86,6 +105,8 @@ knowing:
 | `gravity.y = 1.3` | physics.js | How briskly pieces fall |
 | `MAX_SPEED = 15` | physics.js | Speed cap per step |
 | `ROLLING_RESISTANCE` | physics.js | Spin retained per step while resting |
+| `TRIPLE_TIER_SKIP` | physics.js | Tiers gained when three merge at once |
+| `TRIPLE_BONUS` | game.js | Score multiplier for a triple |
 | `OVERFLOW_GRACE = 1.5` | game.js | Seconds above the line before the round ends |
 | `DANGER_HEIGHT` | game.js | Top 30% of the box triggers the warning |
 | `COMBO_WINDOW = 1.4` | game.js | Seconds a combo survives |

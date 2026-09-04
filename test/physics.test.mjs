@@ -139,6 +139,83 @@ section('the top tier does not merge further');
 }
 
 // ---------------------------------------------------------------------------
+section('a third piece landing across a gap merges all three and skips a tier');
+{
+  // Two of a kind resting apart, third dropped into the gap between them.
+  for (const gapInDiameters of [1.2, 1.6, 1.9]) {
+    const merges = [];
+    const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
+    const tier = 3;
+    const r = radiusOf(tier);
+    const d = 2 * r * gapInDiameters;
+    const cx = WORLD_W / 2;
+    world.addPiece(tier, cx - d / 2, WORLD_H - r - 2);
+    world.addPiece(tier, cx + d / 2, WORLD_H - r - 2);
+    run(world, 1);
+    check(`gap of ${gapInDiameters} diameters: the two do not merge on their own`, merges.length === 0);
+
+    world.addPiece(tier, cx, r + 14);
+    run(world, 4);
+
+    const triple = merges.find((m) => m.triple);
+    check(`gap of ${gapInDiameters} diameters: fires as a trio`, !!triple, `merges=${merges.map((m) => m.count).join(',')}`);
+    check(`gap of ${gapInDiameters} diameters: consumes all three`, triple?.count === 3, `count=${triple?.count}`);
+    check(`gap of ${gapInDiameters} diameters: skips a tier`, triple?.tier === tier + 2, `tier=${triple?.tier}`);
+    check(`gap of ${gapInDiameters} diameters: one piece remains`, world.pieces.length === 1, `${world.pieces.length} left`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+section('a plain pair still merges by one tier');
+{
+  const merges = [];
+  const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
+  world.addPiece(2, WORLD_W / 2 - radiusOf(2), WORLD_H - 120);
+  world.addPiece(2, WORLD_W / 2 + radiusOf(2) * 0.6, WORLD_H - 120);
+  run(world, 3);
+  check('one merge', merges.length === 1, `${merges.length} merges`);
+  check('not marked as a trio', merges[0]?.triple === false);
+  check('two pieces consumed', merges[0]?.count === 2, `count=${merges[0]?.count}`);
+  check('gains exactly one tier', merges[0]?.tier === 3, `tier=${merges[0]?.tier}`);
+}
+
+// ---------------------------------------------------------------------------
+section('the gap has a limit');
+{
+  // Beyond two diameters the third piece falls straight through the middle.
+  const merges = [];
+  const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
+  const tier = 3;
+  const r = radiusOf(tier);
+  const d = 2 * r * 2.6;
+  const cx = WORLD_W / 2;
+  world.addPiece(tier, cx - d / 2, WORLD_H - r - 2);
+  world.addPiece(tier, cx + d / 2, WORLD_H - r - 2);
+  run(world, 1);
+  world.addPiece(tier, cx, r + 14);
+  run(world, 4);
+  check('too wide a gap does not make a trio', !merges.some((m) => m.triple), `merges=${merges.map((m) => m.count).join(',')}`);
+}
+
+// ---------------------------------------------------------------------------
+section('a trio near the top of the chain does not overshoot');
+{
+  const merges = [];
+  const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
+  const tier = MAX_TIER - 1;
+  const r = radiusOf(tier);
+  const cx = WORLD_W / 2;
+  world.addPiece(tier, cx - r * 2.4, WORLD_H - r - 2);
+  world.addPiece(tier, cx + r * 2.4, WORLD_H - r - 2);
+  run(world, 1);
+  world.addPiece(tier, cx, r + 14);
+  run(world, 5);
+  const top = merges.find((m) => m.triple);
+  check('clamps to the top tier instead of running past it', !top || top.tier === MAX_TIER, `tier=${top?.tier}`);
+  check('never exceeds the top tier', world.pieces.every((p) => p.tier <= MAX_TIER));
+}
+
+// ---------------------------------------------------------------------------
 section('a stack of same-tier pieces cascades');
 {
   const merges = [];
