@@ -1,0 +1,15 @@
+{
+  "name": "emoji-merge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A cosy emoji merge puzzle for browser game portals.",
+  "type": "module",
+  "scripts": {
+    "start": "node serve.js",
+    "test": "node test/physics.test.mjs",
+    "assets": "node tools/fetch-assets.mjs",
+    "licenses": "node tools/license-check.mjs",
+    "build": "node tools/build.mjs"
+  },
+  "license": "SEE LICENSES.md"
+}

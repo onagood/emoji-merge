@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#f1eadc;font-family:'Instrument Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}a:hover{color:#e4572e}
+button{font-family:inherit;transition:transform .12s cubic-bezier(.2,.8,.3,1.4), background .15s, color .15s}
+@keyframes landHeavy{0%{transform:translate(-50%,-50%) translateY(-40px) scale(1,1);opacity:0}55%{transform:translate(-50%,-50%) translateY(0) scale(1.12,.86);opacity:1}75%{transform:translate(-50%,-50%) translateY(-6px) scale(.96,1.05)}100%{transform:translate(-50%,-50%) scale(1)}}
+@keyframes landLight{0%{transform:translate(-50%,-50%) scale(.4) rotate(-20deg);opacity:0}60%{transform:translate(-50%,-50%) scale(1.15) rotate(6deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1) rotate(0)}}
+@keyframes mergePop{0%{transform:translate(-50%,-50%) scale(.6)}40%{transform:translate(-50%,-50%) scale(1.3,.8)}70%{transform:translate(-50%,-50%) scale(.9,1.15)}100%{transform:translate(-50%,-50%) scale(1)}}
+@keyframes hang{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes slideIn{0%{opacity:0;transform:translateX(-14px)}100%{opacity:1;transform:none}}
+@keyframes sheet{0%{transform:translateY(100%)}100%{transform:translateY(0)}}
+@keyframes ring{0%{transform:translate(-50%,-50%) scale(.3);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0}}
+@keyframes rise{0%{transform:translate(-50%,-50%) rotate(-6deg);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-260%) rotate(4deg);opacity:0}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-.8deg)}60%{transform:translateX(5px) rotate(.6deg)}}
+@keyframes shake2{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-.8deg)}60%{transform:translateX(5px) rotate(.6deg)}}
+@keyframes stamp{0%{transform:rotate(-14deg) scale(1.6);opacity:0}60%{transform:rotate(-6deg) scale(.95);opacity:1}100%{transform:rotate(-6deg) scale(1)}}
+@keyframes toast{0%{transform:translateY(-100%);opacity:0}12%{transform:none;opacity:1}86%{transform:none;opacity:1}100%{transform:translateY(-100%);opacity:0}}
+@keyframes peek{0%,100%{transform:translateY(0) rotate(14deg)}50%{transform:translateY(-10px) rotate(10deg)}}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes confetti{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(110vh) rotate(720deg)}}
+@keyframes dash{to{stroke-dashoffset:0}}
+@keyframes airbubble{0%{transform:translateY(0);opacity:0}20%{opacity:.7}100%{transform:translateY(-140px);opacity:0}}
+@keyframes rays{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes toss{0%{transform:translate(-120%,40%) rotate(-30deg) scale(.6);opacity:0}30%{opacity:1}60%{transform:translate(-20%,-70%) rotate(10deg) scale(1)}100%{transform:translate(0,0) rotate(0) scale(1);opacity:1}}
+@keyframes tossArm{0%,100%{transform:rotate(14deg)}40%{transform:translateY(-14px) rotate(-16deg)}60%{transform:translateY(-6px) rotate(-6deg)}}
+@keyframes mood{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.25) rotate(-10deg)}60%{transform:scale(.95) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes scared{0%,100%{transform:translateX(0) rotate(-3deg)}25%{transform:translateX(-3px) rotate(3deg)}75%{transform:translateX(3px) rotate(-3deg)}}
+@keyframes boxShake{0%,100%{transform:rotate(-2deg)}20%{transform:rotate(3deg) translateY(-3px)}40%{transform:rotate(-4deg)}60%{transform:rotate(3deg) translateY(-3px)}80%{transform:rotate(-2deg)}}
+@keyframes lidOff{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translate(70px,-160px) rotate(40deg);opacity:0}}
+@keyframes giftUp{0%{transform:translateY(40px) scale(.4);opacity:0}60%{transform:translateY(-30px) scale(1.15);opacity:1}100%{transform:translateY(-16px) scale(1)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div style="--paper:{{ v.paper }};--ink:{{ v.ink }};--muted:{{ v.muted }};--line:{{ v.line }};--gloss:{{ v.gloss }};--jarbg:{{ j.bg }};--jarb:{{ j.border }};--lid:{{ j.lid }};--jarr:{{ j.radius }};min-height:100vh;min-height:100dvh;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));box-sizing:border-box;color:var(--ink, #1e1a17);background:var(--paper, #f1eadc);transition:background .4s, color .4s">
+<div style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;background:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>&quot;)"></div>
+<div style="position:fixed;inset:0;pointer-events:none;z-index:0;background:{{ v.light }}"></div>
+
+<!-- TOAST -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:0;right:0;top:0;z-index:40;display:flex;justify-content:center;pointer-events:none"><div style="display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 18px 12px 14px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);border-radius:0 0 14px 14px;animation:toast 2.6s cubic-bezier(.2,.9,.3,1) forwards;font-size:14px;font-weight:500;white-space:nowrap"><span style="font-size:20px;line-height:1">{{ toastIcon }}</span><span><span style="font-style:italic;opacity:.7">{{ toastKicker }}</span> · {{ toastText }}</span></div></div>
+</sc-if>
+
+<!-- HOME -->
+<sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Home" style="position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;gap:26px;animation:slideIn .35s ease-out">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(36px, 11vw, 44px);line-height:.92;letter-spacing:-2px;transform:rotate(-2deg);transform-origin:left bottom">Emoji<br><span style="color:#e4572e">Merge</span></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding-top:6px;text-align:right">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;line-height:1">day {{ streak }} in a row</div>
+      <div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63)">{{ streakSub }}</div>
+    </div>
+  </div>
+
+  <div onClick="{{ continueGame }}" style="position:relative;display:flex;align-items:flex-end;gap:20px;cursor:pointer;padding:6px 0 0" style-hover="transform:translateX(3px)">
+    <div style="position:relative;width:118px;height:136px;flex:none">
+      <div style="position:absolute;left:24px;right:-30px;bottom:-8px;height:26px;border-radius:50%;background:rgba(40,25,10,.28);filter:blur(10px);transform:skewX(-25deg)"></div>
+      <div style="position:absolute;left:14px;right:14px;top:0;height:16px;border-radius:5px;background:var(--lid, #1e1a17)"></div>
+      <div style="position:absolute;left:0;right:0;top:11px;bottom:0;border-radius:14px 14px var(--jarr, 28px) var(--jarr, 28px);background:var(--jarbg, rgba(255,255,255,.55));border:2.5px solid var(--jarb, #1e1a17);box-sizing:border-box;overflow:hidden;box-shadow:inset 5px 0 10px var(--gloss, rgba(255,255,255,.55))">
+        <sc-for list="{{ miniPieces }}" as="p" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%)">{{ p.emoji }}</div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:1;min-width:0;padding-bottom:6px">
+      <div style="font-size:15px;font-style:italic;color:var(--muted, #7a6f63)">your jar is still where you left it</div>
+      <div style="margin-top:2px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:46px;line-height:1;letter-spacing:-2px">{{ score }}</div>
+      <div style="margin-top:4px;font-size:14px;line-height:1.35">{{ nextGoalShort }}</div>
+      <div style="margin-top:14px;display:inline-flex;align-items:center;gap:10px;padding:12px 18px 12px 20px;border-radius:14px 6px 14px 6px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px">Back to the jar<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></div>
+    </div>
+    <div style="position:absolute;right:-30px;top:-46px;font-size:74px;line-height:1;animation:peek 3s ease-in-out infinite;filter:drop-shadow(-5px 7px 5px rgba(40,25,10,.25));pointer-events:none">{{ mascot }}</div>
+  </div>
+
+  <div style="height:1.5px;background:var(--line, rgba(30,26,23,.18))"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">
+    <div onClick="{{ playDaily }}" style="cursor:pointer;padding:6px 0 14px;display:flex;flex-direction:column;gap:6px" style-hover="color:#e4572e">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px"><span style="font-size:22px;line-height:1">🌙</span>Daily jar</div>
+      <div style="font-size:14px;line-height:1.4;color:var(--muted, #7a6f63)">{{ dailySub }}</div>
+      <div style="font-size:13px;text-decoration:underline;text-underline-offset:3px">{{ dailyTitle }} · {{ dailyTimer }}</div>
+    </div>
+    <div onClick="{{ openGift }}" style="cursor:pointer;padding:6px 0 14px;display:flex;flex-direction:column;gap:6px;border-left:1.5px solid var(--line, rgba(30,26,23,.18));padding-left:28px;opacity:{{ giftOp }}" style-hover="color:#e4572e">
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px"><span style="font-size:22px;line-height:1">🎁</span>{{ giftTitle }}</div>
+      <div style="font-size:14px;line-height:1.4;color:var(--muted, #7a6f63)">{{ giftSub }}</div>
+      <div style="font-size:13px;text-decoration:underline;text-underline-offset:3px">{{ giftCta }}</div>
+    </div>
+  </div>
+
+  <div style="height:1.5px;background:var(--line, rgba(30,26,23,.18))"></div>
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
+    <div style="display:flex;gap:22px">
+      <button onClick="{{ goHowto }}" style="border:0;background:transparent;cursor:pointer;padding:6px 4px;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:inherit" style-hover="color:#e4572e"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5C4 4.7 4.7 4 5.5 4H20v15.5"></path><path d="M4 19.5c0 .8.7 1.5 1.5 1.5H20"></path><path d="M9 9h7M9 13h5"></path></svg>Rules</button>
+      <button onClick="{{ goCollection }}" style="border:0;background:transparent;cursor:pointer;padding:6px 4px;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:inherit" style-hover="color:#e4572e"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><path d="M17 14v6M14 17h6"></path></svg>Collection</button>
+      <button onClick="{{ goAch }}" style="border:0;background:transparent;cursor:pointer;padding:6px 4px;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:inherit" style-hover="color:#e4572e"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.4l-5.3 2.8 1.1-5.9L3.5 9.2l5.9-.8z"></path></svg>Awards</button>
+      <button onClick="{{ goSettings }}" style="border:0;background:transparent;cursor:pointer;padding:6px 4px;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:inherit" style-hover="color:#e4572e"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2.5"></circle><circle cx="10" cy="17" r="2.5"></circle></svg>Settings</button>
+    </div>
+    <div style="text-align:right;font-size:13px;line-height:1.5;color:var(--muted, #7a6f63)">best <b style="color:var(--ink, inherit);font-weight:600">{{ best }}</b> · biggest {{ biggest }}<br>#{{ myRank }} this week</div>
+  </div>
+  <button onClick="{{ newGame }}" style="align-self:flex-start;border:0;cursor:pointer;background:transparent;padding:0;font-size:13px;color:var(--muted, #7a6f63);text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">or start a fresh jar</button>
+
+  <!-- GIFT SCENE -->
+  <sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Daily gift" onClick="{{ giftTap }}" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);z-index:10;padding:16px;cursor:pointer;overflow:hidden;animation:fadeIn .3s">
+    <sc-if value="{{ giftOpened }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;top:50%;width:1200px;height:1200px;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg, rgba(241,234,220,.07) 0 12deg, transparent 12deg 30deg);border-radius:50%;animation:rays 40s linear infinite;pointer-events:none"></div></sc-if>
+    <div style="position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:flex-start;gap:16px">
+      <div style="font-size:15px;font-style:italic;opacity:.7">{{ giftLead }}</div>
+      <div style="position:relative;width:180px;height:200px;align-self:center;margin:10px 0">
+        <sc-if value="{{ giftOpened }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:10px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;animation:giftUp .6s cubic-bezier(.2,1.2,.3,1) both">
+            <div style="position:relative;width:74px;height:86px">
+              <div style="position:absolute;left:10px;right:10px;top:0;height:12px;border-radius:4px;background:#e4572e"></div>
+              <div style="position:absolute;left:0;right:0;top:8px;bottom:0;border-radius:10px 10px 22px 22px;background:linear-gradient(100deg, rgba(255,255,255,.7), rgba(255,220,200,.35));border:2.5px solid #e4572e;box-sizing:border-box"></div>
+            </div>
+          </div>
+        </sc-if>
+        <div style="position:absolute;left:30px;right:30px;bottom:0;height:110px;border-radius:6px;background:#e4572e;border:2.5px solid var(--paper, #f1eadc);box-sizing:border-box;animation:{{ giftBoxAnim }}">
+          <div style="position:absolute;left:50%;top:0;bottom:0;width:14px;transform:translateX(-50%);background:var(--paper, #f1eadc);opacity:.9"></div>
+        </div>
+        <div style="position:absolute;left:20px;right:20px;bottom:96px;height:30px;border-radius:6px;background:#e4572e;border:2.5px solid var(--paper, #f1eadc);box-sizing:border-box;animation:{{ giftLidAnim }};transform-origin:right bottom">
+          <div style="position:absolute;left:50%;top:0;bottom:0;width:14px;transform:translateX(-50%);background:var(--paper, #f1eadc);opacity:.9"></div>
+          <div style="position:absolute;left:50%;top:-22px;transform:translateX(-50%);font-size:26px;line-height:1">🎀</div>
+        </div>
+      </div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:44px;line-height:.9;letter-spacing:-2px">{{ giftHeadline }}</div>
+      <p style="margin:0;font-size:17px;line-height:1.4;max-width:340px">{{ giftBody }}</p>
+      <button onClick="{{ giftTap }}" style="margin-top:8px;border:0;cursor:pointer;padding:14px 22px;border-radius:14px 6px 14px 6px;background:var(--paper, #f1eadc);color:var(--ink, #1e1a17);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px" style-hover="background:#e4572e;color:#fff">{{ giftBtn }}</button>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- GAME -->
+<sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Game" style="position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:20px 40px;justify-content:center;align-items:flex-start;width:100%;max-width:1100px;animation:slideIn .3s ease-out">
+
+  <!-- status column: left on desktop, top on mobile -->
+  <div style="display:flex;flex-direction:column;gap:6px;flex:1 1 240px;max-width:{{ statusMax }};min-width:240px;width:100%;order:1;padding-top:6px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div style="min-width:0">
+        <sc-if value="{{ isDaily }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63)">🌙 daily jar · day {{ streak }}</div></sc-if>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(52px, 16vw, 72px);line-height:.9;letter-spacing:-3px;transform:rotate(-2deg);transform-origin:left bottom;color:{{ scoreColor }};transition:color .3s">{{ score }}</div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted, #7a6f63)"><div title="{{ moodTitle }}" style="font-size:28px;line-height:1;display:inline-block;transform:{{ moodTf }};animation:{{ moodAnim }};filter:drop-shadow(-3px 4px 3px rgba(40,25,10,.22))">{{ moodFace }}</div><div style="width:90px;height:2px;background:var(--line, rgba(30,26,23,.18))"><div style="height:100%;background:#e4572e;width:{{ bestPct }};transition:width .3s"></div></div><span style="white-space:nowrap">{{ bestLabel }}</span></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;flex:none">
+        <div style="display:flex;flex-direction:column;align-items:center;margin-top:-26px">
+          <div style="width:1.5px;height:34px;background:var(--ink, #1e1a17)"></div>
+          <div style="font-size:34px;line-height:1;transform-origin:top center;animation:hang 2.6s ease-in-out infinite;filter:drop-shadow(-3px 5px 3px rgba(40,25,10,.22))">{{ nextEmoji }}</div>
+          <div style="margin-top:6px;font-size:12px;font-style:italic;color:var(--muted, #7a6f63)">next</div>
+        </div>
+        <button onClick="{{ openPause }}" aria-label="Pause" style="border:1.5px solid var(--ink, #1e1a17);background:transparent;cursor:pointer;width:44px;height:44px;border-radius:12px 5px 12px 5px;display:flex;align-items:center;justify-content:center;gap:5px;color:inherit" style-hover="background:var(--ink, #1e1a17);color:var(--paper, #f1eadc)" style-active="transform:scale(.94)"><div style="width:4px;height:15px;background:currentColor"></div><div style="width:4px;height:15px;background:currentColor"></div></button>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:15px;line-height:1.4"><span style="font-style:italic;color:var(--muted, #7a6f63)">{{ goalLead }}</span> {{ goalTitle }} <span style="display:inline-flex;gap:4px;vertical-align:middle;margin-left:4px"><sc-for list="{{ goalDots }}" as="d" hint-placeholder-count="2"><span style="width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink, #1e1a17);background:{{ d.bg }}"></span></sc-for></span></div>
+    <div style="margin-top:22px;display:flex;justify-content:space-between;align-items:center">
+      <sc-for list="{{ chainView }}" as="c" hint-placeholder-count="11">
+        <div style="font-size:{{ c.fs }};line-height:1;opacity:{{ c.op }};filter:{{ c.filter }};transition:transform .2s;transform:{{ c.tf }}">{{ c.emoji }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- jar column -->
+  <div style="display:flex;flex-direction:column;gap:6px;width:min(100%, 430px);flex:0 1 430px;order:2">
+    <div style="position:relative;width:100%;margin-top:18px;animation:{{ shakeAnim }}">
+      <sc-if value="{{ tossing }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:-26px;bottom:70px;z-index:6;font-size:78px;line-height:1;transform-origin:bottom center;animation:tossArm 1.4s cubic-bezier(.3,.9,.4,1) both;filter:drop-shadow(-5px 7px 5px rgba(40,25,10,.25));pointer-events:none">{{ mascot }}</div>
+      </sc-if>
+      <sc-if value="{{ showCombo }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:-6px;top:-10px;z-index:5;padding:6px 14px;border:2px solid #e4572e;color:#e4572e;border-radius:4px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:{{ comboSize }};letter-spacing:-.5px;animation:stamp .3s cubic-bezier(.2,.9,.3,1.3) both;transform:rotate(-6deg);white-space:nowrap;pointer-events:none;background:var(--paper, #f1eadc)">×{{ combo }} combo</div>
+      </sc-if>
+      <div style="position:absolute;left:36px;right:-60px;bottom:-14px;height:44px;border-radius:50%;background:rgba(40,25,10,.3);filter:blur(16px);transform:skewX(-25deg);pointer-events:none"></div>
+      <div style="position:absolute;left:14%;right:14%;top:0;height:22px;border-radius:6px 6px 3px 3px;background:var(--lid, #1e1a17);z-index:2"></div>
+      <div onClick="{{ dropAt }}" onMouseMove="{{ aimAt }}" style="position:relative;margin-top:14px;width:100%;aspect-ratio:5/6.4;border-radius:22px 22px var(--jarr, 40px) var(--jarr, 40px);background:var(--jarbg, rgba(255,255,255,.5));border:2.5px solid {{ jarBorder }};box-sizing:border-box;box-shadow:inset 6px 0 14px var(--gloss, rgba(255,255,255,.6)), inset -8px 0 14px rgba(40,25,10,.08);overflow:hidden;cursor:pointer;touch-action:manipulation;transition:border-color .3s">
+        <div style="position:absolute;left:16px;top:28px;width:12px;height:42%;border-radius:99px;background:var(--gloss, rgba(255,255,255,.75));pointer-events:none"></div>
+        <sc-if value="{{ isAquarium }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:22%;bottom:10px;width:8px;height:8px;border-radius:50%;border:2px solid #fff;opacity:.6;animation:airbubble 4s linear infinite;pointer-events:none"></div>
+          <div style="position:absolute;left:74%;bottom:10px;width:6px;height:6px;border-radius:50%;border:2px solid #fff;opacity:.6;animation:airbubble 4.6s linear .5s infinite;pointer-events:none"></div>
+        </sc-if>
+        <div style="position:absolute;left:0;right:0;top:16%;border-top:2px dashed {{ dangerColor }};transition:border-color .3s"></div>
+        <div style="position:absolute;right:12px;top:calc(16% - 22px);font-size:13px;font-style:italic;color:{{ dangerColor }};transition:color .3s;animation:{{ dangerAnim }}">{{ dangerText }}</div>
+        <sc-if value="{{ notLoading }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed rgba(30,26,23,.3);left:{{ dropXPct }};transition:left .1s ease;opacity:{{ guideOp }}"></div>
+          <div style="position:absolute;top:12px;left:{{ dropXPct }};width:0;display:flex;justify-content:center;transition:left .1s ease"><div style="font-size:{{ currentSize }};line-height:1;animation:hang 1.8s ease-in-out infinite;filter:drop-shadow(-3px 5px 4px rgba(40,25,10,.22))">{{ currentEmoji }}</div></div>
+        </sc-if>
+        <sc-for list="{{ pieces }}" as="p" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%);animation:{{ p.anim }};filter:drop-shadow(-3px 4px 3px rgba(40,25,10,.2))">{{ p.emoji }}</div>
+        </sc-for>
+        <sc-for list="{{ bursts }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};width:{{ b.size }};height:{{ b.size }};border-radius:50%;border:3px solid #e4572e;animation:ring .55s ease-out forwards;pointer-events:none"></div>
+          <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;color:#e4572e;animation:rise 1s cubic-bezier(.2,.7,.3,1) forwards;pointer-events:none;white-space:nowrap">+{{ b.pts }}</div>
+        </sc-for>
+        <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:80%">
+            <div style="width:120px;height:2px;background:rgba(30,26,23,.15)"><div style="height:100%;background:#e4572e;animation:dash 1.2s linear forwards;width:100%;transform-origin:left;animation-name:none"></div></div>
+            <div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63);text-align:center">{{ tip }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tossing }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:38%;top:88%;font-size:{{ tossSize }};line-height:1;animation:toss 1.4s cubic-bezier(.3,.9,.4,1) both;filter:drop-shadow(-3px 4px 3px rgba(40,25,10,.2));pointer-events:none">{{ tossEmoji }}</div>
+        </sc-if>
+        <sc-if value="{{ tutTap }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:40%;transform:translateX(-50%);pointer-events:none;text-align:center;font-size:17px;line-height:1.35;max-width:220px;animation:fadeIn .4s both"><span style="font-style:italic">your turn.</span><br>tap anywhere, {{ currentEmoji }} falls there.</div>
+        </sc-if>
+        <sc-if value="{{ tutMerge }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:36%;transform:translateX(-50%);pointer-events:none;text-align:center;font-size:17px;line-height:1.35;max-width:240px">now land {{ currentEmoji }} on the other {{ currentEmoji }}.<br><span style="font-style:italic;color:var(--muted, #7a6f63)">same touches same → something new.</span></div>
+        </sc-if>
+      </div>
+    </div>
+    <sc-if value="{{ showShake }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ adRescue }}" style="margin-top:14px;align-self:flex-start;border:0;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:14px 6px 14px 6px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;color:var(--paper, #f1eadc);background:#e4572e;animation:stamp .3s ease-out both" style-hover="transform:translateY(-2px)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14zM8 21h8"></path></svg>Shake the jar · one free</button>
+    </sc-if>
+    <sc-if value="{{ hideShake }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top:14px;font-size:13px;font-style:italic;color:var(--muted, #7a6f63)">move to aim, tap to drop</div>
+    </sc-if>
+  </div>
+
+  <!-- side (desktop) -->
+  <sc-if value="{{ notMobile }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:22px;flex:1 1 240px;max-width:300px;min-width:240px;width:100%;padding-top:14px;order:3">
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1.5px solid var(--ink, #1e1a17)"><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px">To do today</div><div style="font-size:12px;font-style:italic;color:var(--muted, #7a6f63)">{{ missionsDone }} crossed off</div></div>
+      <sc-for list="{{ missions }}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--line, rgba(30,26,23,.18));animation:slideIn .3s ease-out">
+          <div style="width:15px;height:15px;flex:none;margin-top:3px;border:1.5px solid var(--ink, #1e1a17);border-radius:3px 1px 3px 1px;position:relative"><div style="position:absolute;left:2px;right:2px;top:50%;height:1.5px;background:#e4572e;transform:scaleX({{ m.pctNum }});transform-origin:left"></div></div>
+          <div style="flex:1;min-width:0;font-size:14px;line-height:1.35"><div><span style="font-weight:600">{{ m.title }}</span> <span style="color:var(--muted, #7a6f63)">{{ m.progress }}</span></div><div style="font-size:12px;font-style:italic;color:var(--muted, #7a6f63)">→ {{ m.reward }}</div></div>
+          <div style="font-size:20px;line-height:1">{{ m.icon }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1.5px solid var(--ink, #1e1a17)"><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px">This week</div><div style="font-size:12px;font-style:italic;color:var(--muted, #7a6f63)">resets in 3 days</div></div>
+      <sc-for list="{{ board }}" as="r" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line, rgba(30,26,23,.18));font-size:14px;color:{{ r.color }};font-weight:{{ r.weight }}">
+          <div style="width:18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700">{{ r.rank }}</div>
+          <div style="font-size:18px;line-height:1">{{ r.avatar }}</div>
+          <div style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
+          <div style="font-variant-numeric:tabular-nums">{{ r.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:14px;line-height:1.4"><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px">Day {{ streak }}</span> in a row. <span style="font-style:italic;color:var(--muted, #7a6f63)">{{ streakSub }}</span></div>
+  </div>
+  </sc-if>
+  <!-- side (mobile): one compact strip -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;order:3;display:flex;flex-direction:column;gap:10px;margin-top:4px">
+    <div onClick="{{ toggleTasks }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1.5px solid var(--ink, #1e1a17);border-bottom:1px solid var(--line, rgba(30,26,23,.18));cursor:pointer;min-height:44px;box-sizing:border-box">
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;min-width:0"><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;white-space:nowrap">To do</span><span style="color:var(--muted, #7a6f63);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ firstMission }}</span></div>
+      <div style="display:flex;align-items:center;gap:12px;flex:none;font-size:13px;color:var(--muted, #7a6f63)"><span>#{{ myRank }} · day {{ streak }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:{{ tasksChevron }};transition:transform .2s"><path d="M6 9l6 6 6-6"></path></svg></div>
+    </div>
+    <sc-if value="{{ tasksOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;animation:fadeIn .2s">
+      <sc-for list="{{ missions }}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line, rgba(30,26,23,.18));min-height:44px;box-sizing:border-box">
+          <div style="width:15px;height:15px;flex:none;border:1.5px solid var(--ink, #1e1a17);border-radius:3px 1px 3px 1px;position:relative"><div style="position:absolute;left:2px;right:2px;top:50%;height:1.5px;background:#e4572e;transform:scaleX({{ m.pctNum }});transform-origin:left"></div></div>
+          <div style="flex:1;min-width:0;font-size:14px;line-height:1.3"><span style="font-weight:600">{{ m.title }}</span> <span style="color:var(--muted, #7a6f63)">{{ m.progress }}</span> <span style="font-style:italic;color:var(--muted, #7a6f63)">→ {{ m.reward }}</span></div>
+          <div style="font-size:20px;line-height:1">{{ m.icon }}</div>
+        </div>
+      </sc-for>
+      <div style="display:flex;gap:14px;padding:12px 0 4px;overflow-x:auto;font-size:13px">
+        <sc-for list="{{ board }}" as="r" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:6px;white-space:nowrap;color:{{ r.color }};font-weight:{{ r.weight }}"><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700">{{ r.rank }}</span><span style="font-size:16px;line-height:1">{{ r.avatar }}</span><span>{{ r.name }}</span><span style="color:var(--muted, #7a6f63)">{{ r.score }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- PAUSE -->
+  <sc-if value="{{ isPause }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Pause" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(30,26,23,.55);backdrop-filter:blur(6px);z-index:10;padding:16px">
+    <div style="width:100%;max-width:360px;background:var(--paper, #f1eadc);border:2px solid var(--ink, #1e1a17);border-radius:18px 8px 18px 8px;padding:28px 28px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;animation:stamp .3s cubic-bezier(.2,.9,.3,1.2) both;transform:rotate(0)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:38px;line-height:.9;letter-spacing:-2px">Paused.</div><div style="margin-top:8px;font-size:14px;color:var(--muted, #7a6f63)">{{ score }} pts, {{ merges }} merges. Saved.</div></div><div style="font-size:52px;line-height:1;transform:rotate(12deg)">{{ mascot }}</div></div>
+      <button onClick="{{ closeOverlay }}" style="border:0;cursor:pointer;padding:15px;border-radius:14px 6px 14px 6px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px" style-hover="background:#e4572e">Keep going</button>
+      <div style="display:flex;gap:20px;font-size:14px">
+        <button onClick="{{ restart }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Start over</button>
+        <button onClick="{{ goSettings }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Settings</button>
+        <button onClick="{{ goMenu }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Home</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- DISCOVERY -->
+  <sc-if value="{{ isDiscover }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="New discovery" onClick="{{ closeOverlay }}" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);z-index:10;padding:16px;cursor:pointer;overflow:hidden">
+    <div style="position:absolute;left:50%;top:50%;width:1200px;height:1200px;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg, rgba(241,234,220,.07) 0 12deg, transparent 12deg 30deg);border-radius:50%;animation:rays 40s linear infinite;pointer-events:none"></div>
+    <div style="position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;animation:slideIn .4s ease-out">
+      <div style="font-size:15px;font-style:italic;opacity:.7">that was {{ discPrev }}. now it's</div>
+      <div style="display:flex;align-items:flex-end;gap:18px">
+        <div style="font-size:120px;line-height:1;transform:rotate(-8deg);filter:drop-shadow(0 10px 10px rgba(0,0,0,.4));animation:stamp .5s cubic-bezier(.2,1.2,.3,1) both">{{ discEmoji }}</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:60px;line-height:.9;letter-spacing:-3px;padding-bottom:10px">{{ discName }}</div>
+      </div>
+      <p style="margin:0;font-size:18px;line-height:1.4;max-width:340px">{{ discDesc }}</p>
+      <div style="font-size:14px;opacity:.7">level {{ discLevel }} of 11 · worth {{ discPts }} a merge</div>
+      <button onClick="{{ closeOverlay }}" style="margin-top:10px;align-self:flex-start;border:0;cursor:pointer;padding:14px 22px;border-radius:14px 6px 14px 6px;background:var(--paper, #f1eadc);color:var(--ink, #1e1a17);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px" style-hover="background:#e4572e;color:#fff">Back to the jar</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- AD -->
+  <sc-if value="{{ isAd }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Ad break" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#141210;z-index:30;padding:16px;color:#f1eadc;font-family:'Instrument Sans',sans-serif">
+    <div style="position:absolute;top:18px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;font-size:13px;opacity:.7"><span style="font-style:italic">{{ adKicker }}</span><span>{{ adSkipLabel }} {{ adT }}</span></div>
+    <div style="width:min(100%,420px);aspect-ratio:16/10;border:1.5px dashed rgba(241,234,220,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;box-sizing:border-box">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px">Ad goes here</div>
+      <div style="font-size:13px;opacity:.7;max-width:280px;line-height:1.4">{{ adReward }}</div>
+    </div>
+    <div style="position:absolute;bottom:26px;left:20px;right:20px;height:1.5px;background:rgba(241,234,220,.2)"><div style="height:100%;background:#e4572e;width:{{ adPct }};transition:width 1s linear"></div></div>
+  </div>
+  </sc-if>
+
+  <!-- GAME OVER -->
+  <sc-if value="{{ isGameOver }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Game Over" style="position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;background:rgba(30,26,23,.55);backdrop-filter:blur(6px);z-index:10;overflow:hidden">
+    <sc-if value="{{ isNewBest }}" hint-placeholder-val="{{ false }}">
+      <sc-for list="{{ confetti }}" as="k" hint-placeholder-count="0">
+        <div style="position:absolute;top:-20px;left:{{ k.x }};width:8px;height:14px;background:{{ k.c }};animation:confetti {{ k.d }} linear {{ k.delay }} infinite;pointer-events:none"></div>
+      </sc-for>
+    </sc-if>
+    <div style="position:relative;width:100%;max-width:460px;animation:sheet .4s cubic-bezier(.2,1,.3,1)">
+      <div style="position:absolute;right:16px;top:-54px;font-size:80px;line-height:1;transform:{{ overTf }};filter:drop-shadow(-5px 8px 6px rgba(0,0,0,.3));z-index:2">{{ mascot }}</div>
+    <div style="max-height:96vh;overflow:auto;background:var(--paper, #f1eadc);border:2px solid var(--ink, #1e1a17);border-bottom:0;border-radius:22px 22px 0 0;padding:26px 26px calc(30px + env(safe-area-inset-bottom));box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+      <div>
+        <div style="font-size:15px;font-style:italic;color:var(--muted, #7a6f63)">{{ overSub }}</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:42px;line-height:.92;letter-spacing:-2px;margin-top:4px;max-width:300px">{{ overTitle }}</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:64px;line-height:.9;letter-spacing:-3px;color:{{ overScoreColor }}">{{ score }}</div>
+        <div style="font-size:14px;line-height:1.45;color:var(--muted, #7a6f63)">best {{ best }}<br>#{{ myRank }} this week · day {{ streak }} kept</div>
+      </div>
+      <sc-if value="{{ canRescue }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ adRescue }}" style="border:0;cursor:pointer;padding:16px 20px;border-radius:14px 6px 14px 6px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;text-align:left" style-hover="background:#e4572e"><span>Save the jar<br><span style="font-family:'Instrument Sans',sans-serif;font-weight:400;font-size:13px;opacity:.75">watch one ad, lose three small emoji, keep everything else</span></span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14zM8 21h8"></path></svg></button>
+        <div style="display:flex;gap:20px;font-size:14px"><button onClick="{{ restart }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Start a new jar</button><button onClick="{{ openShare }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Share</button><button onClick="{{ goMenu }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Home</button></div>
+      </sc-if>
+      <sc-if value="{{ cantRescue }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ restart }}" style="border:0;cursor:pointer;padding:16px;border-radius:14px 6px 14px 6px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px" style-hover="background:#e4572e">Start a new jar</button>
+        <div style="display:flex;gap:20px;font-size:14px"><button onClick="{{ openShare }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Share</button><button onClick="{{ goMenu }}" style="border:0;background:transparent;cursor:pointer;padding:10px 0;color:inherit;text-decoration:underline;text-underline-offset:3px" style-hover="color:#e4572e">Home</button></div>
+      </sc-if>
+    </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- SHARE CARD -->
+  <sc-if value="{{ isShare }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Share" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(30,26,23,.75);backdrop-filter:blur(8px);z-index:20;padding:16px;animation:fadeIn .25s">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:400px">
+      <div style="position:relative;width:min(100%, 360px);aspect-ratio:1;background:#f1eadc;color:#1e1a17;border:2.5px solid #1e1a17;box-sizing:border-box;padding:26px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);animation:stamp .4s cubic-bezier(.2,.9,.3,1.2) both;transform:rotate(-2deg)">
+        <div style="position:absolute;inset:0;opacity:.6;pointer-events:none;background:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>&quot;)"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;line-height:.9;letter-spacing:-1px">Emoji<br><span style="color:#e4572e">Merge</span></div>
+          <div style="font-size:12px;font-style:italic;color:#7a6f63;text-align:right">day {{ streak }} in a row<br>#{{ myRank }} this week</div>
+        </div>
+        <div style="position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:13px;font-style:italic;color:#7a6f63">{{ shareLead }}</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:76px;line-height:.85;letter-spacing:-4px;margin-top:4px;color:{{ overScoreColor }}">{{ score }}</div>
+          </div>
+          <div style="font-size:92px;line-height:1;transform:rotate(8deg);filter:drop-shadow(-5px 8px 6px rgba(40,25,10,.3))">{{ biggest }}</div>
+        </div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#7a6f63"><span>biggest so far: <b style="color:#1e1a17;font-weight:600">{{ biggestName }}</b></span><span style="text-decoration:underline">play.emojimerge.gg</span></div>
+      </div>
+      <div style="display:flex;gap:10px;width:100%;max-width:360px">
+        <button style="flex:1;border:0;cursor:pointer;padding:14px;border-radius:14px 6px 14px 6px;background:#f1eadc;color:#1e1a17;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px" style-hover="background:#e4572e;color:#fff">Save image</button>
+        <button style="flex:1;border:1.5px solid #f1eadc;cursor:pointer;padding:14px;border-radius:14px 6px 14px 6px;background:transparent;color:#f1eadc;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px" style-hover="background:#f1eadc;color:#1e1a17">Copy link</button>
+      </div>
+      <button onClick="{{ closeShare }}" style="border:0;background:transparent;cursor:pointer;padding:0;font-size:14px;color:#f1eadc;text-decoration:underline;text-underline-offset:3px;opacity:.8">back</button>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Settings" style="position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;gap:4px;animation:slideIn .3s ease-out">
+  <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:18px">
+    <button onClick="{{ goBack }}" aria-label="Back" style="border:1.5px solid var(--ink, #1e1a17);background:transparent;cursor:pointer;width:44px;height:44px;border-radius:12px 5px 12px 5px;display:flex;align-items:center;justify-content:center;color:inherit;flex:none" style-hover="background:var(--ink, #1e1a17);color:var(--paper, #f1eadc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;line-height:.9;letter-spacing:-2px">Settings</div>
+  </div>
+  <sc-for list="{{ settingRows }}" as="s" hint-placeholder-count="5">
+    <div onClick="{{ s.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line, rgba(30,26,23,.18));cursor:pointer">
+      <div style="display:flex;align-items:center;gap:14px"><span style="width:26px;display:inline-flex;color:inherit;opacity:{{ s.iconOp }}" dangerouslySetInnerHTML="{{ s.svg }}"></span><div><div style="font-size:15px;font-weight:600">{{ s.label }}</div><div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63)">{{ s.hint }}</div></div></div>
+      <div style="width:46px;height:26px;border-radius:99px;position:relative;flex:none;border:1.5px solid var(--ink, #1e1a17);transition:background .2s;background:{{ s.trackBg }}"><div style="position:absolute;top:3px;width:17px;height:17px;border-radius:50%;background:{{ s.knobBg }};transition:left .25s cubic-bezier(.3,1.5,.5,1);left:{{ s.knobLeft }}"></div></div>
+    </div>
+  </sc-for>
+  <div style="padding:16px 0 14px;border-bottom:1px solid var(--line, rgba(30,26,23,.18))">
+    <div style="font-size:15px;font-weight:600">What grows in the jar</div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.pick }}" style="cursor:pointer;padding:8px 14px 8px 10px;border-radius:99px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:{{ t.color }};background:{{ t.bg }};border:1.5px solid var(--ink, #1e1a17);opacity:{{ t.op }}" style-hover="transform:translateY(-2px)"><span style="font-size:18px;line-height:1;filter:{{ t.filter }}">{{ t.icon }}</span>{{ t.label }}<sc-if value="{{ t.locked }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-style:italic;opacity:.7">day 3</span></sc-if></button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="padding:16px 0 14px;border-bottom:1px solid var(--line, rgba(30,26,23,.18))">
+    <div style="font-size:15px;font-weight:600">The jar itself <span style="font-weight:400;font-style:italic;color:var(--muted, #7a6f63)">· missions unlock more</span></div>
+    <div style="margin-top:12px;display:flex;gap:14px">
+      <sc-for list="{{ skinChips }}" as="k" hint-placeholder-count="4">
+        <button onClick="{{ k.pick }}" style="border:0;background:transparent;cursor:pointer;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:inherit;opacity:{{ k.op }}" style-hover="transform:translateY(-2px)">
+          <div style="width:40px;height:46px;border-radius:8px 8px {{ k.radius }} {{ k.radius }};background:{{ k.bg }};border:2px solid {{ k.jarb }};box-sizing:border-box;filter:{{ k.filter }};outline:{{ k.outline }};outline-offset:3px"></div>{{ k.label }}
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line, rgba(30,26,23,.18))">
+    <div><div style="font-size:15px;font-weight:600">Cloud save</div><div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63)">synced with your CrazyGames account, just now</div></div>
+    <div style="width:9px;height:9px;border-radius:50%;background:#e4572e;flex:none"></div>
+  </div>
+  <div style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+    <sc-if value="{{ notConfirmReset }}" hint-placeholder-val="{{ true }}"><button onClick="{{ askReset }}" style="border:0;cursor:pointer;background:transparent;padding:0;color:#e4572e;text-decoration:underline;text-underline-offset:3px">Erase everything and start from zero</button></sc-if>
+    <sc-if value="{{ confirmReset }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:14px;align-items:center;color:#e4572e;animation:slideIn .2s">Sure? Best score, awards, skins, all gone. <button onClick="{{ resetProgress }}" style="border:0;cursor:pointer;padding:6px 12px;border-radius:8px 3px 8px 3px;background:#e4572e;color:#fff;font-weight:600">Erase</button><button onClick="{{ cancelReset }}" style="border:0;background:transparent;cursor:pointer;padding:0;color:inherit;text-decoration:underline">keep</button></div></sc-if>
+    <span style="color:var(--muted, #7a6f63)">v1.0</span>
+  </div>
+</div>
+</sc-if>
+
+<!-- HOW TO PLAY -->
+<sc-if value="{{ isHowto }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="How to play" style="position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;gap:22px;animation:slideIn .3s ease-out">
+  <div style="display:flex;align-items:flex-end;gap:14px">
+    <button onClick="{{ goMenu }}" aria-label="Back" style="border:1.5px solid var(--ink, #1e1a17);background:transparent;cursor:pointer;width:44px;height:44px;border-radius:12px 5px 12px 5px;display:flex;align-items:center;justify-content:center;color:inherit;flex:none" style-hover="background:var(--ink, #1e1a17);color:var(--paper, #f1eadc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;line-height:.9;letter-spacing:-2px">Three rules.<br><span style="color:var(--muted, #7a6f63);font-weight:500;font-size:22px;letter-spacing:-.5px">That's the whole game.</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0">
+    <div style="display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-top:1.5px solid var(--ink, #1e1a17)">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:36px;line-height:1;color:#e4572e">1</div>
+      <div><div style="font-size:17px;font-weight:600">Tap. It drops where you tapped.</div><div style="margin-top:4px;font-size:14px;line-height:1.45;color:var(--muted, #7a6f63)">Move your finger or mouse to aim, the dotted line shows where it lands.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line, rgba(30,26,23,.18))">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:36px;line-height:1;color:#e4572e">2</div>
+      <div><div style="font-size:17px;font-weight:600">Same touches same, you get the next one.</div><div style="margin-top:4px;font-size:14px;line-height:1.45;color:var(--muted, #7a6f63)">{{ heroA }} + {{ heroA }} = {{ heroB }}. Chain several in a row and the points multiply.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line, rgba(30,26,23,.18));border-bottom:1.5px solid var(--ink, #1e1a17)">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:36px;line-height:1;color:#e4572e">3</div>
+      <div><div style="font-size:17px;font-weight:600">Don't fill past the dashed line.</div><div style="margin-top:4px;font-size:14px;line-height:1.45;color:var(--muted, #7a6f63)">Cross it and the round is over. You get one free shake to dig yourself out.</div></div>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:13px;font-style:italic;color:var(--muted, #7a6f63);margin-bottom:12px">how they grow, smallest to biggest</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-end">
+      <sc-for list="{{ chainFull }}" as="c" hint-placeholder-count="11">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:{{ c.fs }};line-height:1">{{ c.emoji }}</div><div style="font-size:11px;color:var(--muted, #7a6f63)">{{ c.pts }}</div></div>
+      </sc-for>
+    </div>
+  </div>
+  <button onClick="{{ continueGame }}" style="align-self:flex-start;border:0;cursor:pointer;padding:15px 22px;border-radius:14px 6px 14px 6px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px" style-hover="background:#e4572e">Got it</button>
+</div>
+</sc-if>
+
+<!-- COLLECTION -->
+<sc-if value="{{ isCollection }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Collection" style="position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;gap:20px;animation:slideIn .3s ease-out">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px">
+    <div style="display:flex;align-items:flex-end;gap:14px">
+      <button onClick="{{ goMenu }}" aria-label="Back" style="border:1.5px solid var(--ink, #1e1a17);background:transparent;cursor:pointer;width:44px;height:44px;border-radius:12px 5px 12px 5px;display:flex;align-items:center;justify-content:center;color:inherit;flex:none" style-hover="background:var(--ink, #1e1a17);color:var(--paper, #f1eadc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;line-height:.9;letter-spacing:-2px">Found so far</div>
+    </div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;white-space:nowrap">{{ colDone }}<span style="color:var(--muted, #7a6f63)">/11</span></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.pick }}" style="cursor:pointer;padding:7px 12px 7px 9px;border-radius:99px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:{{ t.color }};background:{{ t.bg }};border:1.5px solid var(--ink, #1e1a17);opacity:{{ t.op }}" style-hover="transform:translateY(-2px)"><span style="font-size:16px;line-height:1;filter:{{ t.filter }}">{{ t.icon }}</span>{{ t.label }}</button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0 18px;border-top:1.5px solid var(--ink, #1e1a17)">
+    <sc-for list="{{ collection }}" as="c" hint-placeholder-count="11">
+      <div style="padding:18px 0 14px;border-bottom:1px solid var(--line, rgba(30,26,23,.18));display:flex;flex-direction:column;gap:8px;opacity:{{ c.op }}">
+        <div style="font-size:44px;line-height:1;filter:{{ c.filter }};transform:rotate({{ c.rot }})">{{ c.emoji }}</div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;line-height:1.1">{{ c.name }}</div><div style="font-size:12px;font-style:italic;color:var(--muted, #7a6f63)">{{ c.sub }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ACHIEVEMENTS -->
+<sc-if value="{{ isAch }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Achievements" style="position:relative;z-index:1;width:100%;max-width:440px;display:flex;flex-direction:column;gap:20px;animation:slideIn .3s ease-out">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px">
+    <div style="display:flex;align-items:flex-end;gap:14px">
+      <button onClick="{{ goMenu }}" aria-label="Back" style="border:1.5px solid var(--ink, #1e1a17);background:transparent;cursor:pointer;width:44px;height:44px;border-radius:12px 5px 12px 5px;display:flex;align-items:center;justify-content:center;color:inherit;flex:none" style-hover="background:var(--ink, #1e1a17);color:var(--paper, #f1eadc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:40px;line-height:.9;letter-spacing:-2px">Awards</div>
+    </div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;white-space:nowrap">{{ achDone }}<span style="color:var(--muted, #7a6f63)">/{{ achTotal }}</span></div>
+  </div>
+  <sc-if value="{{ achEmpty }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:30px 0;border-top:1.5px solid var(--ink, #1e1a17);border-bottom:1.5px solid var(--ink, #1e1a17)">
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1px;line-height:1">Nothing here yet.</div>
+    <p style="margin:8px 0 18px;font-size:15px;color:var(--muted, #7a6f63)">Awards show up as you play. The first one takes about a minute.</p>
+    <button onClick="{{ continueGame }}" style="border:0;cursor:pointer;padding:13px 20px;border-radius:14px 6px 14px 6px;background:var(--ink, #1e1a17);color:var(--paper, #f1eadc);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px" style-hover="background:#e4572e">Go play</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ achNotEmpty }}" hint-placeholder-val="{{ true }}">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 22px;border-top:1.5px solid var(--ink, #1e1a17)">
+    <sc-for list="{{ achievements }}" as="a" hint-placeholder-count="8">
+      <div style="padding:16px 0 14px;border-bottom:1px solid var(--line, rgba(30,26,23,.18));display:flex;flex-direction:column;gap:8px;opacity:{{ a.op }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="font-size:34px;line-height:1;filter:{{ a.filter }};transform:rotate({{ a.rot }})">{{ a.icon }}</div><sc-if value="{{ a.done }}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e4572e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l5 5L20 6"></path></svg></sc-if></div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;line-height:1.1">{{ a.title }}</div><div style="margin-top:3px;font-size:13px;line-height:1.35;color:var(--muted, #7a6f63)">{{ a.desc }}</div></div>
+        <sc-if value="{{ a.locked }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted, #7a6f63)"><div style="flex:1;height:2px;background:var(--line, rgba(30,26,23,.18))"><div style="height:100%;background:#e4572e;width:{{ a.pct }}"></div></div><span style="white-space:nowrap">{{ a.progress }}</span></div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;emojiTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;animals&quot;,&quot;food&quot;,&quot;space&quot;,&quot;ocean&quot;],&quot;default&quot;:&quot;animals&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;jarSkin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;glass&quot;,&quot;sticker&quot;,&quot;aquarium&quot;,&quot;bucket&quot;],&quot;default&quot;:&quot;glass&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;darkMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;mascotFollowsTheme&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Monetization&quot;},&quot;firstVisit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;game&quot;,&quot;menu&quot;,&quot;settings&quot;,&quot;howto&quot;,&quot;collection&quot;,&quot;ach&quot;],&quot;default&quot;:&quot;game&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;}}">
+const THEMES = {
+  animals: { label: 'Animals', e: ['🐛','🐌','🐸','🐣','🐥','🐰','🐱','🐶','🐼','🦄','🌈'],
+    n: ['Caterpillar','Snail','Frog','Chick','Chicken','Bunny','Kitty','Puppy','Panda','Unicorn','Rainbow'],
+    d: ['Where every story starts.','Slow, steady, a little sticky.','Jumps when you least expect it.','Just hatched and already curious.','Grown up, still fluffy.','Twice the hops, twice the ears.','Sits in the jar as if she owns it.','Good boy. Very good boy.','Round enough to roll.','Rare, sparkly, mildly judgmental.','The whole jar lights up. You did it.'] },
+  food: { label: 'Snacks', e: ['🫐','🍒','🍓','🍋','🍑','🍎','🥥','🍍','🍈','🍉','🎂'],
+    n: ['Blueberry','Cherry','Strawberry','Lemon','Peach','Apple','Coconut','Pineapple','Melon','Watermelon','Cake'],
+    d: ['Tiny and full of promise.','Comes in pairs, merges in pairs.','Sweet with a hint of seeds.','Sour face guaranteed.','Fuzzy and forgiving.','One a day keeps the jar happy.','Hard on the outside, soft inside.','Spiky hat, sunny heart.','Cool, round and quietly proud.','The classic. Big, juicy, iconic.','Every merge was worth it. Eat up.'] },
+  space: { label: 'Space', e: ['✨','⭐','🌟','☄️','🌙','🪐','🌍','☀️','🌌','🚀','👽'],
+    n: ['Sparkle','Star','Glow star','Comet','Moon','Planet','Earth','Sun','Galaxy','Rocket','Visitor'],
+    d: ['A flicker in the dark.','Wishes accepted.','Brighter than average.','Passing through, in a hurry.','Keeps the tides in line.','Rings included.','Home sweet home.','Do not stare directly.','Billions of stars, one jar.','Leaving orbit. Hold on.','It came all this way to see your jar.'] },
+  ocean: { label: 'Ocean', locked: true, e: ['🫧','🐚','🐟','🐠','🦀','🐙','🐬','🦈','🐳','🧜','🔱'],
+    n: ['Bubble','Shell','Fish','Reef fish','Crab','Octopus','Dolphin','Shark','Whale','Mermaid','Trident'],
+    d: ['Pop.','Listen closely.','Just keeps swimming.','Dressed for the reef.','Sideways is a direction.','Eight arms, one plan.','Smarter than it lets on.','Mostly misunderstood.','Big heart, bigger splash.','Sings only when nobody listens.','Rule the jar.'] },
+};
+const SIZES = [7,8.5,10,12,14,16.5,19.5,23,27,31.5,37];
+const PTS = [1,3,6,10,15,21,28,36,45,55,66];
+const SAVED = [
+  {l:8,x:26,y:86},{l:7,x:70,y:87},{l:5,x:50,y:74},{l:4,x:12,y:70},{l:4,x:90,y:72},
+  {l:2,x:34,y:63},{l:3,x:66,y:62},{l:1,x:50,y:57},{l:0,x:22,y:58},{l:1,x:82,y:59},{l:0,x:60,y:50},
+];
+const FRESH = [{l:0,x:40,y:94},{l:1,x:66,y:93}];
+const CONF = ['#e4572e','#1e1a17','#f2c14e','#3d7a5a'];
+const TIPS = ['big ones sink. keep them low.','combos multiply. plan two ahead.','corners are your friends.','the dashed line is a warning, not a wall.'];
+const LIGHT = { paper:'#f1eadc', ink:'#1e1a17', muted:'#7a6f63', line:'rgba(30,26,23,.18)', gloss:'rgba(255,255,255,.7)', light:'linear-gradient(110deg, rgba(255,252,240,.5) 0%, transparent 40%, rgba(40,25,10,.06) 100%)' };
+const DARK = { paper:'#1c1917', ink:'#f1eadc', muted:'#a39a8c', line:'rgba(241,234,220,.18)', gloss:'rgba(241,234,220,.16)', light:'linear-gradient(110deg, rgba(241,234,220,.05) 0%, transparent 45%, rgba(0,0,0,.25) 100%)' };
+const DARK_SKIN_BG = { glass:'linear-gradient(100deg, rgba(241,234,220,.14), rgba(241,234,220,.05) 45%, rgba(0,0,0,.15))', sticker:'linear-gradient(100deg, rgba(228,87,46,.18), rgba(228,87,46,.06))', aquarium:'linear-gradient(180deg, rgba(90,140,160,.4), rgba(50,90,110,.5))', bucket:'linear-gradient(180deg, rgba(120,120,130,.4), rgba(80,80,90,.5))' };
+const SKINS = {
+  glass: { label:'Glass', bg:'linear-gradient(100deg, rgba(255,255,255,.6), rgba(255,255,255,.2) 45%, rgba(120,100,80,.1))', border:'#1e1a17', lid:'#1e1a17', radius:'40px', chip:'rgba(255,255,255,.55)' },
+  sticker: { label:'Sticker', bg:'linear-gradient(100deg, rgba(255,255,255,.7), rgba(255,220,200,.35))', border:'#e4572e', lid:'#e4572e', radius:'40px', chip:'rgba(255,220,200,.6)' },
+  aquarium: { label:'Aquarium', bg:'linear-gradient(180deg, rgba(190,225,235,.6), rgba(120,180,200,.55))', border:'#1e1a17', lid:'#3d6a7a', radius:'26px', chip:'rgba(150,200,215,.7)' },
+  bucket: { label:'Bucket', bg:'linear-gradient(180deg, rgba(200,200,205,.7), rgba(150,150,160,.7))', border:'#1e1a17', lid:'#6a6a72', radius:'12px', chip:'rgba(170,170,178,.8)' },
+};
+const MISSIONS = [
+  { id:'combo3', icon:'🔥', title:'Chain a ×3 combo', key:'bestCombo', target:3, reward:'sticker jar', skin:'sticker' },
+  { id:'merge10', icon:'✨', title:'Make 10 merges', key:'roundMerges', target:10, reward:'aquarium jar', skin:'aquarium' },
+  { id:'lvl9', icon:8, title:'Grow a level 9', key:'maxLevel1', target:9, reward:'bucket', skin:'bucket' },
+  { id:'score2k', icon:'💯', title:'Score 2,000 in a round', key:'score', target:2000, reward:'ocean set preview' },
+  { id:'merge25', icon:'🌟', title:'Make 25 merges', key:'roundMerges', target:25, reward:'golden lid' },
+  { id:'lvl11', icon:10, title:'Find the last one', key:'maxLevel1', target:11, reward:'confetti drops' },
+];
+const BOARD = [{ n:'mochi_88', a:'🐼', s:5210 },{ n:'Lena', a:'🦊', s:4470 },{ n:'pxlfox', a:'🐸', s:3990 },{ n:'Timur', a:'🐙', s:2880 },{ n:'sunny.d', a:'🌻', s:1610 }];
+const ICO = {
+  sound: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
+  soundOff: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM16 9l5 5M21 9l-5 5"/></svg>',
+  music: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>',
+  haptics: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 9v6M20 9v6"/></svg>',
+  hints: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3"><path d="M12 3v18"/></svg>',
+  dark: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+  light: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>',
+};
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const fresh = p.firstVisit ?? false;
+    this.state = {
+      screen: 'game', loading: true, overlay: null, prev: 'menu', confirmReset: false, daily: false,
+      theme: null, skin: null, dark: null, unlockedSkins: fresh ? ['glass'] : ['glass','sticker','bucket'],
+      score: fresh ? 0 : 1240, best: fresh ? 0 : 3860, merges: fresh ? 0 : 37, roundMerges: fresh ? 0 : 6, games: fresh ? 0 : 42, streak: fresh ? 1 : 3,
+      dropX: 50, current: fresh ? 0 : 1, next: 0, pieces: fresh ? FRESH : SAVED, maxLevel: fresh ? 1 : 8, discovered: fresh ? 1 : 8,
+      combo: 0, bestCombo: 0, bursts: [], shakeN: 0, toast: null, tut: fresh ? 0 : 2, discLevel: 0, rescueUsed: false, lastMerged: null,
+      missions: fresh ? ['combo3','merge10','lvl9'] : ['merge10','score2k','lvl11'], missionsDone: fresh ? [] : ['combo3','lvl9'], giftClaimed: false, dailyDone: false,
+      tossing: false, giftOpened: false, moodPulse: 0, mobile: false, tasksOpen: false,
+      adT: 0, adNext: null, sound: true, music: true, haptics: false, hints: true, tip: TIPS[Math.floor(Math.random() * TIPS.length)],
+    };
+  }
+  componentDidMount() {
+    this._mq = window.matchMedia('(max-width: 760px)');
+    this._onMq = () => this.setState({ mobile: this._mq.matches });
+    this._mq.addEventListener('change', this._onMq); this._onMq();
+    const s = this.props.startScreen;
+    if (s && s !== 'game') this.setState({ screen: s, loading: false });
+    else this._t = setTimeout(() => { this.setState({ loading: false }); if (this.state.tut === 0) this.toss(); }, 1300);
+  }
+  toss() {
+    clearTimeout(this._tossT);
+    this.setState({ tossing: true, pieces: [] });
+    this._tossT = setTimeout(() => this.setState({ tossing: false, pieces: FRESH }), 1400);
+  }
+  componentWillUnmount() { if (this._mq) this._mq.removeEventListener('change', this._onMq); clearTimeout(this._t); clearTimeout(this._toastT); clearInterval(this._adI); clearTimeout(this._tossT); clearTimeout(this._giftT); }
+  themeKey() { return this.state.theme ?? this.props.emojiTheme ?? 'animals'; }
+  toast(icon, kicker, text) {
+    clearTimeout(this._toastT);
+    this.setState({ toast: { icon, kicker, text } });
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  missionVal(s, key) { return key === 'maxLevel1' ? s.maxLevel + 1 : s[key]; }
+  checkMissions(s) {
+    const done = [], keep = [];
+    for (const id of s.missions) { const m = MISSIONS.find(x => x.id === id); (this.missionVal(s, m.key) >= m.target ? done : keep).push(id); }
+    if (!done.length) return {};
+    const pool = MISSIONS.map(m => m.id).filter(id => !s.missions.includes(id) && !s.missionsDone.includes(id));
+    const missions = [...keep, ...pool.slice(0, done.length)];
+    const unlocked = [...s.unlockedSkins];
+    done.forEach(id => { const m = MISSIONS.find(x => x.id === id); if (m.skin && !unlocked.includes(m.skin)) unlocked.push(m.skin); });
+    const m0 = MISSIONS.find(x => x.id === done[0]);
+    setTimeout(() => this.toast('✓', 'crossed off', `${m0.title}. The ${m0.reward} is yours.`), 700);
+    return { missions, missionsDone: [...s.missionsDone, ...done], unlockedSkins: unlocked };
+  }
+  startAd(next) {
+    clearInterval(this._adI);
+    this.setState({ overlay: 'ad', adT: 3, adNext: next });
+    this._adI = setInterval(() => this.setState(s => {
+      if (s.adT > 1) return { adT: s.adT - 1 };
+      clearInterval(this._adI);
+      if (s.adNext === 'rescue') {
+        const sorted = [...s.pieces].sort((a, b) => a.l - b.l);
+        const pieces = sorted.slice(Math.min(3, sorted.length)).map(p => ({ ...p, y: Math.min(96, p.y + 6) }));
+        setTimeout(() => this.toast('🫙', 'saved', 'three small ones gone, the rest stays'), 200);
+        return { overlay: null, adT: 0, adNext: null, rescueUsed: true, pieces, shakeN: s.shakeN + 1 };
+      }
+      const last = s.score;
+      setTimeout(() => this.toast('🏁', 'last jar', `${last.toLocaleString()}, best ${Math.max(s.best, last).toLocaleString()}`), 300);
+      return { ...this.freshRound(s), overlay: null, adT: 0, adNext: null };
+    }), 1000);
+  }
+  freshRound(s) {
+    return { screen: 'game', score: 0, merges: 0, roundMerges: 0, combo: 0, bestCombo: 0, pieces: s.daily ? [] : FRESH, current: 0, next: 1, dropX: 50, games: s.games + 1, rescueUsed: false, lastMerged: null, dailyDone: s.daily ? true : s.dailyDone };
+  }
+  renderVals() {
+    const st = this.state, tk = this.themeKey(), T = THEMES[tk] ?? THEMES.animals, ch = T.e;
+    const dark = st.dark ?? this.props.darkMode ?? false;
+    const skinKey = st.skin ?? this.props.jarSkin ?? 'glass', skin = SKINS[skinKey] ?? SKINS.glass;
+    const mascot = (this.props.mascotFollowsTheme ?? false) ? ch[3] : '🐣';
+    const go = (screen) => () => this.setState(s => ({ screen, overlay: null, confirmReset: false, prev: s.screen === 'settings' ? s.prev : s.screen }));
+    const toggle = (k) => () => this.setState(s => ({ [k]: !s[k] }));
+    const row = (k, onIco, offIco, label, hint, val) => ({ svg: { __html: val ? onIco : offIco }, iconOp: val ? 1 : 0.5, label, hint, toggle: k === 'dark' ? () => this.setState({ dark: !dark }) : toggle(k),
+      trackBg: val ? 'var(--ink, #1e1a17)' : 'transparent', knobBg: val ? 'var(--paper, #f1eadc)' : 'var(--ink, #1e1a17)', knobLeft: val ? '23px' : '3px' });
+    const topOfPile = st.pieces.length ? Math.min(...st.pieces.map(p => p.y - SIZES[p.l] * 0.36)) : 100;
+    const danger = topOfPile < 30 && !st.loading;
+    const aimAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(6, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+      if (Math.abs(x - this.state.dropX) > 0.5) this.setState({ dropX: x });
+    };
+    const dropAt = (e) => {
+      if (this.state.loading || this.state.tossing) return;
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(6, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+      this.setState(s => {
+        const lvl = s.current, size = SIZES[lvl];
+        const near = s.pieces.filter(p => Math.abs(p.x - x) < (SIZES[p.l] + size) / 2 * 0.8);
+        const same = near.find(p => p.l === lvl && lvl < 10);
+        let pieces, gain, combo, bursts = s.bursts, overlay = s.overlay, maxLevel = s.maxLevel, discovered = s.discovered, discLevel = s.discLevel, tut = s.tut, lastMerged = null, ns_moodPulse = s.moodPulse;
+        const id = Date.now();
+        if (same) {
+          const nl = lvl + 1; combo = s.combo + 1; gain = PTS[nl] * combo;
+          pieces = [...s.pieces.filter(p => p !== same), { l: nl, x: same.x, y: same.y, id }];
+          lastMerged = id;
+          bursts = [...bursts, { id, x: same.x, y: same.y, pts: gain, size: SIZES[nl] }];
+          setTimeout(() => this.setState(q => ({ bursts: q.bursts.filter(b => b.id !== id) })), 1000);
+          if (nl > maxLevel) { maxLevel = nl; if (nl > discovered) { discovered = nl; overlay = 'discover'; discLevel = nl; } }
+          if (combo >= 2) this.toast('✨', `×${combo}`, `+${gain}. keep the chain going.`);
+          ns_moodPulse = s.moodPulse + 1;
+          if (tut === 1) { tut = 2; this.toast('🎉', 'there it is', 'that was a merge. now do it on purpose.'); }
+        } else {
+          combo = 0; gain = 1;
+          const topY = near.length ? Math.min(...near.map(p => p.y - SIZES[p.l] * 0.36)) : 96;
+          const y = Math.max(18, topY - size * 0.36);
+          pieces = [...s.pieces, { l: lvl, x, y, id }];
+          if (tut === 0) tut = 1;
+          if (y <= 18) overlay = 'over';
+        }
+        const score = s.score + gain;
+        const ns = { ...s, pieces, score, combo, bestCombo: Math.max(s.bestCombo, combo), bursts, overlay, maxLevel, discovered, discLevel, tut, lastMerged, moodPulse: ns_moodPulse,
+          merges: s.merges + (same ? 1 : 0), roundMerges: s.roundMerges + (same ? 1 : 0), dropX: x,
+          shakeN: same ? s.shakeN + 1 : s.shakeN, current: s.next, next: Math.floor(Math.random() * 4), best: Math.max(s.best, score) };
+        return { ...ns, ...this.checkMissions(ns) };
+      });
+    };
+    const ach = [
+      { icon: ch[3], title: 'First hatch', desc: 'Reach the 4th emoji.', done: st.maxLevel >= 3, cur: st.maxLevel + 1, max: 4 },
+      { icon: '🔥', title: 'Combo ×5', desc: 'Five merges in a row.', done: st.best > 0, cur: Math.min(st.bestCombo, 5), max: 5 },
+      { icon: ch[8], title: 'Big softie', desc: 'Create the 9th emoji.', done: st.maxLevel >= 8, cur: st.maxLevel + 1, max: 9 },
+      { icon: '💯', title: 'Century', desc: 'Score 100 in one game.', done: st.best >= 100, cur: Math.min(st.best, 100), max: 100 },
+      { icon: ch[10], title: 'The last one', desc: 'Create the final emoji.', done: st.maxLevel >= 10, cur: st.maxLevel + 1, max: 11 },
+      { icon: '🏆', title: 'High roller', desc: 'Score 5,000 in one game.', done: st.best >= 5000, cur: Math.min(st.best, 5000), max: 5000 },
+      { icon: '📅', title: 'Week of jars', desc: 'Keep a 7-day streak.', done: st.streak >= 7, cur: st.streak, max: 7 },
+      { icon: '🎯', title: 'Sharpshooter', desc: '20 merges on landing.', done: false, cur: Math.min(st.merges, 20), max: 20 },
+    ];
+    const done = ach.filter(a => a.done).length;
+    const isNewBest = st.score >= st.best && st.score > 0;
+    const goalLvl = Math.min(st.discovered + 1, 10), needLvl = goalLvl - 1;
+    const haveGoal = st.pieces.filter(p => p.l === needLvl).length;
+    const allFound = st.discovered >= 10;
+    const rank = BOARD.filter(b => b.s > st.score).length + 1;
+    const boardRows = [...BOARD.map(b => ({ ...b })), { n: 'you', a: mascot, s: st.score, me: true }].sort((a, b) => b.s - a.s).map((b, i) => ({ ...b, rank: i + 1 }));
+    const meIdx = boardRows.findIndex(b => b.me);
+    const shown = meIdx < 3 ? boardRows.slice(0, 4) : [...boardRows.slice(0, 3), boardRows[meIdx]];
+    const bestPct = st.best ? Math.min(100, Math.round(st.score / st.best * 100)) : 100;
+    const giftClaimed = st.giftClaimed;
+    const rots = ['-4deg','3deg','-2deg','5deg','-5deg','2deg','-3deg','4deg','-1deg','3deg','-4deg'];
+    const mood = danger ? 'scared' : st.combo >= 2 ? 'happy' : st.overlay === 'pause' ? 'sleepy' : 'calm';
+    const MOODS = { calm: ['🐣','watching'], happy: ['🤩','loving this'], scared: ['😨','too full'], sleepy: ['😴','napping'] };
+    const moodFace = (this.props.mascotFollowsTheme ?? false) && mood === 'calm' ? ch[3] : MOODS[mood][0];
+    return {
+      v: dark ? DARK : LIGHT, j: { bg: dark ? DARK_SKIN_BG[skinKey] : skin.bg, border: dark && skin.border === '#1e1a17' ? '#f1eadc' : skin.border, lid: dark && skin.lid === '#1e1a17' ? '#f1eadc' : skin.lid, radius: skin.radius },
+      isAquarium: skinKey === 'aquarium', isSticker: skinKey === 'sticker',
+      isMenu: st.screen === 'menu', isGame: st.screen === 'game', isSettings: st.screen === 'settings',
+      isHowto: st.screen === 'howto', isAch: st.screen === 'ach', isCollection: st.screen === 'collection',
+      isLoading: st.loading, notLoading: !st.loading, tip: st.tip,
+      isMobile: st.mobile, notMobile: !st.mobile, statusMax: st.mobile ? '430px' : '300px', tasksOpen: st.tasksOpen, tasksChevron: st.tasksOpen ? 'rotate(180deg)' : 'none',
+      firstMission: (() => { const m = MISSIONS.find(x => x.id === st.missions[0]); const cur = Math.min(this.missionVal(st, m.key), m.target); return `${m.title.toLowerCase()}, ${cur} of ${m.target}`; })(),
+      toggleTasks: () => this.setState(s => ({ tasksOpen: !s.tasksOpen })),
+      moodFace, moodTitle: MOODS[mood][1], moodTf: mood === 'happy' ? 'rotate(-10deg)' : mood === 'scared' ? 'rotate(-3deg)' : 'rotate(6deg)',
+      moodAnim: mood === 'scared' ? 'scared .4s ease-in-out infinite' : st.moodPulse ? `mood .5s cubic-bezier(.3,1.4,.5,1) ${st.moodPulse % 2 ? '' : 'reverse'} both` : 'none',
+      tossing: st.tossing, tossEmoji: ch[0], tossSize: `min(${SIZES[0] * 3.8}px, ${SIZES[0] * 0.86}vw)`,
+      isGift: st.overlay === 'gift', giftOpened: st.giftOpened,
+      giftLead: st.giftOpened ? 'inside:' : 'for showing up today.', giftHeadline: st.giftOpened ? 'Sticker jar.' : 'Something for you.',
+      giftBody: st.giftOpened ? 'A new skin for the jar. Switch to it in settings whenever you like. Tomorrow there\u2019s another box.' : 'Tap the box.',
+      giftBtn: st.giftOpened ? 'Nice, thanks' : 'Open it', giftBoxAnim: st.giftOpened ? 'none' : 'boxShake 1.2s ease-in-out infinite', giftLidAnim: st.giftOpened ? 'lidOff .7s cubic-bezier(.3,.6,.4,1) both' : 'boxShake 1.2s ease-in-out infinite',
+      isShare: st.overlay === 'share', shareLead: isNewBest ? 'new personal best' : 'this round', biggestName: T.n[st.maxLevel].toLowerCase(),
+      isPause: st.overlay === 'pause', isGameOver: st.overlay === 'over', isDiscover: st.overlay === 'discover', isAd: st.overlay === 'ad', isNewBest,
+      isDaily: st.daily, streak: st.streak, streakSub: st.dailyDone || st.daily ? 'today is safe.' : 'play the daily jar to keep it.',
+      adT: st.adT, adPct: Math.round((3 - st.adT) / 3 * 100) + '%', adKicker: st.adNext === 'rescue' ? 'rewarded ad' : 'ad break', adSkipLabel: st.adNext === 'rescue' ? 'reward in' : 'back in',
+      adReward: st.adNext === 'rescue' ? 'Reward: shake the jar, lose the 3 smallest emoji, keep playing.' : 'Midroll between rounds. Never more than once in 3 minutes.',
+      overTitle: isNewBest ? 'That\u2019s a new best.' : 'The jar is full.', overTf: isNewBest ? 'rotate(-10deg)' : 'rotate(180deg)',
+      overSub: isNewBest ? 'well, look at that.' : (st.best - st.score).toLocaleString() + ' short of your best. close.',
+      overScoreColor: isNewBest ? '#e4572e' : 'var(--ink, inherit)', scoreColor: isNewBest ? '#e4572e' : 'var(--ink, inherit)',
+      canRescue: !st.rescueUsed, cantRescue: st.rescueUsed, showShake: danger && !st.rescueUsed && !st.overlay, hideShake: !(danger && !st.rescueUsed && !st.overlay),
+      discEmoji: ch[st.discLevel], discPrev: T.n[Math.max(0, st.discLevel - 1)].toLowerCase(), discName: T.n[st.discLevel], discDesc: T.d[st.discLevel], discLevel: st.discLevel + 1, discPts: PTS[st.discLevel],
+      confirmReset: st.confirmReset, notConfirmReset: !st.confirmReset,
+      mascot, heroA: ch[2], heroB: ch[3], biggest: ch[st.maxLevel], myRank: rank,
+      score: st.score.toLocaleString(), best: st.best.toLocaleString(), merges: st.merges,
+      bestPct: bestPct + '%', bestLabel: isNewBest ? 'new best, right now' : `${(st.best - st.score).toLocaleString()} to beat yourself`,
+      goalLead: allFound ? 'all eleven found.' : 'next:', goalTitle: allFound ? 'now it\u2019s just the score.' : `two ${ch[needLvl]} touching make a ${T.n[goalLvl].toLowerCase()} ${ch[goalLvl]}.`,
+      goalDots: [0, 1].map(i => ({ bg: i < haveGoal ? 'var(--ink, #1e1a17)' : 'transparent' })),
+      nextGoalShort: allFound ? 'every emoji found. now the score.' : `two ${ch[needLvl]} away from the ${T.n[goalLvl].toLowerCase()} ${ch[goalLvl]}`,
+      dailyTitle: st.dailyDone ? 'done for today' : 'play it', dailySub: st.dailyDone ? 'Same jar for everyone. You\u2019re in.' : 'Same drops for everyone, space set. Keeps the streak.', dailyTimer: 'new one in 2h 14m',
+      giftTitle: giftClaimed ? 'Claimed' : 'Today\u2019s gift', giftSub: giftClaimed ? 'Next one in 14h 22m.' : 'A sticker jar skin, just for showing up.', giftCta: giftClaimed ? 'see you tomorrow' : 'take it', giftOp: giftClaimed ? .55 : 1,
+      currentEmoji: ch[st.current], nextEmoji: ch[st.next], currentSize: `min(${SIZES[st.current] * 4.2}px, ${SIZES[st.current]}vw)`,
+      dropXPct: st.dropX + '%', guideOp: st.hints ? 1 : 0,
+      isDanger: danger, dangerColor: danger ? '#e4572e' : (dark ? 'rgba(240,150,120,.8)' : 'rgba(160,50,40,.6)'), jarBorder: danger ? '#e4572e' : 'var(--jarb, #1e1a17)',
+      dangerText: danger ? 'careful. one more and it\u2019s over.' : 'fill to here, no further', dangerAnim: danger ? 'pulse 1s ease-in-out infinite' : 'none',
+      shakeAnim: st.shakeN ? (st.shakeN % 2 ? 'shake .35s ease-out' : 'shake2 .35s ease-out') : 'none',
+      showCombo: st.combo >= 2, combo: st.combo, comboSize: Math.min(18 + st.combo * 3, 34) + 'px',
+      bursts: st.bursts.map(b => ({ left: b.x + '%', top: b.y + '%', pts: b.pts, size: `min(${b.size * 3.8}px, ${b.size * 0.86}vw)` })),
+      tutTap: st.tut === 0 && !st.overlay && !st.loading, tutMerge: st.tut === 1 && !st.overlay,
+      hasToast: !!st.toast, toastIcon: st.toast?.icon, toastKicker: st.toast?.kicker, toastText: st.toast?.text,
+      pieces: st.pieces.map((p, i) => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: `min(${SIZES[p.l] * 3.8}px, ${SIZES[p.l] * 0.86}vw)`,
+        anim: st.loading ? `landHeavy .5s cubic-bezier(.3,.9,.4,1) ${i * 0.09}s both` : p.id === st.lastMerged ? 'mergePop .45s cubic-bezier(.3,1.4,.5,1) both' : p.l >= 5 ? 'landHeavy .4s cubic-bezier(.3,.9,.4,1) both' : 'landLight .35s cubic-bezier(.2,1.2,.4,1) both' })),
+      miniPieces: st.pieces.map(p => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: (SIZES[p.l] * 0.95) + 'px' })),
+      chainView: ch.map((e, i) => ({ emoji: e, fs: (14 + i * 1.2) + 'px', op: i <= st.maxLevel ? 1 : 0.35, filter: i <= st.maxLevel ? 'none' : 'grayscale(1)', tf: i === st.maxLevel ? 'scale(1.35) rotate(-8deg)' : 'none' })),
+      chainFull: ch.map((e, i) => ({ emoji: e, pts: PTS[i], fs: (20 + i * 2.2) + 'px' })),
+      missions: st.missions.map(id => { const m = MISSIONS.find(x => x.id === id); const cur = Math.min(this.missionVal(st, m.key), m.target);
+        return { icon: typeof m.icon === 'number' ? ch[m.icon] : m.icon, title: m.title, reward: m.reward, progress: `${cur.toLocaleString()} of ${m.target.toLocaleString()}`, pctNum: (cur / m.target).toFixed(2) }; }),
+      missionsDone: st.missionsDone.length,
+      board: shown.map(b => ({ rank: b.rank, avatar: b.a, name: b.n, score: b.s.toLocaleString(), color: b.me ? '#e4572e' : 'inherit', weight: b.me ? 600 : 400 })),
+      collection: ch.map((e, i) => { const open = i <= st.discovered; return { emoji: e, filter: open ? 'none' : 'grayscale(1) contrast(0) brightness(.6)', op: open ? 1 : .45, rot: rots[i],
+        name: open ? T.n[i] : 'not yet', sub: open ? PTS[i] + ' a merge' : 'level ' + (i + 1) }; }),
+      colDone: st.discovered + 1,
+      confetti: Array.from({ length: 22 }, (_, i) => ({ x: (i * 4.6 + 2) + '%', c: CONF[i % 4], d: (2.4 + (i % 4) * 0.5) + 's', delay: ((i * 0.37) % 2) + 's' })),
+      settingRows: [row('sound', ICO.sound, ICO.soundOff, 'Sounds', 'pops, plops, the occasional squeak', st.sound), row('music', ICO.music, ICO.music, 'Music', 'a quiet loop, easy to forget it\u2019s on', st.music), row('haptics', ICO.haptics, ICO.haptics, 'Vibration', 'a small thump on every merge', st.haptics), row('hints', ICO.hints, ICO.hints, 'Aim line', 'the dotted line under the next emoji', st.hints), row('dark', ICO.dark, ICO.light, 'Night mode', 'ink on dark paper', dark)],
+      themeChips: Object.keys(THEMES).map(k => { const locked = !!THEMES[k].locked && st.streak < 3; return { icon: THEMES[k].e[5], label: THEMES[k].label, locked, op: locked ? 0.55 : 1, filter: locked ? 'grayscale(1)' : 'none',
+        pick: () => { if (locked) this.toast('🔒', 'not yet', 'ocean opens on day 3 of your streak'); else this.setState({ theme: k }); },
+        bg: k === tk ? 'var(--ink, #1e1a17)' : 'transparent', color: k === tk ? 'var(--paper, #f1eadc)' : 'inherit' }; }),
+      skinChips: Object.keys(SKINS).map(k => { const locked = !st.unlockedSkins.includes(k); return { label: SKINS[k].label, bg: SKINS[k].chip, jarb: dark && SKINS[k].border === '#1e1a17' ? '#f1eadc' : SKINS[k].border, radius: k === 'bucket' ? '6px' : k === 'aquarium' ? '12px' : '18px', op: locked ? 0.45 : 1, filter: locked ? 'grayscale(1)' : 'none',
+        outline: k === skinKey ? '2px solid #e4572e' : 'none', pick: () => { if (locked) this.toast('🔒', 'not yet', `the ${SKINS[k].label.toLowerCase()} is a mission reward`); else this.setState({ skin: k }); } }; }),
+      achievements: ach.map((a, i) => ({ ...a, locked: !a.done, filter: a.done ? 'none' : 'grayscale(1)', op: a.done ? 1 : .6, rot: rots[i],
+        pct: a.done ? '100%' : Math.round(a.cur / a.max * 100) + '%', progress: a.done ? '' : `${a.cur.toLocaleString()} of ${a.max.toLocaleString()}` })),
+      achDone: done, achTotal: ach.length, achEmpty: done === 0 && st.games === 0, achNotEmpty: !(done === 0 && st.games === 0),
+      goMenu: go('menu'), goSettings: go('settings'), goHowto: go('howto'), goAch: go('ach'), goCollection: go('collection'),
+      continueGame: () => this.setState({ screen: 'game', overlay: null, prev: 'menu', daily: false }),
+      newGame: () => { const first = st.games === 0; this.setState(s => ({ ...this.freshRound({ ...s, daily: false }), daily: false, overlay: null, prev: 'menu', tut: first ? 0 : s.tut })); if (first) setTimeout(() => this.toss(), 350); },
+      openGift: () => { if (giftClaimed) return; this.setState({ overlay: 'gift', giftOpened: false }); },
+      giftTap: () => { if (!this.state.giftOpened) { this.setState(s => ({ giftOpened: true, giftClaimed: true, unlockedSkins: s.unlockedSkins.includes('sticker') ? s.unlockedSkins : [...s.unlockedSkins, 'sticker'] })); } else this.setState({ overlay: null }); },
+      openShare: () => this.setState({ overlay: 'share' }), closeShare: () => this.setState({ overlay: 'over' }),
+      playDaily: () => this.setState(s => ({ ...this.freshRound({ ...s, daily: true }), daily: true, theme: 'space', overlay: null, prev: 'menu' })),
+      claimGift: () => { if (!giftClaimed) { this.setState(s => ({ giftClaimed: true, unlockedSkins: s.unlockedSkins.includes('sticker') ? s.unlockedSkins : [...s.unlockedSkins, 'sticker'] })); this.toast('🎁', 'yours', 'sticker jar, in settings when you want it'); } },
+      goBack: () => this.setState(s => ({ screen: s.prev || 'menu', overlay: s.prev === 'game' ? 'pause' : null, confirmReset: false })),
+      openPause: () => this.setState({ overlay: 'pause' }),
+      closeOverlay: () => this.setState({ overlay: null }),
+      askReset: () => this.setState({ confirmReset: true }), cancelReset: () => this.setState({ confirmReset: false }),
+      restart: () => { if (st.overlay === 'over' && (this.props.showAds ?? true)) this.startAd('restart'); else this.setState(s => ({ ...this.freshRound(s), overlay: null })); },
+      adRescue: () => this.startAd('rescue'),
+      resetProgress: () => this.setState({ best: 0, maxLevel: 0, discovered: 0, games: 0, streak: 1, missionsDone: [], missions: ['combo3','merge10','lvl9'], unlockedSkins: ['glass'], skin: 'glass', giftClaimed: false, confirmReset: false }),
+      dropAt, aimAt,
+    };
+  }
+}
+</script>
+</body>
+</html>

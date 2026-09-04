@@ -1,0 +1,17 @@
+# Build output. Regenerate with: node tools/build.mjs
+dist/
+
+# Claude Design canvas runtime. It is Anthropic's generated code, not ours to
+# redistribute; the .dc.html design files beside it are kept as the spec.
+Emoji merge браузерная игра/support.js
+Emoji merge браузерная игра/.thumbnail
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Dependencies, should any ever be added
+node_modules/

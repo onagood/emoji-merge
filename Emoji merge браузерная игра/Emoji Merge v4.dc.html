@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:oklch(0.97 0.025 60);font-family:'Nunito',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:oklch(0.62 0.15 20);text-decoration:none}a:hover{color:oklch(0.52 0.15 20)}
+button{font-family:inherit;transition:transform .1s ease, box-shadow .1s ease, background .15s ease}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pop{0%{transform:scale(0.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes popc{0%{transform:translate(-50%,-50%) scale(0.4);opacity:0}70%{transform:translate(-50%,-50%) scale(1.1);opacity:1}100%{transform:translate(-50%,-50%) scale(1)}}
+@keyframes wobble{0%,100%{transform:translateX(-50%) rotate(-5deg)}50%{transform:translateX(-50%) rotate(5deg)}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes sheet{0%{opacity:0;transform:translateY(60px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0) scale(1,1)}40%{transform:translateY(-22px) scale(0.95,1.05)}60%{transform:translateY(0) scale(1.06,0.94)}}
+@keyframes confetti{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(110vh) rotate(720deg)}}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes bubble{0%{transform:scale(0);opacity:0}30%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes ring{0%{transform:translate(-50%,-50%) scale(.3);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+@keyframes rise{0%{transform:translate(-50%,-50%) scale(.7);opacity:0}20%{opacity:1;transform:translate(-50%,-80%) scale(1.1)}100%{transform:translate(-50%,-220%) scale(1);opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px) rotate(-.6deg)}75%{transform:translateX(5px) rotate(.6deg)}}
+@keyframes shake2{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px) rotate(-.6deg)}75%{transform:translateX(5px) rotate(.6deg)}}
+@keyframes comboIn{0%{transform:translateX(-50%) scale(.5) rotate(-8deg);opacity:0}60%{transform:translateX(-50%) scale(1.15) rotate(2deg);opacity:1}100%{transform:translateX(-50%) scale(1) rotate(-3deg)}}
+@keyframes toastIn{0%{transform:translate(-50%,-40px);opacity:0}15%{transform:translate(-50%,0);opacity:1}85%{transform:translate(-50%,0);opacity:1}100%{transform:translate(-50%,-20px);opacity:0}}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes airbubble{0%{transform:translateY(0);opacity:0}20%{opacity:.7}100%{transform:translateY(-140px);opacity:0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 12px oklch(0.85 0.15 80 / .6))}50%{filter:drop-shadow(0 0 30px oklch(0.85 0.15 80 / .95))}}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.15) rotate(4deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+</style>
+</helmet>
+<div style="--page:{{ v.page }};--glow:{{ v.glow }};--surface:{{ v.surface }};--surface2:{{ v.surface2 }};--plate:{{ v.plate }};--text:{{ v.text }};--muted:{{ v.muted }};--glass:{{ v.glass }};--glassb:{{ v.glassb }};--jarbg:{{ j.bg }};--jarb:{{ j.border }};--jarr:{{ j.radius }};--shelf:{{ j.shelf }};--shelf2:{{ j.shelf2 }};--lid:{{ j.lid }};--jarglow:{{ j.glow }};min-height:100vh;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px;box-sizing:border-box;color:var(--text, oklch(0.32 0.04 40));background:radial-gradient(ellipse at 50% -10%, var(--glow, oklch(0.94 0.06 40)) 0%, var(--page, oklch(0.97 0.025 60)) 55%);transition:background .4s, color .4s">
+
+<div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0">
+  <sc-for list="{{ bgEmoji }}" as="b" hint-placeholder-count="0">
+    <div style="position:absolute;left:{{ b.x }};top:{{ b.y }};font-size:{{ b.s }};opacity:0.09;filter:saturate(0.6);animation:drift {{ b.d }} ease-in-out infinite;line-height:1">{{ b.e }}</div>
+  </sc-for>
+</div>
+
+<!-- TOAST (global, top) -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;top:18px;z-index:40;display:flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:99px;background:var(--surface, #fff);box-shadow:0 6px 0 var(--plate, oklch(0.88 0.03 60)), 0 16px 32px oklch(0 0 0 / .18);animation:toastIn 2.6s ease-in-out forwards;pointer-events:none;white-space:nowrap">
+  <div style="width:34px;height:34px;border-radius:50%;background:oklch(0.94 0.06 20);display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1">{{ toastIcon }}</div>
+  <div><div style="font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:oklch(0.68 0.16 20)">{{ toastKicker }}</div><div style="font-size:14px;font-weight:800">{{ toastText }}</div></div>
+</div>
+</sc-if>
+
+<!-- HOME -->
+<sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Home" style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:420px;animation:fadeUp .4s ease-out">
+  <div style="width:100%;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:baseline;gap:6px;line-height:1">
+      <span style="font-size:30px;font-weight:900;letter-spacing:-1px;text-shadow:0 3px 0 var(--surface, #fff)">Emoji</span>
+      <span style="display:inline-block;transform:rotate(-4deg);padding:2px 10px 5px;border-radius:12px;font-size:26px;font-weight:900;letter-spacing:-1px;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 4px 0 oklch(0.56 0.16 20)">Merge</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:99px;font-size:11px;font-weight:900;background:var(--glass, #fff);border:2px solid var(--glassb, #fff);color:var(--muted, #888)"><span style="font-size:13px">☁️</span>Saved</div>
+      <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:13px;font-weight:900;color:#fff;background:oklch(0.62 0.18 40);box-shadow:0 3px 0 oklch(0.5 0.18 40)"><span style="display:inline-block;animation:flame 1s ease-in-out infinite">🔥</span>Day {{ streak }}</div>
+    </div>
+  </div>
+
+  <!-- saved jar -->
+  <div onClick="{{ continueGame }}" style="width:100%;display:flex;align-items:center;gap:18px;padding:16px 18px;border-radius:26px;background:var(--surface, #fff);box-shadow:0 8px 0 var(--plate, oklch(0.88 0.03 60));cursor:pointer;box-sizing:border-box" style-hover="transform:translateY(-2px)">
+    <div style="position:relative;width:92px;height:104px;flex:none">
+      <div style="position:absolute;left:-4px;right:-4px;top:0;height:12px;border-radius:8px;background:var(--lid, linear-gradient(#fff,oklch(0.92 0.02 60)));box-shadow:0 2px 0 var(--plate, oklch(0.86 0.03 60));z-index:2"></div>
+      <div style="position:absolute;left:0;right:0;top:8px;bottom:0;border-radius:0 0 22px 22px;background:var(--jarbg, oklch(0.98 0.02 60));border:3px solid var(--jarb, #fff);box-sizing:border-box;box-shadow:inset 0 -10px 16px oklch(0 0 0 / .06), 0 5px 0 var(--plate, oklch(0.86 0.03 60));overflow:hidden">
+        <sc-for list="{{ miniPieces }}" as="p" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%)">{{ p.emoji }}</div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:oklch(0.68 0.16 20)">Your jar is waiting</div>
+      <div style="margin-top:4px;font-size:22px;font-weight:900;letter-spacing:-.5px">{{ score }} pts</div>
+      <div style="font-size:13px;font-weight:700;color:var(--muted, #888)">{{ nextGoalShort }}</div>
+      <div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:14px;font-size:14px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 4px 0 oklch(0.56 0.16 20)">Continue <span style="font-size:16px;line-height:1">→</span></div>
+    </div>
+  </div>
+
+  <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div onClick="{{ playDaily }}" style="position:relative;overflow:hidden;padding:16px;border-radius:22px;background:oklch(0.3 0.07 290);color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 0 oklch(0.22 0.06 290)" style-hover="transform:translateY(-2px)">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:64px;line-height:1;opacity:.25;transform:rotate(12deg)">🌙</div>
+      <div style="font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:oklch(0.85 0.08 290)">Daily jar</div>
+      <div style="font-size:17px;font-weight:900;line-height:1.15">{{ dailyTitle }}</div>
+      <div style="font-size:12px;font-weight:700;color:oklch(0.8 0.04 290)">{{ dailySub }}</div>
+      <div style="margin-top:auto;font-size:12px;font-weight:900;padding:6px 10px;border-radius:99px;background:oklch(1 0 0 / .14);align-self:flex-start">⏱ {{ dailyTimer }}</div>
+    </div>
+    <div onClick="{{ claimGift }}" style="position:relative;overflow:hidden;padding:16px;border-radius:22px;background:{{ giftBg }};cursor:pointer;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 0 {{ giftShadow }};color:{{ giftColor }}" style-hover="transform:translateY(-2px)">
+      <div style="position:absolute;right:-8px;top:-8px;font-size:64px;line-height:1;opacity:.25;transform:rotate(-12deg)">🎁</div>
+      <div style="font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;opacity:.8">Daily gift</div>
+      <div style="font-size:17px;font-weight:900;line-height:1.15">{{ giftTitle }}</div>
+      <div style="font-size:12px;font-weight:700;opacity:.8">{{ giftSub }}</div>
+      <div style="margin-top:auto;font-size:12px;font-weight:900;padding:6px 10px;border-radius:99px;background:oklch(0 0 0 / .1);align-self:flex-start">{{ giftCta }}</div>
+    </div>
+  </div>
+
+  <div style="width:100%;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+    <button onClick="{{ goHowto }}" style="cursor:pointer;border-radius:18px;padding:12px 4px;font-size:12px;font-weight:800;color:var(--text, inherit);background:var(--glass, oklch(0.99 0.01 60 / .8));border:2px solid var(--glassb, #fff);display:flex;flex-direction:column;align-items:center;gap:4px" style-hover="transform:translateY(-2px)" style-active="transform:scale(.96)"><span style="font-size:22px;line-height:1">📖</span>Rules</button>
+    <button onClick="{{ goCollection }}" style="cursor:pointer;border-radius:18px;padding:12px 4px;font-size:12px;font-weight:800;color:var(--text, inherit);background:var(--glass, oklch(0.99 0.01 60 / .8));border:2px solid var(--glassb, #fff);display:flex;flex-direction:column;align-items:center;gap:4px" style-hover="transform:translateY(-2px)" style-active="transform:scale(.96)"><span style="font-size:22px;line-height:1">📒</span>Collection</button>
+    <button onClick="{{ goAch }}" style="cursor:pointer;border-radius:18px;padding:12px 4px;font-size:12px;font-weight:800;color:var(--text, inherit);background:var(--glass, oklch(0.99 0.01 60 / .8));border:2px solid var(--glassb, #fff);display:flex;flex-direction:column;align-items:center;gap:4px" style-hover="transform:translateY(-2px)" style-active="transform:scale(.96)"><span style="font-size:22px;line-height:1">🏅</span>Awards</button>
+    <button onClick="{{ goSettings }}" style="cursor:pointer;border-radius:18px;padding:12px 4px;font-size:12px;font-weight:800;color:var(--text, inherit);background:var(--glass, oklch(0.99 0.01 60 / .8));border:2px solid var(--glassb, #fff);display:flex;flex-direction:column;align-items:center;gap:4px" style-hover="transform:translateY(-2px)" style-active="transform:scale(.96)"><span style="font-size:22px;line-height:1">⚙️</span>Settings</button>
+  </div>
+
+  <div style="display:flex;gap:28px;padding:12px 24px;border-radius:20px;background:var(--glass, oklch(0.99 0.01 60 / .7));border:2px solid var(--glassb, #fff);text-align:center">
+    <div><div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">Best</div><div style="font-size:22px;font-weight:900">{{ best }}</div></div>
+    <div><div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">Biggest</div><div style="font-size:22px;line-height:1.2">{{ biggest }}</div></div>
+    <div><div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">This week</div><div style="font-size:22px;font-weight:900">#{{ myRank }}</div></div>
+  </div>
+  <button onClick="{{ newGame }}" style="border:0;cursor:pointer;background:transparent;padding:4px;font-size:13px;font-weight:800;color:var(--muted, #888)">Start a fresh jar instead</button>
+</div>
+</sc-if>
+
+<!-- GAME -->
+<sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Game" style="position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;width:100%;max-width:980px;animation:fadeUp .35s ease-out">
+
+  <!-- jar column -->
+  <div style="display:flex;flex-direction:column;gap:12px;width:min(100%, 420px);flex:0 1 420px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button onClick="{{ openPause }}" aria-label="Pause" style="border:2px solid var(--glassb, #fff);cursor:pointer;width:48px;height:48px;border-radius:16px;background:var(--glass, oklch(0.99 0.01 60 / .85));display:flex;align-items:center;justify-content:center;gap:5px;color:var(--text, inherit);flex:none" style-hover="transform:translateY(-1px)" style-active="transform:scale(.94)"><div style="width:5px;height:16px;border-radius:2px;background:currentColor"></div><div style="width:5px;height:16px;border-radius:2px;background:currentColor"></div></button>
+      <div style="flex:1;text-align:center;min-width:0">
+        <sc-if value="{{ isDaily }}" hint-placeholder-val="{{ false }}"><div style="display:inline-flex;align-items:center;gap:5px;margin-bottom:2px;padding:2px 10px;border-radius:99px;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#fff;background:oklch(0.3 0.07 290)">🌙 Daily jar · Day {{ streak }}</div></sc-if>
+        <div style="font-size:40px;font-weight:900;line-height:1;letter-spacing:-1.5px;text-shadow:0 3px 0 var(--surface, #fff)">{{ score }}</div>
+        <div style="margin:6px auto 0;max-width:200px;display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:6px;border-radius:99px;background:var(--glass, #fff);border:1px solid var(--glassb, #fff);overflow:hidden"><div style="height:100%;border-radius:99px;background:{{ bestBarColor }};width:{{ bestPct }};transition:width .3s"></div></div>
+          <div style="font-size:11px;font-weight:900;color:var(--muted, #888);white-space:nowrap">{{ bestLabel }}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;height:48px;border-radius:16px;background:var(--glass, oklch(0.99 0.01 60 / .85));border:2px solid var(--glassb, #fff);flex:none">
+        <span style="font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">Next</span>
+        <span style="font-size:22px;line-height:1">{{ nextEmoji }}</span>
+      </div>
+    </div>
+
+    <!-- goal chip -->
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:99px;background:var(--glass, oklch(0.99 0.01 60 / .85));border:2px solid var(--glassb, #fff)">
+      <div style="width:36px;height:36px;border-radius:50%;background:{{ goalBg }};display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;filter:{{ goalFilter }};flex:none">{{ goalEmoji }}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ goalTitle }}</div><div style="font-size:11px;font-weight:700;color:var(--muted, #888)">{{ goalSub }}</div></div>
+      <div style="display:flex;gap:4px;flex:none">
+        <sc-for list="{{ goalDots }}" as="d" hint-placeholder-count="2"><div style="width:10px;height:10px;border-radius:50%;background:{{ d.bg }}"></div></sc-for>
+      </div>
+    </div>
+
+    <div style="position:relative;width:100%;padding-top:10px;animation:{{ shakeAnim }}">
+      <sc-if value="{{ showCombo }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:50%;top:-22px;z-index:5;padding:6px 16px;border-radius:99px;font-weight:900;color:#fff;background:{{ comboBg }};box-shadow:0 4px 0 oklch(0 0 0 / .15);font-size:{{ comboSize }};animation:comboIn .35s ease-out;white-space:nowrap;pointer-events:none">×{{ combo }} combo!</div>
+      </sc-if>
+      <div style="position:absolute;left:-8px;right:-8px;top:0;height:24px;border-radius:14px;background:var(--lid, linear-gradient(#fff,oklch(0.92 0.02 60)));box-shadow:0 3px 0 var(--plate, oklch(0.86 0.03 60));z-index:2"></div>
+      <div onClick="{{ dropAt }}" onMouseMove="{{ aimAt }}" style="position:relative;width:100%;aspect-ratio:5/6.4;border-radius:0 0 var(--jarr, 44px) var(--jarr, 44px);background:var(--jarbg, oklch(0.98 0.02 60));border:6px solid {{ jarBorder }};border-top-width:0;box-sizing:border-box;box-shadow:inset 0 -24px 40px oklch(0 0 0 / .06), 0 12px 0 var(--plate, oklch(0.86 0.03 60)), var(--jarglow, 0 28px 48px oklch(0.5 0.1 40 / .14));overflow:hidden;cursor:pointer;touch-action:manipulation;transition:border-color .3s, background .4s">
+        <div style="position:absolute;left:14px;top:40px;bottom:60px;width:14px;border-radius:99px;background:linear-gradient(#fff,transparent);opacity:.9;pointer-events:none"></div>
+        <div style="position:absolute;right:20px;top:60px;height:60px;width:8px;border-radius:99px;background:linear-gradient(#fff,transparent);opacity:.7;pointer-events:none"></div>
+        <sc-if value="{{ isAquarium }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:22%;bottom:10px;width:8px;height:8px;border-radius:50%;border:2px solid #fff;opacity:.6;animation:airbubble 4s linear infinite;pointer-events:none"></div>
+          <div style="position:absolute;left:28%;bottom:10px;width:5px;height:5px;border-radius:50%;border:2px solid #fff;opacity:.6;animation:airbubble 3.2s linear 1s infinite;pointer-events:none"></div>
+          <div style="position:absolute;left:74%;bottom:10px;width:6px;height:6px;border-radius:50%;border:2px solid #fff;opacity:.6;animation:airbubble 4.6s linear .5s infinite;pointer-events:none"></div>
+        </sc-if>
+        <sc-if value="{{ isSticker }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;right:18px;bottom:26%;padding:6px 12px;border-radius:12px;background:#fff;border:2px dashed oklch(0.85 0.06 20);font-size:12px;font-weight:900;color:oklch(0.6 0.15 20);transform:rotate(8deg);display:flex;align-items:center;gap:4px;pointer-events:none;box-shadow:0 2px 0 oklch(0.88 0.03 60)"><span style="font-size:16px">{{ mascot }}</span>MINE</div>
+        </sc-if>
+        <div style="position:absolute;left:0;right:0;top:16%;border-top:2px dashed {{ dangerColor }};transition:border-color .3s"></div>
+        <sc-if value="{{ isDanger }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:calc(16% - 26px);left:50%;transform:translateX(-50%);padding:3px 10px;border-radius:99px;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#fff;background:oklch(0.62 0.18 25);animation:pulse 1s ease-in-out infinite">Careful!</div></sc-if>
+        <sc-if value="{{ notLoading }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;top:0;bottom:0;width:0;border-left:2px dotted oklch(0.7 0.04 40 / .6);left:{{ dropXPct }};transition:left .1s ease;opacity:{{ guideOp }}"></div>
+          <div style="position:absolute;top:10px;left:{{ dropXPct }};font-size:{{ currentSize }};line-height:1;animation:wobble 1.6s ease-in-out infinite;transition:left .1s ease;filter:drop-shadow(0 4px 6px oklch(0.5 0.1 40 / .2))">{{ currentEmoji }}</div>
+        </sc-if>
+        <sc-for list="{{ pieces }}" as="p" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%);animation:popc .4s ease-out {{ p.delay }} both;filter:drop-shadow(0 3px 4px oklch(0.5 0.1 40 / .18))">{{ p.emoji }}</div>
+        </sc-for>
+        <sc-for list="{{ bursts }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};width:{{ b.size }};height:{{ b.size }};border-radius:50%;border:4px solid {{ b.color }};animation:ring .6s ease-out forwards;pointer-events:none"></div>
+          <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};font-size:22px;font-weight:900;color:{{ b.color }};text-shadow:0 2px 0 #fff;animation:rise .9s ease-out forwards;pointer-events:none;white-space:nowrap">+{{ b.pts }}</div>
+        </sc-for>
+        <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none">
+            <div style="width:140px;height:8px;border-radius:99px;background:oklch(0 0 0 / .08);overflow:hidden"><div style="height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,oklch(0.68 0.16 20),oklch(0.8 0.14 60),oklch(0.68 0.16 20));background-size:200% 100%;animation:shimmer 1s linear infinite"></div></div>
+            <div style="font-size:11px;font-weight:800;color:var(--muted, #888)">{{ tip }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tutTap }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:38%;animation:bob 1.2s ease-in-out infinite;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="padding:10px 16px;border-radius:16px 16px 16px 4px;background:oklch(0.32 0.04 40);color:#fff;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 6px 16px oklch(0 0 0 / .2)">Tap anywhere to drop {{ currentEmoji }}</div>
+            <div style="font-size:32px;line-height:1">👇</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tutMerge }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:34%;animation:bob 1.2s ease-in-out infinite;pointer-events:none">
+            <div style="padding:10px 16px;border-radius:16px;background:oklch(0.32 0.04 40);color:#fff;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 6px 16px oklch(0 0 0 / .2)">Land {{ currentEmoji }} on the other {{ currentEmoji }}!</div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="margin:-2px 18px 0;height:14px;border-radius:0 0 18px 18px;background:var(--shelf, oklch(0.86 0.04 50));box-shadow:0 4px 0 var(--shelf2, oklch(0.8 0.04 50))"></div>
+    </div>
+    <sc-if value="{{ showShake }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ adRescue }}" style="align-self:center;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;font-size:14px;font-weight:900;color:#fff;background:oklch(0.62 0.18 25);box-shadow:0 5px 0 oklch(0.5 0.18 25);animation:pop .3s ease-out" style-hover="transform:translateY(-2px)" style-active="transform:translateY(4px);box-shadow:none"><span style="font-size:18px;line-height:1">📺</span>Shake the jar · free once</button>
+    </sc-if>
+    <sc-if value="{{ hideShake }}" hint-placeholder-val="{{ true }}">
+      <p style="margin:0;text-align:center;font-size:13px;font-weight:700;color:var(--muted, #888)">Move to aim · tap to drop</p>
+    </sc-if>
+  </div>
+
+  <!-- side panel (desktop: right; mobile: below) -->
+  <div style="display:flex;flex-direction:column;gap:12px;flex:1 1 280px;max-width:340px;width:100%">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:99px;background:var(--glass, oklch(0.99 0.01 60 / .85));border:2px solid var(--glassb, #fff)">
+      <sc-for list="{{ chainView }}" as="c" hint-placeholder-count="11">
+        <div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;background:{{ c.bg }};opacity:{{ c.op }};transform:{{ c.tf }};box-shadow:{{ c.ring }};transition:transform .2s">{{ c.emoji }}</div>
+      </sc-for>
+    </div>
+    <div style="padding:14px 16px;border-radius:22px;background:var(--surface, #fff);box-shadow:0 5px 0 var(--plate, oklch(0.88 0.03 60));display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted, #888)">Missions</div><div style="font-size:11px;font-weight:900;color:oklch(0.68 0.16 20)">{{ missionsDone }} done</div></div>
+      <sc-for list="{{ missions }}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:10px;animation:pop .3s ease-out">
+          <div style="width:38px;height:38px;flex:none;border-radius:12px;background:var(--surface2, oklch(0.96 0.02 60));display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1">{{ m.icon }}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;gap:6px;font-size:13px;font-weight:800"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.title }}</span><span style="color:var(--muted, #888);white-space:nowrap">{{ m.progress }}</span></div>
+            <div style="margin-top:5px;height:6px;border-radius:99px;background:var(--surface2, oklch(0.94 0.02 60));overflow:hidden"><div style="height:100%;border-radius:99px;background:oklch(0.72 0.15 60);width:{{ m.pct }};transition:width .3s"></div></div>
+            <div style="margin-top:4px;font-size:11px;font-weight:700;color:var(--muted, #888)">Reward: {{ m.reward }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:14px 16px;border-radius:22px;background:var(--surface, #fff);box-shadow:0 5px 0 var(--plate, oklch(0.88 0.03 60));display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted, #888)">This week</div><div style="font-size:11px;font-weight:900;color:var(--muted, #888)">Resets in 3d</div></div>
+      <sc-for list="{{ board }}" as="r" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:{{ r.bg }};font-size:13px;font-weight:800">
+          <div style="width:22px;text-align:center;font-weight:900;color:{{ r.rankColor }}">{{ r.rank }}</div>
+          <div style="font-size:18px;line-height:1">{{ r.avatar }}</div>
+          <div style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ r.nameColor }}">{{ r.name }}</div>
+          <div style="font-weight:900">{{ r.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:18px;background:oklch(0.62 0.18 40 / .12);border:2px solid oklch(0.62 0.18 40 / .25)">
+      <span style="font-size:22px;line-height:1;display:inline-block;animation:flame 1s ease-in-out infinite">🔥</span>
+      <div style="flex:1;font-size:13px;font-weight:800">Day {{ streak }} streak</div>
+      <div style="font-size:12px;font-weight:800;color:var(--muted, #888)">{{ streakSub }}</div>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <sc-if value="{{ isPause }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Pause" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.2 0.04 40 / .5);backdrop-filter:blur(8px);z-index:10;padding:16px">
+    <div style="width:100%;max-width:340px;background:var(--surface, #fff);border-radius:32px;padding:28px;box-sizing:border-box;box-shadow:0 10px 0 var(--plate, oklch(0.88 0.03 60)), 0 30px 60px oklch(0 0 0 / .3);display:flex;flex-direction:column;gap:20px;text-align:center;animation:pop .3s ease-out">
+      <div style="position:relative;width:90px;height:90px;margin:0 auto">
+        <div style="width:90px;height:90px;border-radius:50%;background:var(--surface2, oklch(0.95 0.04 60));display:flex;align-items:center;justify-content:center;font-size:56px;line-height:1;transform:rotate(12deg)">{{ mascot }}</div>
+        <div style="position:absolute;right:-14px;top:-8px;padding:4px 8px;border-radius:14px 14px 14px 4px;background:var(--surface2, oklch(0.96 0.02 60));font-size:18px;line-height:1;animation:bubble .4s ease-out .15s both">💤</div>
+      </div>
+      <h2 style="margin:0;font-size:28px;font-weight:900">Paused</h2>
+      <div style="display:flex;justify-content:center;gap:24px;font-size:14px;font-weight:700;color:var(--muted, #888)"><span style="white-space:nowrap">Score <b style="color:var(--text, inherit)">{{ score }}</b></span><span style="white-space:nowrap">Merges <b style="color:var(--text, inherit)">{{ merges }}</b></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{ closeOverlay }}" style="border:0;cursor:pointer;border-radius:20px;padding:16px;font-size:18px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 6px 0 oklch(0.56 0.16 20)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(5px);box-shadow:none">Resume</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <button onClick="{{ restart }}" style="cursor:pointer;border-radius:16px;padding:13px 6px;font-size:14px;font-weight:800;color:var(--text, inherit);background:var(--surface2, oklch(0.97 0.02 60));border:2px solid var(--plate, oklch(0.93 0.02 60))" style-hover="transform:translateY(-1px)" style-active="transform:scale(.96)">Restart</button>
+          <button onClick="{{ goSettings }}" style="cursor:pointer;border-radius:16px;padding:13px 6px;font-size:14px;font-weight:800;color:var(--text, inherit);background:var(--surface2, oklch(0.97 0.02 60));border:2px solid var(--plate, oklch(0.93 0.02 60))" style-hover="transform:translateY(-1px)" style-active="transform:scale(.96)">Settings</button>
+          <button onClick="{{ goMenu }}" style="cursor:pointer;border-radius:16px;padding:13px 6px;font-size:14px;font-weight:800;color:var(--text, inherit);background:var(--surface2, oklch(0.97 0.02 60));border:2px solid var(--plate, oklch(0.93 0.02 60))" style-hover="transform:translateY(-1px)" style-active="transform:scale(.96)">Home</button>
+        </div>
+        <p style="margin:0;font-size:12px;font-weight:700;color:var(--muted, #888)">☁️ Your jar is saved automatically</p>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- DISCOVERY -->
+  <sc-if value="{{ isDiscover }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="New discovery" onClick="{{ closeOverlay }}" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.2 0.05 300 / .7);backdrop-filter:blur(10px);z-index:10;padding:16px;cursor:pointer;overflow:hidden">
+    <div style="position:absolute;left:50%;top:50%;width:900px;height:900px;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg, oklch(0.9 0.1 80 / .18) 0 20deg, transparent 20deg 40deg);border-radius:50%;animation:spin 24s linear infinite;pointer-events:none"></div>
+    <div style="position:relative;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)">
+      <div style="padding:6px 16px;border-radius:99px;font-size:12px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:oklch(0.3 0.08 80);background:oklch(0.88 0.15 85);box-shadow:0 4px 0 oklch(0.75 0.14 85)">New discovery</div>
+      <div style="font-size:130px;line-height:1;animation:glow 2s ease-in-out infinite">{{ discEmoji }}</div>
+      <div>
+        <h2 style="margin:0;font-size:36px;font-weight:900;color:#fff;letter-spacing:-1px">{{ discName }}</h2>
+        <p style="margin:8px 0 0;font-size:15px;font-weight:700;color:oklch(0.85 0.03 300);line-height:1.4">{{ discDesc }}</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div style="padding:8px 14px;border-radius:14px;background:oklch(1 0 0 / .12);color:#fff;font-size:13px;font-weight:800">Level {{ discLevel }} of 11</div>
+        <div style="padding:8px 14px;border-radius:14px;background:oklch(1 0 0 / .12);color:#fff;font-size:13px;font-weight:800">{{ discPts }} pts per merge</div>
+      </div>
+      <button onClick="{{ closeOverlay }}" style="margin-top:8px;border:0;cursor:pointer;border-radius:20px;padding:16px 40px;font-size:18px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 6px 0 oklch(0.56 0.16 20)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(5px);box-shadow:none">Keep merging</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- AD BREAK -->
+  <sc-if value="{{ isAd }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Ad break" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.18 0.02 260);z-index:30;padding:16px;color:#fff">
+    <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800;color:oklch(0.7 0.02 260)">
+      <span>{{ adKicker }}</span>
+      <div style="display:flex;align-items:center;gap:8px"><span>{{ adSkipLabel }}</span><div style="width:28px;height:28px;border-radius:50%;border:2px solid oklch(0.5 0.02 260);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff">{{ adT }}</div></div>
+    </div>
+    <div style="width:min(100%,420px);aspect-ratio:16/10;border-radius:20px;background:repeating-linear-gradient(45deg, oklch(0.24 0.02 260) 0 14px, oklch(0.27 0.02 260) 14px 28px);border:2px dashed oklch(0.4 0.02 260);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center">
+      <div style="font-size:40px;line-height:1">📺</div>
+      <div style="font-size:16px;font-weight:900">Ad placement</div>
+      <div style="font-size:12px;font-weight:700;color:oklch(0.7 0.02 260);max-width:260px">{{ adReward }}</div>
+    </div>
+    <div style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:200px;height:6px;border-radius:99px;background:oklch(0.3 0.02 260);overflow:hidden"><div style="height:100%;border-radius:99px;background:oklch(0.68 0.16 20);width:{{ adPct }};transition:width 1s linear"></div></div>
+  </div>
+  </sc-if>
+
+  <!-- GAME OVER (bottom sheet) -->
+  <sc-if value="{{ isGameOver }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Game Over" style="position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;background:oklch(0.2 0.04 40 / .55);backdrop-filter:blur(8px);z-index:10;overflow:hidden">
+    <sc-if value="{{ isNewBest }}" hint-placeholder-val="{{ false }}">
+      <sc-for list="{{ confetti }}" as="k" hint-placeholder-count="0">
+        <div style="position:absolute;top:-20px;left:{{ k.x }};width:10px;height:16px;border-radius:3px;background:{{ k.c }};animation:confetti {{ k.d }} linear {{ k.delay }} infinite;pointer-events:none"></div>
+      </sc-for>
+    </sc-if>
+    <div style="position:relative;width:100%;max-width:440px;max-height:96vh;overflow:auto;background:var(--surface, #fff);border-radius:32px 32px 0 0;padding:14px 24px 28px;box-sizing:border-box;box-shadow:0 -20px 60px oklch(0 0 0 / .3);display:flex;flex-direction:column;gap:16px;animation:sheet .35s cubic-bezier(.2,1,.3,1)">
+      <div style="width:44px;height:5px;border-radius:99px;background:var(--plate, #ddd);margin:0 auto"></div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:72px;height:72px;flex:none">
+          <div style="width:72px;height:72px;border-radius:50%;background:{{ overBg }};display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1;transform:{{ overTf }}">{{ mascot }}</div>
+          <div style="position:absolute;right:-12px;top:-6px;padding:3px 7px;border-radius:12px 12px 12px 3px;background:var(--surface2, oklch(0.96 0.02 60));font-size:16px;line-height:1;animation:bubble .4s ease-out .2s both">{{ overBubble }}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <h2 style="margin:0;font-size:24px;font-weight:900;line-height:1.1">{{ overTitle }}</h2>
+          <div style="margin-top:4px;font-size:13px;font-weight:700;color:var(--muted, #888)">{{ overSub }}</div>
+        </div>
+        <div style="text-align:right"><div style="font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1">{{ score }}</div><div style="font-size:11px;font-weight:800;color:var(--muted, #888)">Best {{ best }}</div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--surface2, oklch(0.97 0.02 60))">
+          <div style="font-size:22px;line-height:1">🏆</div>
+          <div><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">This week</div><div style="font-size:16px;font-weight:900">#{{ myRank }} of 1,204</div></div>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--surface2, oklch(0.97 0.02 60))">
+          <div style="font-size:22px;line-height:1;display:inline-block;animation:flame 1s ease-in-out infinite">🔥</div>
+          <div><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted, #888)">Streak</div><div style="font-size:16px;font-weight:900">Day {{ streak }} kept</div></div>
+        </div>
+      </div>
+      <sc-if value="{{ canRescue }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ adRescue }}" style="border:0;cursor:pointer;border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:17px;font-weight:900;color:#fff;background:linear-gradient(135deg,oklch(0.62 0.18 300),oklch(0.62 0.18 340));box-shadow:0 6px 0 oklch(0.48 0.16 320)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(5px);box-shadow:none"><span style="font-size:22px;line-height:1">📺</span>Save my jar<span style="font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;background:oklch(1 0 0 / .2)">watch ad</span></button>
+        <button onClick="{{ restart }}" style="cursor:pointer;border-radius:18px;padding:14px;font-size:16px;font-weight:900;color:var(--text, inherit);background:var(--surface2, oklch(0.97 0.02 60));border:2px solid var(--plate, oklch(0.93 0.02 60))" style-hover="transform:translateY(-1px)" style-active="transform:scale(.97)">Play again</button>
+      </sc-if>
+      <sc-if value="{{ cantRescue }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ restart }}" style="border:0;cursor:pointer;border-radius:20px;padding:16px;font-size:18px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 6px 0 oklch(0.56 0.16 20)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(5px);box-shadow:none">Play again</button>
+      </sc-if>
+      <div style="display:flex;justify-content:center;gap:20px">
+        <button style="border:0;cursor:pointer;background:transparent;padding:6px;font-size:13px;font-weight:800;color:var(--muted, #888)">Share result</button>
+        <button onClick="{{ goMenu }}" style="border:0;cursor:pointer;background:transparent;padding:6px;font-size:13px;font-weight:800;color:var(--muted, #888)">Home</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Settings" style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .35s ease-out">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button onClick="{{ goBack }}" aria-label="Back" style="border:2px solid var(--glassb, #fff);cursor:pointer;width:44px;height:44px;border-radius:14px;background:var(--glass, oklch(0.99 0.01 60 / .85));display:flex;align-items:center;justify-content:center;color:var(--text, inherit)" style-hover="transform:translateY(-1px)" style-active="transform:scale(.94)"><div style="width:10px;height:10px;border-left:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg);margin-left:4px"></div></button>
+    <h2 style="margin:0;font-size:28px;font-weight:900">Settings</h2>
+  </div>
+  <div style="background:var(--surface, #fff);border-radius:26px;box-shadow:0 6px 0 var(--plate, oklch(0.88 0.03 60));overflow:hidden">
+    <sc-for list="{{ settingRows }}" as="s" hint-placeholder-count="5">
+      <div onClick="{{ s.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--surface2, oklch(0.95 0.02 60));cursor:pointer" style-hover="background:var(--surface2, oklch(0.98 0.01 60))">
+        <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1;opacity:{{ s.iconOp }};transition:opacity .2s">{{ s.icon }}</span><div><div style="font-size:16px;font-weight:800">{{ s.label }}</div><div style="font-size:13px;font-weight:600;color:var(--muted, #888)">{{ s.hint }}</div></div></div>
+        <div style="width:52px;height:30px;border-radius:99px;position:relative;flex:none;transition:background .25s;background:{{ s.trackBg }}"><div style="position:absolute;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 4px oklch(0 0 0 / .2);transition:left .25s cubic-bezier(.3,1.5,.5,1), transform .25s;left:{{ s.knobLeft }};transform:{{ s.knobTf }}"></div></div>
+      </div>
+    </sc-for>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-bottom:1px solid var(--surface2, oklch(0.95 0.02 60))">
+      <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">🎨</span><div><div style="font-size:16px;font-weight:800">Emoji set</div><div style="font-size:13px;font-weight:600;color:var(--muted, #888)">What grows in your jar</div></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="4">
+          <button onClick="{{ t.pick }}" style="position:relative;cursor:pointer;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:800;color:var(--text, inherit);background:{{ t.bg }};border:2px solid {{ t.border }};opacity:{{ t.op }}" style-hover="transform:translateY(-2px)"><span style="font-size:22px;line-height:1;filter:{{ t.filter }}">{{ t.icon }}</span>{{ t.label }}<sc-if value="{{ t.locked }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-6px;right:-6px;padding:2px 6px;border-radius:99px;font-size:9px;font-weight:900;color:#fff;background:oklch(0.3 0.07 290)">🔒 Day 3</span></sc-if></button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-bottom:1px solid var(--surface2, oklch(0.95 0.02 60))">
+      <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">🫙</span><div><div style="font-size:16px;font-weight:800">Jar skin</div><div style="font-size:13px;font-weight:600;color:var(--muted, #888)">Earn more through missions</div></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <sc-for list="{{ skinChips }}" as="k" hint-placeholder-count="4">
+          <button onClick="{{ k.pick }}" style="position:relative;cursor:pointer;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--text, inherit);background:var(--surface2, oklch(0.97 0.02 60));border:2px solid {{ k.border }};opacity:{{ k.op }}" style-hover="transform:translateY(-2px)">
+            <div style="width:30px;height:34px;border-radius:0 0 {{ k.radius }} {{ k.radius }};background:{{ k.bg }};border:3px solid {{ k.jarb }};box-sizing:border-box;filter:{{ k.filter }}"></div>{{ k.label }}
+            <sc-if value="{{ k.locked }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--surface, #fff);box-shadow:0 2px 0 var(--plate, #ddd);display:flex;align-items:center;justify-content:center;font-size:11px">🔒</span></sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px">
+      <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">☁️</span><div><div style="font-size:16px;font-weight:800">Cloud save</div><div style="font-size:13px;font-weight:600;color:var(--muted, #888)">Synced with your CrazyGames account · just now</div></div></div>
+      <div style="width:10px;height:10px;border-radius:50%;background:oklch(0.7 0.15 150);box-shadow:0 0 0 4px oklch(0.7 0.15 150 / .25);flex:none"></div>
+    </div>
+  </div>
+  <sc-if value="{{ notConfirmReset }}" hint-placeholder-val="{{ true }}"><button onClick="{{ askReset }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.62 0.15 20);background:oklch(0.62 0.15 20 / .12)" style-hover="background:oklch(0.62 0.15 20 / .2)">Reset progress</button></sc-if>
+  <sc-if value="{{ confirmReset }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-radius:18px;background:oklch(0.62 0.15 20 / .12);font-size:14px;font-weight:800;color:oklch(0.62 0.15 20);animation:pop .2s ease-out">Erase best score and awards?<div style="display:flex;gap:6px"><button onClick="{{ resetProgress }}" style="border:0;cursor:pointer;border-radius:10px;padding:8px 12px;font-weight:900;color:#fff;background:oklch(0.62 0.18 25)">Erase</button><button onClick="{{ cancelReset }}" style="border:0;cursor:pointer;border-radius:10px;padding:8px 12px;font-weight:900;color:var(--text, inherit);background:var(--surface, #fff)">Keep</button></div></div>
+  </sc-if>
+  <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:var(--muted, #888)">Emoji Merge v1.0 · Made with 🧡</p>
+</div>
+</sc-if>
+
+<!-- HOW TO PLAY -->
+<sc-if value="{{ isHowto }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="How to play" style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .35s ease-out">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button onClick="{{ goMenu }}" aria-label="Back" style="border:2px solid var(--glassb, #fff);cursor:pointer;width:44px;height:44px;border-radius:14px;background:var(--glass, oklch(0.99 0.01 60 / .85));display:flex;align-items:center;justify-content:center;color:var(--text, inherit)" style-hover="transform:translateY(-1px)" style-active="transform:scale(.94)"><div style="width:10px;height:10px;border-left:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg);margin-left:4px"></div></button>
+    <h2 style="margin:0;font-size:28px;font-weight:900">How to play</h2>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:24px;background:var(--surface, #fff);box-shadow:0 4px 0 var(--plate, oklch(0.88 0.03 60))">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:var(--surface2, oklch(0.95 0.05 60));display:flex;align-items:center;justify-content:center;font-size:28px">👇</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 1</div><div style="font-size:16px;font-weight:800">Drop an emoji</div><div style="font-size:14px;font-weight:600;color:var(--muted, #888)">Tap where you want it to fall into the jar.</div></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:24px;background:var(--surface, #fff);box-shadow:0 4px 0 var(--plate, oklch(0.88 0.03 60))">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:var(--surface2, oklch(0.95 0.05 60));display:flex;align-items:center;justify-content:center;font-size:22px;letter-spacing:-6px">{{ heroA }}{{ heroA }}</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 2</div><div style="font-size:16px;font-weight:800">Match two of a kind</div><div style="font-size:14px;font-weight:600;color:var(--muted, #888)">When identical emoji touch, they merge into the next one.</div></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:24px;background:var(--surface, #fff);box-shadow:0 4px 0 var(--plate, oklch(0.88 0.03 60))">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:var(--surface2, oklch(0.95 0.05 60));display:flex;align-items:center;justify-content:center;font-size:28px">⚠️</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 3</div><div style="font-size:16px;font-weight:800">Stay under the line</div><div style="font-size:14px;font-weight:600;color:var(--muted, #888)">Cross it and the round ends. One free shake saves you.</div></div>
+    </div>
+  </div>
+  <div style="padding:20px;border-radius:26px;background:var(--surface, #fff);box-shadow:0 6px 0 var(--plate, oklch(0.88 0.03 60))">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted, #888);margin-bottom:14px">Evolution chain</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center">
+      <sc-for list="{{ chainFull }}" as="c" hint-placeholder-count="11">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:{{ c.px }};height:{{ c.px }};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:{{ c.fs }};background:{{ c.bg }}">{{ c.emoji }}</div>
+          <div style="font-size:11px;font-weight:800;color:var(--muted, #888)">{{ c.pts }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <button onClick="{{ continueGame }}" style="border:0;cursor:pointer;border-radius:22px;padding:18px;font-size:19px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 7px 0 oklch(0.56 0.16 20)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(5px);box-shadow:none">Got it, let's play</button>
+</div>
+</sc-if>
+
+<!-- COLLECTION -->
+<sc-if value="{{ isCollection }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Collection" style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .35s ease-out">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ goMenu }}" aria-label="Back" style="border:2px solid var(--glassb, #fff);cursor:pointer;width:44px;height:44px;border-radius:14px;background:var(--glass, oklch(0.99 0.01 60 / .85));display:flex;align-items:center;justify-content:center;color:var(--text, inherit)" style-hover="transform:translateY(-1px)" style-active="transform:scale(.94)"><div style="width:10px;height:10px;border-left:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg);margin-left:4px"></div></button>
+      <h2 style="margin:0;font-size:28px;font-weight:900">Collection</h2>
+    </div>
+    <div style="padding:8px 14px;border-radius:99px;background:var(--surface, #fff);box-shadow:0 4px 0 var(--plate, oklch(0.88 0.03 60));font-size:14px;font-weight:900;white-space:nowrap;flex:none">{{ colDone }} / 11</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.pick }}" style="position:relative;border:2px solid {{ t.border }};cursor:pointer;padding:10px 4px;border-radius:14px;font-size:12px;font-weight:800;color:var(--text, inherit);background:{{ t.bg }};display:flex;flex-direction:column;align-items:center;gap:4px;opacity:{{ t.op }}" style-hover="transform:translateY(-1px)"><span style="font-size:20px;line-height:1;filter:{{ t.filter }}">{{ t.icon }}</span>{{ t.label }}<sc-if value="{{ t.locked }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-6px;right:-6px;padding:2px 6px;border-radius:99px;font-size:9px;font-weight:900;color:#fff;background:oklch(0.3 0.07 290)">🔒 Day 3</span></sc-if></button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    <sc-for list="{{ collection }}" as="c" hint-placeholder-count="11">
+      <div style="padding:16px 10px 12px;border-radius:22px;background:{{ c.cardBg }};box-shadow:{{ c.shadow }};border:2px solid {{ c.border }};display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+        <div style="width:58px;height:58px;border-radius:50%;background:{{ c.bg }};display:flex;align-items:center;justify-content:center;font-size:32px;line-height:1;filter:{{ c.filter }}">{{ c.emoji }}</div>
+        <div><div style="font-size:13px;font-weight:900;color:{{ c.nameColor }}">{{ c.name }}</div><div style="font-size:11px;font-weight:700;color:var(--muted, #888)">{{ c.sub }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ACHIEVEMENTS -->
+<sc-if value="{{ isAch }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Achievements" style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px;animation:fadeUp .35s ease-out">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ goMenu }}" aria-label="Back" style="border:2px solid var(--glassb, #fff);cursor:pointer;width:44px;height:44px;border-radius:14px;background:var(--glass, oklch(0.99 0.01 60 / .85));display:flex;align-items:center;justify-content:center;color:var(--text, inherit)" style-hover="transform:translateY(-1px)" style-active="transform:scale(.94)"><div style="width:10px;height:10px;border-left:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg);margin-left:4px"></div></button>
+      <h2 style="margin:0;font-size:28px;font-weight:900">Awards</h2>
+    </div>
+    <div style="padding:8px 14px;border-radius:99px;background:var(--surface, #fff);box-shadow:0 4px 0 var(--plate, oklch(0.88 0.03 60));font-size:14px;font-weight:900;white-space:nowrap;flex:none">{{ achDone }} / {{ achTotal }}</div>
+  </div>
+  <sc-if value="{{ achEmpty }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:40px 24px;border-radius:26px;background:var(--surface, #fff);box-shadow:0 6px 0 var(--plate, oklch(0.88 0.03 60));display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+    <div style="font-size:64px;line-height:1;filter:grayscale(1);opacity:.5">🏅</div>
+    <div><div style="font-size:20px;font-weight:900">No awards yet</div><p style="margin:6px 0 0;font-size:14px;font-weight:700;color:var(--muted, #888)">Your shelf is empty. Play a round and start filling it.</p></div>
+    <button onClick="{{ continueGame }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px 28px;font-size:16px;font-weight:900;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 5px 0 oklch(0.56 0.16 20)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(4px);box-shadow:none">Play</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ achNotEmpty }}" hint-placeholder-val="{{ true }}">
+  <div style="height:10px;border-radius:99px;background:var(--surface, #fff);box-shadow:inset 0 2px 0 var(--plate, oklch(0.92 0.02 60));overflow:hidden"><div style="height:100%;border-radius:99px;background:oklch(0.68 0.16 20);width:{{ achPct }}"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <sc-for list="{{ achievements }}" as="a" hint-placeholder-count="8">
+      <div style="padding:18px 16px;border-radius:24px;background:{{ a.cardBg }};box-shadow:{{ a.cardShadow }};border:2px solid {{ a.cardBorder }};display:flex;flex-direction:column;gap:10px">
+        <div style="position:relative;width:52px;height:52px">
+          <div style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:{{ a.bg }};filter:{{ a.filter }};opacity:{{ a.iconOp }}">{{ a.icon }}</div>
+          <sc-if value="{{ a.locked }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:var(--surface, #fff);box-shadow:0 2px 0 var(--plate, oklch(0.88 0.03 60));display:flex;align-items:center;justify-content:center;font-size:13px">🔒</div></sc-if>
+          <sc-if value="{{ a.done }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:oklch(0.7 0.15 150);box-shadow:0 2px 0 oklch(0.6 0.15 150);display:flex;align-items:center;justify-content:center"><div style="width:6px;height:10px;border-right:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(45deg);margin-top:-3px"></div></div></sc-if>
+        </div>
+        <div><div style="font-size:15px;font-weight:800;line-height:1.2;opacity:{{ a.titleOp }}">{{ a.title }}</div><div style="margin-top:4px;font-size:12px;font-weight:600;color:var(--muted, #888);line-height:1.35">{{ a.desc }}</div></div>
+        <sc-if value="{{ a.locked }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;border-radius:99px;background:var(--surface2, oklch(0.94 0.02 60));overflow:hidden"><div style="height:100%;border-radius:99px;background:oklch(0.78 0.1 20);width:{{ a.pct }}"></div></div><span style="font-size:11px;font-weight:900;color:var(--muted, #888);white-space:nowrap">{{ a.progress }}</span></div>
+        </sc-if>
+        <sc-if value="{{ a.done }}" hint-placeholder-val="{{ true }}"><div style="font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:oklch(0.62 0.15 150)">Unlocked</div></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;emojiTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;animals&quot;,&quot;food&quot;,&quot;space&quot;,&quot;ocean&quot;],&quot;default&quot;:&quot;animals&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;jarSkin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;glass&quot;,&quot;sticker&quot;,&quot;aquarium&quot;,&quot;bucket&quot;],&quot;default&quot;:&quot;glass&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;darkMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;mascotFollowsTheme&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Monetization&quot;},&quot;firstVisit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;game&quot;,&quot;menu&quot;,&quot;settings&quot;,&quot;howto&quot;,&quot;collection&quot;,&quot;ach&quot;],&quot;default&quot;:&quot;game&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;}}">
+const THEMES = {
+  animals: { label: 'Animals', e: ['🐛','🐌','🐸','🐣','🐥','🐰','🐱','🐶','🐼','🦄','🌈'],
+    n: ['Caterpillar','Snail','Frog','Chick','Chicken','Bunny','Kitty','Puppy','Panda','Unicorn','Rainbow'],
+    d: ['Where every story starts.','Slow, steady, a little sticky.','Jumps when you least expect it.','Just hatched and already curious.','Grown up, still fluffy.','Twice the hops, twice the ears.','Sits in the jar as if she owns it.','Good boy. Very good boy.','Round enough to roll.','Rare, sparkly, mildly judgmental.','The whole jar lights up. You did it.'] },
+  food: { label: 'Snacks', e: ['🫐','🍒','🍓','🍋','🍑','🍎','🥥','🍍','🍈','🍉','🎂'],
+    n: ['Blueberry','Cherry','Strawberry','Lemon','Peach','Apple','Coconut','Pineapple','Melon','Watermelon','Cake'],
+    d: ['Tiny and full of promise.','Comes in pairs, merges in pairs.','Sweet with a hint of seeds.','Sour face guaranteed.','Fuzzy and forgiving.','One a day keeps the jar happy.','Hard on the outside, soft inside.','Spiky hat, sunny heart.','Cool, round and quietly proud.','The classic. Big, juicy, iconic.','Every merge was worth it. Eat up.'] },
+  space: { label: 'Space', e: ['✨','⭐','🌟','☄️','🌙','🪐','🌍','☀️','🌌','🚀','👽'],
+    n: ['Sparkle','Star','Glow star','Comet','Moon','Planet','Earth','Sun','Galaxy','Rocket','Visitor'],
+    d: ['A flicker in the dark.','Wishes accepted.','Brighter than average.','Passing through, in a hurry.','Keeps the tides in line.','Rings included.','Home sweet home.','Do not stare directly.','Billions of stars, one jar.','Leaving orbit. Hold on.','It came all this way to see your jar.'] },
+  ocean: { label: 'Ocean', locked: true, e: ['🫧','🐚','🐟','🐠','🦀','🐙','🐬','🦈','🐳','🧜','🔱'],
+    n: ['Bubble','Shell','Fish','Reef fish','Crab','Octopus','Dolphin','Shark','Whale','Mermaid','Trident'],
+    d: ['Pop.','Listen closely.','Just keeps swimming.','Dressed for the reef.','Sideways is a direction.','Eight arms, one plan.','Smarter than it lets on.','Mostly misunderstood.','Big heart, bigger splash.','Sings only when nobody listens.','Rule the jar.'] },
+};
+const SIZES = [7,8.5,10,12,14,16.5,19.5,23,27,31.5,37];
+const PTS = [1,3,6,10,15,21,28,36,45,55,66];
+const BGS = ['oklch(0.95 0.04 20)','oklch(0.95 0.04 50)','oklch(0.95 0.04 80)','oklch(0.95 0.04 130)','oklch(0.95 0.04 170)','oklch(0.95 0.04 200)','oklch(0.95 0.04 240)','oklch(0.95 0.04 280)','oklch(0.95 0.04 320)','oklch(0.95 0.04 350)','oklch(0.94 0.06 20)'];
+const SAVED = [
+  {l:8,x:26,y:86},{l:7,x:70,y:87},{l:5,x:50,y:74},{l:4,x:12,y:70},{l:4,x:90,y:72},
+  {l:2,x:34,y:63},{l:3,x:66,y:62},{l:1,x:50,y:57},{l:0,x:22,y:58},{l:1,x:82,y:59},{l:0,x:60,y:50},
+];
+const FRESH = [{l:0,x:40,y:94},{l:1,x:66,y:93}];
+const BG_POS = [[4,8,9,0],[88,6,1,3],[16,30,3,6],[92,34,6,1],[6,58,2,4],[84,62,10,7],[24,84,5,2],[70,90,0,5],[48,4,7,8],[40,94,8,9],[60,40,4,0],[96,80,2,6]];
+const CONF_COLORS = ['oklch(0.72 0.16 20)','oklch(0.8 0.14 80)','oklch(0.75 0.14 150)','oklch(0.75 0.12 240)','oklch(0.78 0.14 330)'];
+const TIPS = ['Big emoji sink. Keep them low.','Combos multiply points.','Corners are your friends.','The dashed line is a warning, not a wall.'];
+const LIGHT = { page:'oklch(0.97 0.025 60)', glow:'oklch(0.94 0.06 40)', surface:'#fff', surface2:'oklch(0.965 0.02 60)', plate:'oklch(0.88 0.03 60)', text:'oklch(0.32 0.04 40)', muted:'oklch(0.58 0.04 40)', glass:'oklch(0.99 0.01 60 / .82)', glassb:'#fff' };
+const DARK = { page:'oklch(0.24 0.04 300)', glow:'oklch(0.32 0.07 320)', surface:'oklch(0.31 0.035 300)', surface2:'oklch(0.37 0.035 300)', plate:'oklch(0.2 0.03 300)', text:'oklch(0.95 0.02 60)', muted:'oklch(0.72 0.03 300)', glass:'oklch(0.33 0.035 300 / .85)', glassb:'oklch(0.42 0.04 300)' };
+const SKINS = {
+  glass: { label:'Glass', bg:'linear-gradient(180deg,oklch(0.99 0.01 70),oklch(0.96 0.03 60))', border:'#fff', radius:'44px', shelf:'oklch(0.86 0.04 50)', shelf2:'oklch(0.8 0.04 50)', lid:'linear-gradient(#fff,oklch(0.92 0.02 60))' },
+  sticker: { label:'Sticker', bg:'linear-gradient(180deg,oklch(0.99 0.01 70),oklch(0.95 0.05 20))', border:'oklch(0.9 0.08 20)', radius:'44px', shelf:'oklch(0.84 0.06 20)', shelf2:'oklch(0.78 0.06 20)', lid:'linear-gradient(oklch(0.96 0.05 20),oklch(0.9 0.08 20))' },
+  aquarium: { label:'Aquarium', bg:'linear-gradient(180deg,oklch(0.96 0.03 220),oklch(0.86 0.08 220))', border:'oklch(0.97 0.02 220)', radius:'30px', shelf:'oklch(0.55 0.03 250)', shelf2:'oklch(0.45 0.03 250)', lid:'linear-gradient(oklch(0.97 0.02 220),oklch(0.88 0.04 220))' },
+  bucket: { label:'Bucket', bg:'linear-gradient(180deg,oklch(0.93 0.01 260),oklch(0.82 0.02 260))', border:'oklch(0.72 0.02 260)', radius:'14px', shelf:'oklch(0.6 0.02 260)', shelf2:'oklch(0.5 0.02 260)', lid:'linear-gradient(oklch(0.9 0.01 260),oklch(0.72 0.02 260))' },
+};
+const MISSIONS = [
+  { id:'combo3', icon:'🔥', title:'Chain a ×3 combo', key:'bestCombo', target:3, reward:'Sticker jar', skin:'sticker' },
+  { id:'merge10', icon:'✨', title:'Make 10 merges', key:'roundMerges', target:10, reward:'Aquarium jar', skin:'aquarium' },
+  { id:'lvl9', icon:8, title:'Grow a level 9', key:'maxLevel1', target:9, reward:'Bucket jar', skin:'bucket' },
+  { id:'score2k', icon:'💯', title:'Score 2,000 in a round', key:'score', target:2000, reward:'Ocean set preview' },
+  { id:'merge25', icon:'🌟', title:'Make 25 merges', key:'roundMerges', target:25, reward:'Golden lid' },
+  { id:'lvl11', icon:10, title:'Discover the final emoji', key:'maxLevel1', target:11, reward:'Confetti drops' },
+];
+const BOARD = [{ n:'mochi_88', a:'🐼', s:5210 },{ n:'Lena', a:'🦊', s:4470 },{ n:'pxlfox', a:'🐸', s:3990 },{ n:'Timur', a:'🐙', s:2880 },{ n:'sunny.d', a:'🌻', s:1610 }];
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const fresh = p.firstVisit ?? false;
+    this.state = {
+      screen: 'game', loading: true, overlay: null, prev: 'menu', confirmReset: false, daily: false,
+      theme: null, skin: null, dark: null, unlockedSkins: fresh ? ['glass'] : ['glass','sticker','bucket'],
+      score: fresh ? 0 : 1240, best: fresh ? 0 : 3860, merges: fresh ? 0 : 37, roundMerges: fresh ? 0 : 6, games: fresh ? 0 : 42, streak: fresh ? 1 : 3,
+      dropX: 50, current: fresh ? 0 : 1, next: fresh ? 0 : 0, pieces: fresh ? FRESH : SAVED, maxLevel: fresh ? 1 : 8, discovered: fresh ? 1 : 8,
+      combo: 0, bestCombo: 0, bursts: [], shakeN: 0, toast: null, tut: fresh ? 0 : 2, discLevel: 0, rescueUsed: false,
+      missions: fresh ? ['combo3','merge10','lvl9'] : ['merge10','score2k','lvl11'], missionsDone: fresh ? [] : ['combo3','lvl9'], giftClaimed: false, dailyDone: false,
+      adT: 0, adNext: null, sound: true, music: true, haptics: false, hints: true, tip: TIPS[Math.floor(Math.random() * TIPS.length)],
+    };
+  }
+  componentDidMount() {
+    const s = this.props.startScreen;
+    if (s && s !== 'game') this.setState({ screen: s, loading: false });
+    else this._t = setTimeout(() => this.setState({ loading: false }), 1300);
+  }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._toastT); clearInterval(this._adI); }
+  themeKey() { return this.state.theme ?? this.props.emojiTheme ?? 'animals'; }
+  toast(icon, kicker, text) {
+    clearTimeout(this._toastT);
+    this.setState({ toast: { icon, kicker, text } });
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  missionVal(s, key) { return key === 'maxLevel1' ? s.maxLevel + 1 : s[key]; }
+  checkMissions(s) {
+    const done = [], keep = [];
+    for (const id of s.missions) { const m = MISSIONS.find(x => x.id === id); (this.missionVal(s, m.key) >= m.target ? done : keep).push(id); }
+    if (!done.length) return {};
+    const pool = MISSIONS.map(m => m.id).filter(id => !s.missions.includes(id) && !s.missionsDone.includes(id));
+    const missions = [...keep, ...pool.slice(0, done.length)];
+    const unlocked = [...s.unlockedSkins];
+    done.forEach(id => { const m = MISSIONS.find(x => x.id === id); if (m.skin && !unlocked.includes(m.skin)) unlocked.push(m.skin); });
+    const m0 = MISSIONS.find(x => x.id === done[0]);
+    setTimeout(() => this.toast('🎯', 'Mission complete', `${m0.title} · ${m0.reward}`), 700);
+    return { missions, missionsDone: [...s.missionsDone, ...done], unlockedSkins: unlocked };
+  }
+  startAd(next) {
+    clearInterval(this._adI);
+    this.setState({ overlay: 'ad', adT: 3, adNext: next });
+    this._adI = setInterval(() => this.setState(s => {
+      if (s.adT > 1) return { adT: s.adT - 1 };
+      clearInterval(this._adI);
+      if (s.adNext === 'rescue') {
+        const sorted = [...s.pieces].sort((a, b) => a.l - b.l);
+        const pieces = sorted.slice(Math.min(3, sorted.length)).map(p => ({ ...p, y: Math.min(96, p.y + 6) }));
+        setTimeout(() => this.toast('🫙', 'Jar saved', 'Three smallest emoji removed'), 200);
+        return { overlay: null, adT: 0, adNext: null, rescueUsed: true, pieces, shakeN: s.shakeN + 1 };
+      }
+      const last = s.score;
+      setTimeout(() => this.toast('🏁', 'Last round', `${last.toLocaleString()} pts · Best ${Math.max(s.best, last).toLocaleString()}`), 300);
+      return { ...this.freshRound(s), overlay: null, adT: 0, adNext: null };
+    }), 1000);
+  }
+  freshRound(s) {
+    return { screen: 'game', score: 0, merges: 0, roundMerges: 0, combo: 0, bestCombo: 0, pieces: s.daily ? [] : FRESH, current: 0, next: 1, dropX: 50, games: s.games + 1, rescueUsed: false, dailyDone: s.daily ? true : s.dailyDone };
+  }
+  renderVals() {
+    const st = this.state, tk = this.themeKey(), T = THEMES[tk] ?? THEMES.animals, ch = T.e;
+    const dark = st.dark ?? this.props.darkMode ?? false;
+    const skinKey = st.skin ?? this.props.jarSkin ?? 'glass', skin = SKINS[skinKey] ?? SKINS.glass;
+    const mascot = (this.props.mascotFollowsTheme ?? false) ? ch[3] : '🐣';
+    const go = (screen) => () => this.setState(s => ({ screen, overlay: null, confirmReset: false, prev: s.screen === 'settings' ? s.prev : s.screen }));
+    const toggle = (k) => () => this.setState(s => ({ [k]: !s[k] }));
+    const row = (k, icon, offIcon, label, hint, val) => ({ icon: val ? icon : offIcon, iconOp: val ? 1 : 0.55, label, hint, toggle: k === 'dark' ? () => this.setState({ dark: !dark }) : toggle(k),
+      trackBg: val ? 'oklch(0.68 0.16 20)' : 'oklch(0.6 0.02 60 / .35)', knobLeft: val ? '25px' : '3px', knobTf: val ? 'scale(1)' : 'scale(.9)' });
+    const topOfPile = st.pieces.length ? Math.min(...st.pieces.map(p => p.y - SIZES[p.l] * 0.36)) : 100;
+    const danger = topOfPile < 30 && !st.loading;
+    const aimAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(6, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+      if (Math.abs(x - this.state.dropX) > 0.5) this.setState({ dropX: x });
+    };
+    const dropAt = (e) => {
+      if (this.state.loading) return;
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(6, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+      this.setState(s => {
+        const lvl = s.current, size = SIZES[lvl];
+        const near = s.pieces.filter(p => Math.abs(p.x - x) < (SIZES[p.l] + size) / 2 * 0.8);
+        const same = near.find(p => p.l === lvl && lvl < 10);
+        let pieces, gain, combo, bursts = s.bursts, overlay = s.overlay, maxLevel = s.maxLevel, discovered = s.discovered, discLevel = s.discLevel, tut = s.tut;
+        if (same) {
+          const nl = lvl + 1; combo = s.combo + 1; gain = PTS[nl] * combo;
+          pieces = [...s.pieces.filter(p => p !== same), { l: nl, x: same.x, y: same.y }];
+          const id = Date.now();
+          bursts = [...bursts, { id, x: same.x, y: same.y, pts: gain, size: SIZES[nl] }];
+          setTimeout(() => this.setState(q => ({ bursts: q.bursts.filter(b => b.id !== id) })), 900);
+          if (nl > maxLevel) { maxLevel = nl; if (nl > discovered) { discovered = nl; overlay = 'discover'; discLevel = nl; } }
+          if (combo >= 2) this.toast('✨', 'Combo', `×${combo} · +${gain} points`);
+          if (tut === 1) { tut = 2; this.toast('🎉', 'Nice!', 'That is a merge. Keep going.'); }
+        } else {
+          combo = 0; gain = 1;
+          const topY = near.length ? Math.min(...near.map(p => p.y - SIZES[p.l] * 0.36)) : 96;
+          const y = Math.max(18, topY - size * 0.36);
+          pieces = [...s.pieces, { l: lvl, x, y }];
+          if (tut === 0) tut = 1;
+          if (y <= 18) overlay = 'over';
+        }
+        const score = s.score + gain;
+        const ns = { ...s, pieces, score, combo, bestCombo: Math.max(s.bestCombo, combo), bursts, overlay, maxLevel, discovered, discLevel, tut,
+          merges: s.merges + (same ? 1 : 0), roundMerges: s.roundMerges + (same ? 1 : 0), dropX: x,
+          shakeN: same ? s.shakeN + 1 : s.shakeN, current: s.next, next: Math.floor(Math.random() * 4), best: Math.max(s.best, score) };
+        return { ...ns, ...this.checkMissions(ns) };
+      });
+    };
+    const ach = [
+      { icon: ch[3], title: 'First hatch', desc: 'Reach the 4th emoji.', done: st.maxLevel >= 3, bg: BGS[3], cur: st.maxLevel + 1, max: 4 },
+      { icon: '🔥', title: 'Combo x5', desc: 'Five merges in a row.', done: st.best > 0, bg: 'oklch(0.95 0.05 40)', cur: Math.min(st.bestCombo, 5), max: 5 },
+      { icon: ch[8], title: 'Big softie', desc: 'Create the 9th emoji.', done: st.maxLevel >= 8, bg: BGS[8], cur: st.maxLevel + 1, max: 9 },
+      { icon: '💯', title: 'Century', desc: 'Score 100 in one game.', done: st.best >= 100, bg: 'oklch(0.95 0.05 140)', cur: Math.min(st.best, 100), max: 100 },
+      { icon: ch[10], title: 'Ultimate merge', desc: 'Create the final emoji.', done: st.maxLevel >= 10, bg: BGS[10], cur: st.maxLevel + 1, max: 11 },
+      { icon: '🏆', title: 'High roller', desc: 'Score 5,000 in one game.', done: st.best >= 5000, bg: 'oklch(0.95 0.05 80)', cur: Math.min(st.best, 5000), max: 5000 },
+      { icon: '🔥', title: 'Week of jars', desc: 'Keep a 7-day streak.', done: st.streak >= 7, bg: 'oklch(0.95 0.05 40)', cur: st.streak, max: 7 },
+      { icon: '🎯', title: 'Sharpshooter', desc: '20 merges on landing.', done: false, bg: 'oklch(0.95 0.05 300)', cur: Math.min(st.merges, 20), max: 20 },
+    ];
+    const done = ach.filter(a => a.done).length;
+    const isNewBest = st.score >= st.best && st.score > 0;
+    const comboHue = Math.min(20 + st.combo * 15, 90);
+    const goalLvl = Math.min(st.discovered + 1, 10), needLvl = goalLvl - 1;
+    const haveGoal = st.pieces.filter(p => p.l === needLvl).length;
+    const allFound = st.discovered >= 10;
+    const rank = BOARD.filter(b => b.s > st.score).length + 1;
+    const boardRows = [...BOARD.map(b => ({ ...b })), { n: 'You', a: mascot, s: st.score, me: true }].sort((a, b) => b.s - a.s).map((b, i) => ({ ...b, rank: i + 1 }));
+    const meIdx = boardRows.findIndex(b => b.me);
+    const shown = meIdx < 3 ? boardRows.slice(0, 4) : [...boardRows.slice(0, 3), boardRows[meIdx]];
+    const bestPct = st.best ? Math.min(100, Math.round(st.score / st.best * 100)) : 100;
+    const giftClaimed = st.giftClaimed;
+    return {
+      v: dark ? DARK : LIGHT, j: { ...skin, glow: dark ? '0 0 60px oklch(0.85 0.1 60 / .25)' : '0 28px 48px oklch(0.5 0.1 40 / .14)' },
+      isAquarium: skinKey === 'aquarium', isSticker: skinKey === 'sticker',
+      isMenu: st.screen === 'menu', isGame: st.screen === 'game', isSettings: st.screen === 'settings',
+      isHowto: st.screen === 'howto', isAch: st.screen === 'ach', isCollection: st.screen === 'collection',
+      isLoading: st.loading, notLoading: !st.loading, tip: st.tip,
+      isPause: st.overlay === 'pause', isGameOver: st.overlay === 'over', isDiscover: st.overlay === 'discover', isAd: st.overlay === 'ad', isNewBest,
+      isDaily: st.daily, streak: st.streak, streakSub: st.dailyDone || st.daily ? 'Kept for today' : 'Play the daily jar to keep it',
+      adT: st.adT, adPct: Math.round((3 - st.adT) / 3 * 100) + '%', adKicker: st.adNext === 'rescue' ? 'Rewarded ad' : 'Ad break', adSkipLabel: st.adNext === 'rescue' ? 'Reward in' : 'Game resumes in',
+      adReward: st.adNext === 'rescue' ? 'Reward: shake the jar, remove the 3 smallest emoji and keep playing.' : 'Midroll between rounds. Never more often than once per 3 minutes.',
+      overTitle: isNewBest ? 'A new record!' : 'The jar is full!', overBubble: isNewBest ? '🎉' : '💧',
+      overSub: isNewBest ? 'You beat your best score' : (st.best - st.score).toLocaleString() + ' short of your best',
+      overBg: isNewBest ? 'oklch(0.94 0.06 20)' : 'oklch(0.93 0.03 240)', overTf: isNewBest ? 'rotate(-6deg)' : 'rotate(180deg)',
+      canRescue: !st.rescueUsed, cantRescue: st.rescueUsed, showShake: danger && !st.rescueUsed && !st.overlay, hideShake: !(danger && !st.rescueUsed && !st.overlay),
+      discEmoji: ch[st.discLevel], discName: T.n[st.discLevel], discDesc: T.d[st.discLevel], discLevel: st.discLevel + 1, discPts: PTS[st.discLevel],
+      confirmReset: st.confirmReset, notConfirmReset: !st.confirmReset,
+      mascot, heroA: ch[2], biggest: ch[st.maxLevel], myRank: rank,
+      score: st.score.toLocaleString(), best: st.best.toLocaleString(), merges: st.merges,
+      bestPct: bestPct + '%', bestLabel: isNewBest ? 'New best!' : `Best ${st.best.toLocaleString()}`, bestBarColor: isNewBest ? 'oklch(0.72 0.16 60)' : 'oklch(0.68 0.16 20)',
+      goalEmoji: allFound ? '🏆' : ch[goalLvl], goalBg: allFound ? 'oklch(0.95 0.05 80)' : BGS[goalLvl], goalFilter: allFound ? 'none' : 'grayscale(1) opacity(.5)',
+      goalTitle: allFound ? 'Every emoji discovered' : `Discover ${T.n[goalLvl]}`, goalSub: allFound ? 'Now chase the score' : `Merge two ${ch[needLvl]} · ${haveGoal} of 2 in the jar`,
+      goalDots: [0, 1].map(i => ({ bg: i < haveGoal ? 'oklch(0.68 0.16 20)' : 'var(--plate, #ddd)' })),
+      nextGoalShort: allFound ? 'All 11 discovered' : `Next up: ${T.n[goalLvl]} ${ch[goalLvl]}`,
+      dailyTitle: st.dailyDone ? 'Done for today' : 'Keep the streak', dailySub: st.dailyDone ? 'Come back tomorrow for a new jar' : 'Space set · same drops for everyone', dailyTimer: 'New jar in 2h 14m',
+      giftTitle: giftClaimed ? 'Claimed' : 'Sticker jar skin', giftSub: giftClaimed ? 'Next gift in 14h 22m' : 'Free every day you visit', giftCta: giftClaimed ? '✓ See you tomorrow' : 'Tap to claim',
+      giftBg: giftClaimed ? 'var(--surface2, #eee)' : 'oklch(0.85 0.15 85)', giftShadow: giftClaimed ? 'var(--plate, #ddd)' : 'oklch(0.72 0.14 85)', giftColor: giftClaimed ? 'var(--muted, #888)' : 'oklch(0.3 0.08 80)',
+      currentEmoji: ch[st.current], nextEmoji: ch[st.next], currentSize: `min(${SIZES[st.current] * 4.2}px, ${SIZES[st.current]}vw)`,
+      dropXPct: st.dropX + '%', guideOp: st.hints ? 1 : 0,
+      isDanger: danger, dangerColor: danger ? 'oklch(0.65 0.18 25)' : 'oklch(0.75 0.08 20 / .7)', jarBorder: danger ? 'oklch(0.85 0.1 25)' : 'var(--jarb, #fff)',
+      shakeAnim: st.shakeN ? (st.shakeN % 2 ? 'shake .3s ease-out' : 'shake2 .3s ease-out') : 'none',
+      showCombo: st.combo >= 2, combo: st.combo, comboSize: Math.min(14 + st.combo * 2, 26) + 'px', comboBg: `oklch(0.68 0.17 ${comboHue})`,
+      bursts: st.bursts.map(b => ({ left: b.x + '%', top: b.y + '%', pts: b.pts, size: `min(${b.size * 3.8}px, ${b.size * 0.86}vw)`, color: 'oklch(0.7 0.17 60)' })),
+      tutTap: st.tut === 0 && !st.overlay && !st.loading, tutMerge: st.tut === 1 && !st.overlay,
+      hasToast: !!st.toast, toastIcon: st.toast?.icon, toastKicker: st.toast?.kicker, toastText: st.toast?.text,
+      pieces: st.pieces.map((p, i) => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: `min(${SIZES[p.l] * 3.8}px, ${SIZES[p.l] * 0.86}vw)`, delay: st.loading ? (i * 0.09) + 's' : '0s' })),
+      miniPieces: st.pieces.map(p => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: (SIZES[p.l] * 0.85) + 'px' })),
+      chainView: ch.map((e, i) => ({ emoji: e, bg: BGS[i], op: i <= st.maxLevel ? 1 : 0.3,
+        tf: i === st.maxLevel ? 'scale(1.25)' : 'none', ring: i === st.maxLevel ? '0 0 0 2px var(--surface, #fff), 0 0 0 4px oklch(0.68 0.16 20)' : 'none' })),
+      chainFull: ch.map((e, i) => ({ emoji: e, bg: BGS[i], pts: PTS[i] + ' pts', px: (40 + i * 2.4) + 'px', fs: (20 + i * 1.4) + 'px' })),
+      missions: st.missions.map(id => { const m = MISSIONS.find(x => x.id === id); const cur = Math.min(this.missionVal(st, m.key), m.target);
+        return { icon: typeof m.icon === 'number' ? ch[m.icon] : m.icon, title: m.title, reward: m.reward, progress: `${cur.toLocaleString()}/${m.target.toLocaleString()}`, pct: Math.round(cur / m.target * 100) + '%' }; }),
+      missionsDone: st.missionsDone.length,
+      board: shown.map(b => ({ rank: b.rank, avatar: b.a, name: b.me ? 'You' : b.n, score: b.s.toLocaleString(), bg: b.me ? 'oklch(0.68 0.16 20 / .12)' : 'transparent',
+        rankColor: b.rank === 1 ? 'oklch(0.72 0.15 85)' : 'var(--muted, #888)', nameColor: b.me ? 'oklch(0.68 0.16 20)' : 'var(--text, inherit)' })),
+      collection: ch.map((e, i) => { const open = i <= st.discovered; return { emoji: e, bg: open ? BGS[i] : 'oklch(0.5 0.01 60 / .12)', filter: open ? 'none' : 'grayscale(1) brightness(0.3) opacity(0.35)',
+        name: open ? T.n[i] : '???', sub: open ? PTS[i] + ' pts' : 'Level ' + (i + 1), nameColor: open ? 'var(--text, inherit)' : 'var(--muted, #999)',
+        cardBg: open ? 'var(--surface, #fff)' : 'var(--glass, transparent)', shadow: open ? '0 4px 0 var(--plate, oklch(0.88 0.03 60))' : 'none', border: open ? 'var(--surface, #fff)' : 'var(--glassb, #eee)' }; }),
+      colDone: st.discovered + 1,
+      bgEmoji: BG_POS.map(([x, y, i, k]) => ({ e: ch[i], x: x + '%', y: y + '%', s: (28 + k * 4) + 'px', d: (5 + k * 0.7) + 's' })),
+      confetti: Array.from({ length: 22 }, (_, i) => ({ x: (i * 4.6 + 2) + '%', c: CONF_COLORS[i % 5], d: (2.4 + (i % 4) * 0.5) + 's', delay: ((i * 0.37) % 2) + 's' })),
+      settingRows: [row('sound', '🔊', '🔇', 'Sound effects', 'Pops, plops and merges', st.sound), row('music', '🎵', '🎵', 'Music', 'Soft lo-fi loop', st.music), row('haptics', '📳', '📴', 'Vibration', 'Feel every merge', st.haptics), row('hints', '💡', '💡', 'Drop guide', 'Show the dotted line', st.hints), row('dark', '🌙', '☀️', 'Night mode', 'Easy on the eyes after dark', dark)],
+      themeChips: Object.keys(THEMES).map(k => { const locked = !!THEMES[k].locked && st.streak < 3; return { icon: THEMES[k].e[5], label: THEMES[k].label, locked, op: locked ? 0.7 : 1, filter: locked ? 'grayscale(1)' : 'none',
+        pick: () => { if (locked) this.toast('🔒', 'Locked', 'Ocean set unlocks on day 3 of your streak'); else this.setState({ theme: k }); },
+        bg: k === tk ? 'oklch(0.68 0.16 20 / .14)' : 'var(--surface2, oklch(0.96 0.02 60))', border: k === tk ? 'oklch(0.68 0.16 20)' : 'transparent' }; }),
+      skinChips: Object.keys(SKINS).map(k => { const locked = !st.unlockedSkins.includes(k); return { label: SKINS[k].label, bg: SKINS[k].bg, jarb: SKINS[k].border, radius: k === 'bucket' ? '5px' : k === 'aquarium' ? '9px' : '12px', locked, op: locked ? 0.7 : 1, filter: locked ? 'grayscale(1)' : 'none',
+        border: k === skinKey ? 'oklch(0.68 0.16 20)' : 'transparent', pick: () => { if (locked) this.toast('🔒', 'Locked', `${SKINS[k].label} jar is a mission reward`); else this.setState({ skin: k }); } }; }),
+      achievements: ach.map(a => ({ ...a, locked: !a.done, filter: a.done ? 'none' : 'grayscale(1)', iconOp: a.done ? 1 : 0.55, titleOp: a.done ? 1 : 0.7,
+        cardBg: a.done ? 'var(--surface, #fff)' : 'var(--glass, transparent)', cardShadow: a.done ? '0 4px 0 var(--plate, oklch(0.88 0.03 60))' : 'none',
+        cardBorder: a.done ? 'var(--surface, #fff)' : 'var(--glassb, #eee)',
+        pct: a.done ? '100%' : Math.round(a.cur / a.max * 100) + '%', progress: a.done ? '' : `${a.cur.toLocaleString()}/${a.max.toLocaleString()}` })),
+      achDone: done, achTotal: ach.length, achPct: Math.round(done / ach.length * 100) + '%', achEmpty: done === 0 && st.games === 0, achNotEmpty: !(done === 0 && st.games === 0),
+      goMenu: go('menu'), goSettings: go('settings'), goHowto: go('howto'), goAch: go('ach'), goCollection: go('collection'),
+      continueGame: () => this.setState({ screen: 'game', overlay: null, prev: 'menu', daily: false }),
+      newGame: () => this.setState(s => ({ ...this.freshRound({ ...s, daily: false }), daily: false, overlay: null, prev: 'menu', tut: s.games === 0 ? 0 : s.tut })),
+      playDaily: () => this.setState(s => ({ ...this.freshRound({ ...s, daily: true }), daily: true, theme: 'space', overlay: null, prev: 'menu' })),
+      claimGift: () => { if (!giftClaimed) { this.setState(s => ({ giftClaimed: true, unlockedSkins: s.unlockedSkins.includes('sticker') ? s.unlockedSkins : [...s.unlockedSkins, 'sticker'] })); this.toast('🎁', 'Gift claimed', 'Sticker jar is yours'); } },
+      goBack: () => this.setState(s => ({ screen: s.prev || 'menu', overlay: s.prev === 'game' ? 'pause' : null, confirmReset: false })),
+      openPause: () => this.setState({ overlay: 'pause' }),
+      closeOverlay: () => this.setState({ overlay: null }),
+      askReset: () => this.setState({ confirmReset: true }), cancelReset: () => this.setState({ confirmReset: false }),
+      restart: () => { if (st.overlay === 'over' && (this.props.showAds ?? true)) this.startAd('restart'); else this.setState(s => ({ ...this.freshRound(s), overlay: null })); },
+      adRescue: () => this.startAd('rescue'),
+      resetProgress: () => this.setState({ best: 0, maxLevel: 0, discovered: 0, games: 0, streak: 1, missionsDone: [], missions: ['combo3','merge10','lvl9'], unlockedSkins: ['glass'], skin: 'glass', giftClaimed: false, confirmReset: false }),
+      dropAt, aimAt,
+    };
+  }
+}
+</script>
+</body>
+</html>

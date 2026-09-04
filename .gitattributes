@@ -1,0 +1,8 @@
+# Store every text file with LF line endings, whatever the checkout platform.
+* text=auto eol=lf
+
+# Binary assets: never touch their bytes.
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.zip binary

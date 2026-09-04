@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:oklch(0.97 0.025 60);font-family:'Nunito',sans-serif;color:oklch(0.32 0.04 40);-webkit-font-smoothing:antialiased;}
+a{color:oklch(0.62 0.15 20);text-decoration:none}a:hover{color:oklch(0.52 0.15 20)}
+button{font-family:inherit}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pop{0%{transform:scale(0.6);opacity:0}70%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+@keyframes wobble{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 0%, oklch(0.95 0.05 40) 0%, oklch(0.97 0.025 60) 60%)">
+
+<!-- MENU -->
+<sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Menu" style="display:flex;flex-direction:column;align-items:center;gap:32px;width:100%;max-width:420px;text-align:center">
+  <div style="display:flex;gap:6px;font-size:44px;line-height:1;margin-top:24px">
+    <span style="display:inline-block;animation:floaty 3s ease-in-out infinite">{{ heroA }}</span>
+    <span style="display:inline-block;animation:floaty 3s ease-in-out .4s infinite;font-size:60px">{{ heroB }}</span>
+    <span style="display:inline-block;animation:floaty 3s ease-in-out .8s infinite">{{ heroC }}</span>
+  </div>
+  <div>
+    <h1 style="margin:0;font-size:52px;font-weight:900;letter-spacing:-1.5px;line-height:1;color:oklch(0.35 0.06 30)">Emoji<span style="color:oklch(0.68 0.16 20)"> Merge</span></h1>
+    <p style="margin:12px 0 0;font-size:17px;font-weight:600;color:oklch(0.55 0.04 40)">Drop. Merge. Grow.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;width:100%">
+    <button onClick="{{ goGame }}" style="border:0;cursor:pointer;border-radius:22px;padding:18px;font-size:20px;font-weight:800;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 6px 0 oklch(0.56 0.16 20), 0 12px 24px oklch(0.68 0.16 20 / .25)" style-hover="transform:translateY(-2px)" style-active="transform:translateY(4px);box-shadow:0 2px 0 oklch(0.56 0.16 20)">Play</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <button onClick="{{ goHowto }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px 8px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:0 1px 0 oklch(0.88 0.03 60)">How to play</button>
+      <button onClick="{{ goAch }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px 8px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:0 1px 0 oklch(0.88 0.03 60)">Awards</button>
+      <button onClick="{{ goSettings }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px 8px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:0 1px 0 oklch(0.88 0.03 60)">Settings</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:28px;padding:16px 28px;border-radius:20px;background:oklch(0.99 0.01 60 / .7)">
+    <div><div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Best</div><div style="font-size:26px;font-weight:900">{{ best }}</div></div>
+    <div><div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Biggest</div><div style="font-size:26px;line-height:1.2">{{ biggest }}</div></div>
+    <div><div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Games</div><div style="font-size:26px;font-weight:900">42</div></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- GAME -->
+<sc-if value="{{ isGame }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Game" style="display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;width:100%;max-width:760px;position:relative">
+  <div style="display:flex;flex-direction:column;gap:14px;width:min(100%, 420px)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button onClick="{{ openPause }}" aria-label="Pause" style="border:0;cursor:pointer;width:48px;height:48px;border-radius:16px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);font-size:18px;font-weight:900;color:oklch(0.4 0.05 40)" style-active="transform:translateY(3px);box-shadow:none">❚❚</button>
+      <div style="text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Score</div>
+        <div style="font-size:36px;font-weight:900;line-height:1;letter-spacing:-1px">{{ score }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:16px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)">
+        <span style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Next</span>
+        <span style="font-size:26px;line-height:1">{{ nextEmoji }}</span>
+      </div>
+    </div>
+    <div onClick="{{ dropAt }}" style="position:relative;width:100%;aspect-ratio:5/7;border-radius:28px;background:oklch(0.99 0.01 70);border:6px solid #fff;box-sizing:border-box;box-shadow:0 10px 0 oklch(0.88 0.03 60), 0 24px 40px oklch(0.5 0.1 40 / .12);overflow:hidden;cursor:pointer;touch-action:manipulation">
+      <div style="position:absolute;left:0;right:0;top:15%;border-top:2px dashed oklch(0.85 0.08 20)"></div>
+      <div style="position:absolute;top:calc(15% - 22px);right:12px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.75 0.08 20)">Danger line</div>
+      <div style="position:absolute;top:0;bottom:0;width:0;border-left:2px dotted oklch(0.85 0.04 40);left:{{ dropXPct }};transition:left .15s ease"></div>
+      <div style="position:absolute;top:8px;left:{{ dropXPct }};transform:translateX(-50%);font-size:{{ currentSize }};line-height:1;animation:wobble 1.6s ease-in-out infinite;transition:left .15s ease;filter:drop-shadow(0 4px 6px oklch(0.5 0.1 40 / .2))">{{ currentEmoji }}</div>
+      <sc-for list="{{ pieces }}" as="p" hint-placeholder-count="0">
+        <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%);animation:pop .35s ease-out;filter:drop-shadow(0 3px 4px oklch(0.5 0.1 40 / .18))">{{ p.emoji }}</div>
+      </sc-for>
+    </div>
+    <p style="margin:0;text-align:center;font-size:13px;font-weight:700;color:oklch(0.62 0.04 40)">Tap or click anywhere in the jar to drop</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px;width:min(100%, 240px)">
+    <div style="padding:16px;border-radius:22px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)">
+      <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:oklch(0.6 0.04 40);margin-bottom:12px">Evolution</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <sc-for list="{{ chainView }}" as="c" hint-placeholder-count="11">
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:{{ c.bg }};opacity:{{ c.op }}" title="{{ c.name }}">{{ c.emoji }}</div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="padding:14px;border-radius:18px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)"><div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Best</div><div style="font-size:22px;font-weight:900">{{ best }}</div></div>
+      <div style="padding:14px;border-radius:18px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)"><div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Merges</div><div style="font-size:22px;font-weight:900">{{ merges }}</div></div>
+    </div>
+    <button onClick="{{ openGameOver }}" style="border:0;cursor:pointer;border-radius:16px;padding:12px;font-size:13px;font-weight:800;color:oklch(0.55 0.04 40);background:transparent;border:2px dashed oklch(0.85 0.03 60)">Simulate game over</button>
+  </div>
+
+  <!-- PAUSE overlay -->
+  <sc-if value="{{ isPause }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Pause" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.35 0.05 40 / .45);backdrop-filter:blur(6px);z-index:10;padding:16px">
+    <div style="width:100%;max-width:340px;background:#fff;border-radius:28px;padding:28px;box-sizing:border-box;box-shadow:0 10px 0 oklch(0.88 0.03 60), 0 30px 60px oklch(0.3 0.05 40 / .3);display:flex;flex-direction:column;gap:20px;text-align:center;animation:pop .3s ease-out">
+      <div style="font-size:44px;line-height:1">😴</div>
+      <h2 style="margin:0;font-size:28px;font-weight:900">Paused</h2>
+      <div style="display:flex;justify-content:center;gap:24px;font-size:14px;font-weight:700;color:oklch(0.55 0.04 40)"><span style="white-space:nowrap">Score <b style="color:oklch(0.32 0.04 40)">{{ score }}</b></span><span style="white-space:nowrap">Merges <b style="color:oklch(0.32 0.04 40)">{{ merges }}</b></span></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{ closeOverlay }}" style="border:0;cursor:pointer;border-radius:18px;padding:16px;font-size:17px;font-weight:800;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 5px 0 oklch(0.56 0.16 20)" style-active="transform:translateY(4px);box-shadow:none">Resume</button>
+        <button onClick="{{ restart }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:oklch(0.96 0.02 60);box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:none">Restart</button>
+        <button onClick="{{ goSettings }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:oklch(0.96 0.02 60);box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:none">Settings</button>
+        <button onClick="{{ goMenu }}" style="border:0;cursor:pointer;background:transparent;padding:10px;font-size:14px;font-weight:800;color:oklch(0.6 0.04 40)">Quit to menu</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- GAME OVER overlay -->
+  <sc-if value="{{ isGameOver }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Game Over" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.35 0.05 40 / .5);backdrop-filter:blur(6px);z-index:10;padding:16px">
+    <div style="width:100%;max-width:360px;background:#fff;border-radius:28px;padding:28px;box-sizing:border-box;box-shadow:0 10px 0 oklch(0.88 0.03 60), 0 30px 60px oklch(0.3 0.05 40 / .3);display:flex;flex-direction:column;gap:20px;text-align:center;animation:pop .3s ease-out">
+      <div style="font-size:52px;line-height:1;animation:wobble 1.2s ease-in-out infinite">{{ biggest }}</div>
+      <div>
+        <h2 style="margin:0;font-size:28px;font-weight:900">The jar is full!</h2>
+        <sc-if value="{{ isNewBest }}" hint-placeholder-val="{{ false }}"><div style="margin-top:8px;display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:oklch(0.5 0.14 20);background:oklch(0.94 0.06 20)">✦ New best</div></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="padding:12px 6px;border-radius:16px;background:oklch(0.96 0.02 60)"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Score</div><div style="font-size:22px;font-weight:900">{{ score }}</div></div>
+        <div style="padding:12px 6px;border-radius:16px;background:oklch(0.96 0.02 60)"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Best</div><div style="font-size:22px;font-weight:900">{{ best }}</div></div>
+        <div style="padding:12px 6px;border-radius:16px;background:oklch(0.96 0.02 60)"><div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:oklch(0.6 0.04 40)">Merges</div><div style="font-size:22px;font-weight:900">{{ merges }}</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{ restart }}" style="border:0;cursor:pointer;border-radius:18px;padding:16px;font-size:17px;font-weight:800;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 5px 0 oklch(0.56 0.16 20)" style-active="transform:translateY(4px);box-shadow:none">Play again</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:oklch(0.96 0.02 60);box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:none">Share</button>
+          <button onClick="{{ goMenu }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.4 0.05 40);background:oklch(0.96 0.02 60);box-shadow:0 4px 0 oklch(0.88 0.03 60)" style-active="transform:translateY(3px);box-shadow:none">Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Settings" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button onClick="{{ goBack }}" aria-label="Back" style="border:0;cursor:pointer;width:44px;height:44px;border-radius:14px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);font-size:20px;font-weight:900;color:oklch(0.4 0.05 40)" style-active="transform:translateY(3px);box-shadow:none">←</button>
+    <h2 style="margin:0;font-size:28px;font-weight:900">Settings</h2>
+  </div>
+  <div style="background:#fff;border-radius:24px;box-shadow:0 6px 0 oklch(0.88 0.03 60);overflow:hidden">
+    <sc-for list="{{ settingRows }}" as="s" hint-placeholder-count="4">
+      <div onClick="{{ s.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid oklch(0.95 0.02 60);cursor:pointer">
+        <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">{{ s.icon }}</span><div><div style="font-size:16px;font-weight:800">{{ s.label }}</div><div style="font-size:13px;font-weight:600;color:oklch(0.6 0.04 40)">{{ s.hint }}</div></div></div>
+        <div style="width:52px;height:30px;border-radius:99px;position:relative;transition:background .2s;background:{{ s.trackBg }}"><div style="position:absolute;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 4px oklch(0 0 0 / .15);transition:left .2s;left:{{ s.knobLeft }}"></div></div>
+      </div>
+    </sc-for>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid oklch(0.95 0.02 60)">
+      <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">🎨</span><div><div style="font-size:16px;font-weight:800">Emoji set</div><div style="font-size:13px;font-weight:600;color:oklch(0.6 0.04 40)">What grows in your jar</div></div></div>
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="3">
+          <button onClick="{{ t.pick }}" style="border:0;cursor:pointer;width:38px;height:38px;border-radius:12px;font-size:20px;background:{{ t.bg }};box-shadow:{{ t.shadow }}">{{ t.icon }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px">
+      <div style="display:flex;align-items:center;gap:14px"><span style="font-size:24px;line-height:1">🌐</span><div><div style="font-size:16px;font-weight:800">Language</div><div style="font-size:13px;font-weight:600;color:oklch(0.6 0.04 40)">English</div></div></div>
+      <span style="font-size:18px;color:oklch(0.7 0.03 40)">›</span>
+    </div>
+  </div>
+  <button onClick="{{ resetProgress }}" style="border:0;cursor:pointer;border-radius:18px;padding:14px;font-size:15px;font-weight:800;color:oklch(0.55 0.15 20);background:oklch(0.96 0.03 20)">Reset progress</button>
+  <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:oklch(0.65 0.03 40)">Emoji Merge v1.0 · Made with 🧡</p>
+</div>
+</sc-if>
+
+<!-- HOW TO PLAY -->
+<sc-if value="{{ isHowto }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="How to play" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <button onClick="{{ goMenu }}" aria-label="Back" style="border:0;cursor:pointer;width:44px;height:44px;border-radius:14px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);font-size:20px;font-weight:900;color:oklch(0.4 0.05 40)" style-active="transform:translateY(3px);box-shadow:none">←</button>
+    <h2 style="margin:0;font-size:28px;font-weight:900">How to play</h2>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:22px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:oklch(0.95 0.05 60);display:flex;align-items:center;justify-content:center;font-size:28px">👇</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 1</div><div style="font-size:16px;font-weight:800">Drop an emoji</div><div style="font-size:14px;font-weight:600;color:oklch(0.6 0.04 40)">Tap where you want it to fall into the jar.</div></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:22px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:oklch(0.95 0.05 60);display:flex;align-items:center;justify-content:center;font-size:22px;letter-spacing:-6px">{{ heroA }}{{ heroA }}</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 2</div><div style="font-size:16px;font-weight:800">Match two of a kind</div><div style="font-size:14px;font-weight:600;color:oklch(0.6 0.04 40)">When identical emoji touch, they merge into the next one.</div></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;padding:18px;border-radius:22px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60)">
+      <div style="width:56px;height:56px;flex:none;border-radius:18px;background:oklch(0.95 0.05 60);display:flex;align-items:center;justify-content:center;font-size:28px">⚠️</div>
+      <div><div style="font-size:12px;font-weight:900;letter-spacing:1px;color:oklch(0.68 0.16 20)">STEP 3</div><div style="font-size:16px;font-weight:800">Stay under the line</div><div style="font-size:14px;font-weight:600;color:oklch(0.6 0.04 40)">If the pile crosses the dashed line, the game ends.</div></div>
+    </div>
+  </div>
+  <div style="padding:20px;border-radius:24px;background:#fff;box-shadow:0 6px 0 oklch(0.88 0.03 60)">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:oklch(0.6 0.04 40);margin-bottom:14px">Evolution chain</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center">
+      <sc-for list="{{ chainFull }}" as="c" hint-placeholder-count="11">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:{{ c.px }};height:{{ c.px }};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:{{ c.fs }};background:{{ c.bg }}">{{ c.emoji }}</div>
+          <div style="font-size:11px;font-weight:800;color:oklch(0.6 0.04 40)">{{ c.pts }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <button onClick="{{ goGame }}" style="border:0;cursor:pointer;border-radius:22px;padding:18px;font-size:19px;font-weight:800;color:#fff;background:oklch(0.68 0.16 20);box-shadow:0 6px 0 oklch(0.56 0.16 20)" style-active="transform:translateY(4px);box-shadow:none">Got it, let's play</button>
+</div>
+</sc-if>
+
+<!-- ACHIEVEMENTS -->
+<sc-if value="{{ isAch }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Achievements" style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ goMenu }}" aria-label="Back" style="border:0;cursor:pointer;width:44px;height:44px;border-radius:14px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);font-size:20px;font-weight:900;color:oklch(0.4 0.05 40)" style-active="transform:translateY(3px);box-shadow:none">←</button>
+      <h2 style="margin:0;font-size:28px;font-weight:900">Awards</h2>
+    </div>
+    <div style="padding:8px 14px;border-radius:99px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);font-size:14px;font-weight:900;white-space:nowrap;flex:none">{{ achDone }} / {{ achTotal }}</div>
+  </div>
+  <div style="height:10px;border-radius:99px;background:#fff;box-shadow:inset 0 2px 0 oklch(0.92 0.02 60);overflow:hidden"><div style="height:100%;border-radius:99px;background:oklch(0.68 0.16 20);width:{{ achPct }}"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <sc-for list="{{ achievements }}" as="a" hint-placeholder-count="6">
+      <div style="padding:18px 16px;border-radius:22px;background:#fff;box-shadow:0 4px 0 oklch(0.88 0.03 60);display:flex;flex-direction:column;gap:10px;opacity:{{ a.op }}">
+        <div style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:{{ a.bg }};filter:{{ a.filter }}">{{ a.icon }}</div>
+        <div><div style="font-size:15px;font-weight:800;line-height:1.2">{{ a.title }}</div><div style="margin-top:4px;font-size:12px;font-weight:600;color:oklch(0.6 0.04 40);line-height:1.35">{{ a.desc }}</div></div>
+        <div style="font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:{{ a.statusColor }}">{{ a.status }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;emojiTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;animals&quot;,&quot;food&quot;,&quot;space&quot;],&quot;default&quot;:&quot;animals&quot;,&quot;tsType&quot;:&quot;'animals'|'food'|'space'&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;menu&quot;,&quot;game&quot;,&quot;settings&quot;,&quot;howto&quot;,&quot;ach&quot;],&quot;default&quot;:&quot;menu&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;}}">
+const THEMES = {
+  animals: ['🐛','🐌','🐸','🐣','🐥','🐰','🐱','🐶','🐼','🦄','🌈'],
+  food: ['🫐','🍒','🍓','🍋','🍑','🍎','🥥','🍍','🍈','🍉','🎂'],
+  space: ['✨','⭐','🌟','☄️','🌙','🪐','🌍','☀️','🌌','🚀','👽'],
+};
+const NAMES = ['Tiny','Small','Little','Cute','Fluffy','Soft','Round','Big','Huge','Legendary','Ultimate'];
+const SIZES = [7,8.5,10,12,14,16.5,19.5,23,27,31.5,37]; // % of board width
+const PTS = [1,3,6,10,15,21,28,36,45,55,66];
+const BGS = ['oklch(0.95 0.04 20)','oklch(0.95 0.04 50)','oklch(0.95 0.04 80)','oklch(0.95 0.04 130)','oklch(0.95 0.04 170)','oklch(0.95 0.04 200)','oklch(0.95 0.04 240)','oklch(0.95 0.04 280)','oklch(0.95 0.04 320)','oklch(0.95 0.04 350)','oklch(0.94 0.06 20)'];
+const START = [
+  {l:8,x:26,y:86},{l:7,x:70,y:87},{l:5,x:50,y:74},{l:4,x:12,y:70},{l:4,x:90,y:72},
+  {l:2,x:34,y:63},{l:3,x:66,y:62},{l:1,x:50,y:57},{l:0,x:22,y:58},{l:1,x:82,y:59},{l:0,x:60,y:50},
+];
+class Component extends DCLogic {
+  state = {
+    screen: 'menu', overlay: null, prev: 'menu',
+    theme: null, score: 1240, best: 3860, merges: 37,
+    dropX: 50, current: 1, next: 0, pieces: START, maxLevel: 8,
+    sound: true, music: true, haptics: false, hints: true,
+  };
+  componentDidMount() { const s = this.props.startScreen; if (s && s !== 'menu') this.setState({ screen: s }); }
+  chain() { return THEMES[this.state.theme ?? this.props.emojiTheme ?? 'animals'] ?? THEMES.animals; }
+  renderVals() {
+    const st = this.state, ch = this.chain();
+    const go = (screen) => () => this.setState(s => ({ screen, overlay: null, prev: s.screen === 'settings' ? s.prev : s.screen }));
+    const toggle = (k) => () => this.setState(s => ({ [k]: !s[k] }));
+    const row = (k, icon, label, hint) => ({ icon, label, hint, toggle: toggle(k),
+      trackBg: st[k] ? 'oklch(0.68 0.16 20)' : 'oklch(0.9 0.02 60)', knobLeft: st[k] ? '25px' : '3px' });
+    const themeKey = st.theme ?? this.props.emojiTheme ?? 'animals';
+    const dropAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(6, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+      this.setState(s => {
+        const lvl = s.current, size = SIZES[lvl];
+        const near = s.pieces.filter(p => Math.abs(p.x - x) < (SIZES[p.l] + size) / 2 * 0.8);
+        const topY = near.length ? Math.min(...near.map(p => p.y - SIZES[p.l] * 0.36)) : 96;
+        const y = Math.max(18, topY - size * 0.36);
+        const merged = near.some(p => p.l === lvl);
+        let pieces = [...s.pieces, { l: lvl, x, y }];
+        let score = s.score + (merged ? PTS[lvl] * 3 : 1);
+        return { pieces, score, merges: s.merges + (merged ? 1 : 0), dropX: x,
+          current: s.next, next: Math.floor(Math.random() * 4), best: Math.max(s.best, score) };
+      });
+    };
+    const ach = [
+      { icon: ch[3], title: 'First hatch', desc: 'Reach the 4th emoji.', done: true, bg: BGS[3] },
+      { icon: '🔥', title: 'Combo x5', desc: 'Five merges in a row.', done: true, bg: 'oklch(0.95 0.05 40)' },
+      { icon: ch[8], title: 'Big softie', desc: 'Create the 9th emoji.', done: true, bg: BGS[8] },
+      { icon: '💯', title: 'Century', desc: 'Score 100 in one game.', done: true, bg: 'oklch(0.95 0.05 140)' },
+      { icon: ch[10], title: 'Ultimate merge', desc: 'Create the final emoji.', done: false, bg: BGS[10] },
+      { icon: '🏆', title: 'High roller', desc: 'Score 5,000 in one game.', done: false, bg: 'oklch(0.95 0.05 80)' },
+      { icon: '🧘', title: 'Zen', desc: 'Play 10 minutes without a game over.', done: false, bg: 'oklch(0.95 0.05 200)' },
+      { icon: '🎯', title: 'Sharpshooter', desc: '20 merges on landing.', done: false, bg: 'oklch(0.95 0.05 300)' },
+    ];
+    const done = ach.filter(a => a.done).length;
+    return {
+      isMenu: st.screen === 'menu', isGame: st.screen === 'game', isSettings: st.screen === 'settings',
+      isHowto: st.screen === 'howto', isAch: st.screen === 'ach',
+      isPause: st.overlay === 'pause', isGameOver: st.overlay === 'over', isNewBest: st.score >= st.best,
+      heroA: ch[3], heroB: ch[9], heroC: ch[6], biggest: ch[st.maxLevel],
+      score: st.score.toLocaleString(), best: st.best.toLocaleString(), merges: st.merges,
+      currentEmoji: ch[st.current], nextEmoji: ch[st.next], currentSize: `min(${SIZES[st.current] * 4}px, ${SIZES[st.current]}vw)`,
+      dropXPct: st.dropX + '%',
+      pieces: st.pieces.map(p => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: `min(${SIZES[p.l] * 3.6}px, ${SIZES[p.l] * 0.86}vw)` })),
+      chainView: ch.map((e, i) => ({ emoji: e, name: NAMES[i], bg: BGS[i], op: i <= st.maxLevel ? 1 : 0.35 })),
+      chainFull: ch.map((e, i) => ({ emoji: e, bg: BGS[i], pts: PTS[i] + ' pts', px: (40 + i * 2.4) + 'px', fs: (20 + i * 1.4) + 'px' })),
+      settingRows: [row('sound', '🔊', 'Sound effects', 'Pops, plops and merges'), row('music', '🎵', 'Music', 'Soft lo-fi loop'), row('haptics', '📳', 'Vibration', 'Feel every merge'), row('hints', '💡', 'Drop guide', 'Show the dotted line')],
+      themeChips: Object.keys(THEMES).map(k => ({ icon: THEMES[k][5], pick: () => this.setState({ theme: k }),
+        bg: k === themeKey ? 'oklch(0.94 0.06 20)' : 'oklch(0.96 0.02 60)', shadow: k === themeKey ? '0 0 0 2px oklch(0.68 0.16 20)' : 'none' })),
+      achievements: ach.map(a => ({ ...a, op: a.done ? 1 : 0.7, filter: a.done ? 'none' : 'grayscale(1)',
+        status: a.done ? 'Unlocked' : 'Locked', statusColor: a.done ? 'oklch(0.62 0.15 150)' : 'oklch(0.7 0.03 40)' })),
+      achDone: done, achTotal: ach.length, achPct: Math.round(done / ach.length * 100) + '%',
+      goMenu: go('menu'), goGame: () => this.setState({ screen: 'game', overlay: null, prev: 'menu' }),
+      goSettings: go('settings'), goHowto: go('howto'), goAch: go('ach'),
+      goBack: () => this.setState(s => ({ screen: s.prev || 'menu', overlay: s.prev === 'game' ? 'pause' : null })),
+      openPause: () => this.setState({ overlay: 'pause' }), openGameOver: () => this.setState({ overlay: 'over' }),
+      closeOverlay: () => this.setState({ overlay: null }),
+      restart: () => this.setState({ overlay: null, screen: 'game', score: 0, merges: 0, pieces: [], current: 0, next: 1, dropX: 50 }),
+      resetProgress: () => this.setState({ best: 0, maxLevel: 0 }),
+      dropAt,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#7ecbf2;font-family:'Baloo 2',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;height:100%}
+a{color:#fff;text-decoration:underline}a:hover{color:#ffe36e}
+button{font-family:inherit;transition:transform .1s cubic-bezier(.3,1.5,.5,1)}
+@keyframes cloud{0%{transform:translateX(-20vw)}100%{transform:translateX(120vw)}}
+@keyframes cloud2{0%{transform:translateX(-30vw)}100%{transform:translateX(120vw)}}
+@keyframes hang{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes land{0%{transform:translate(-50%,-50%) translateY(-60px) scale(1,1);opacity:0}55%{transform:translate(-50%,-50%) scale(1.15,.82);opacity:1}75%{transform:translate(-50%,-50%) translateY(-5px) scale(.95,1.06)}100%{transform:translate(-50%,-50%) scale(1)}}
+@keyframes mergePop{0%{transform:translate(-50%,-50%) scale(.5)}40%{transform:translate(-50%,-50%) scale(1.35,.8)}70%{transform:translate(-50%,-50%) scale(.9,1.15)}100%{transform:translate(-50%,-50%) scale(1)}}
+@keyframes ring{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+@keyframes rise{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}25%{opacity:1;transform:translate(-50%,-90%) scale(1.2)}100%{transform:translate(-50%,-280%) scale(1);opacity:0}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px) rotate(-.8deg)}60%{transform:translateX(6px) rotate(.6deg)}}
+@keyframes shake2{0%,100%{transform:none}20%{transform:translateX(-7px) rotate(-.8deg)}60%{transform:translateX(6px) rotate(.6deg)}}
+@keyframes popIn{0%{transform:scale(.5) rotate(-8deg);opacity:0}60%{transform:scale(1.1) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes cheer{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-12deg)}70%{transform:scale(.92) rotate(6deg)}100%{transform:scale(1)}}
+@keyframes cheer2{0%{transform:scale(1)}40%{transform:scale(1.3) rotate(-12deg)}70%{transform:scale(.92) rotate(6deg)}100%{transform:scale(1)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes bounceIn{0%{transform:translateY(-120vh) rotate(-20deg)}60%{transform:translateY(0) rotate(4deg)}80%{transform:translateY(-24px) rotate(-2deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes confetti{0%{transform:translateY(-20px) rotate(0)}100%{transform:translateY(110vh) rotate(720deg)}}
+@keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes sparkle{0%,100%{transform:scale(0);opacity:0}50%{transform:scale(1);opacity:1}}
+@keyframes fly{0%{transform:translateX(-10vw) translateY(0) scaleX(-1)}25%{transform:translateX(25vw) translateY(-30px) scaleX(-1)}50%{transform:translateX(60vw) translateY(10px) scaleX(-1)}75%{transform:translateX(90vw) translateY(-20px) scaleX(-1)}100%{transform:translateX(115vw) translateY(0) scaleX(-1)}}
+@keyframes flap{0%,100%{transform:rotate(-6deg) scale(1,1)}50%{transform:rotate(6deg) scale(1,.85)}}
+@keyframes dust{0%{transform:translate(-50%,0) scale(.4);opacity:.8}100%{transform:translate(-50%,-6px) scale(1.8);opacity:0}}
+@keyframes spark{0%{transform:translate(-50%,-50%) rotate(var(--a)) translateX(0) scale(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(var(--a)) translateX(70px) scale(0);opacity:0}}
+@keyframes sunBlink{0%,100%{transform:scale(1)}40%{transform:scale(1.18)}70%{transform:scale(.94)}}
+@keyframes cloudHop{0%,100%{margin-top:0}40%{margin-top:-18px}70%{margin-top:4px}}
+@keyframes grassSway{0%,100%{transform:skewX(0)}30%{transform:skewX(-6deg)}70%{transform:skewX(5deg)}}
+@keyframes note{0%{transform:translate(-50%,0) rotate(-10deg) scale(.5);opacity:0}30%{opacity:1;transform:translate(-30%,-24px) rotate(6deg) scale(1)}100%{transform:translate(-10%,-70px) rotate(-8deg) scale(.9);opacity:0}}
+@keyframes boxDrop{0%{transform:translateY(-120vh) rotate(-6deg)}55%{transform:translateY(0) rotate(0)}70%{transform:translateY(-40px) rotate(2deg)}85%{transform:translateY(0)}93%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@keyframes cloudsPart{0%{opacity:1}100%{opacity:0;transform:scale(1.6)}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes hopFence{0%,100%{transform:translateX(0) translateY(0) scaleX(1)}25%{transform:translateX(30px) translateY(-40px) scaleX(1)}50%{transform:translateX(60px) translateY(0) scaleX(-1)}75%{transform:translateX(30px) translateY(-40px) scaleX(-1)}}
+@keyframes toastIn{0%{transform:translate(-50%,-30px) scale(.8);opacity:0}15%{transform:translate(-50%,0) scale(1);opacity:1}85%{transform:translate(-50%,0) scale(1);opacity:1}100%{transform:translate(-50%,-20px) scale(.9);opacity:0}}
+</style>
+</helmet>
+<div style="position:fixed;inset:0;overflow:hidden;color:#3b2a1e;background:{{ sky.bg }};transition:background 2s">
+  <div style="position:absolute;inset:0;background:rgba(40,20,60,.35);opacity:{{ dangerDim }};transition:opacity .6s;pointer-events:none;z-index:1"></div>
+
+  <!-- STARS (night) -->
+  <div style="position:absolute;inset:0;opacity:{{ sky.stars }};transition:opacity 2s;pointer-events:none">
+    <sc-for list="{{ stars }}" as="s" hint-placeholder-count="0"><div style="position:absolute;left:{{ s.x }};top:{{ s.y }};width:{{ s.s }};height:{{ s.s }};border-radius:50%;background:#fff;animation:twinkle {{ s.d }} ease-in-out {{ s.delay }} infinite"></div></sc-for>
+  </div>
+
+
+  <!-- SKY -->
+  <div style="position:absolute;left:0;top:8%;width:180px;height:60px;animation:cloud 70s linear infinite;opacity:{{ sky.cloudOp }};pointer-events:none;transition:opacity 2s"><div style="animation:{{ hopAnim }};position:relative;width:100%;height:100%">
+    <div style="position:absolute;left:0;bottom:0;width:180px;height:38px;border-radius:99px;background:#fff"></div><div style="position:absolute;left:30px;bottom:14px;width:70px;height:70px;border-radius:50%;background:#fff"></div><div style="position:absolute;left:85px;bottom:10px;width:56px;height:56px;border-radius:50%;background:#fff"></div>
+  </div></div>
+  <div style="position:absolute;left:0;top:22%;width:120px;height:44px;animation:cloud2 95s linear -40s infinite;opacity:{{ sky.cloudOp }};pointer-events:none;transition:opacity 2s"><div style="animation:{{ hopAnim }};animation-delay:.08s;position:relative;width:100%;height:100%">
+    <div style="position:absolute;left:0;bottom:0;width:120px;height:26px;border-radius:99px;background:#fff"></div><div style="position:absolute;left:20px;bottom:10px;width:46px;height:46px;border-radius:50%;background:#fff"></div><div style="position:absolute;left:58px;bottom:8px;width:38px;height:38px;border-radius:50%;background:#fff"></div>
+  </div></div>
+  <div style="position:absolute;left:0;top:4%;width:240px;height:70px;animation:cloud 120s linear -70s infinite;opacity:{{ sky.cloudOp }};pointer-events:none;transition:opacity 2s"><div style="animation:{{ hopAnim }};animation-delay:.15s;position:relative;width:100%;height:100%">
+    <div style="position:absolute;left:0;bottom:0;width:240px;height:44px;border-radius:99px;background:#fff"></div><div style="position:absolute;left:50px;bottom:16px;width:80px;height:80px;border-radius:50%;background:#fff"></div><div style="position:absolute;left:120px;bottom:12px;width:66px;height:66px;border-radius:50%;background:#fff"></div>
+  </div></div>
+  <div style="position:absolute;right:24%;top:4%;width:90px;height:90px;border-radius:50%;background:{{ sky.sun }};box-shadow:0 0 0 14px {{ sky.halo }}, 0 0 60px {{ sky.halo }};pointer-events:none;transition:background 2s, box-shadow 2s;animation:{{ sunAnim }};display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1">{{ sky.face }}</div>
+
+  <!-- HILLS & GROUND -->
+  <div style="position:absolute;left:-10%;right:-10%;bottom:18%;height:32%;border-radius:50% 50% 0 0;background:#8fd45f;pointer-events:none;filter:{{ sky.ground }};transition:filter 2s"></div>
+  <div style="position:absolute;left:-20%;width:80%;bottom:16%;height:26%;border-radius:50% 50% 0 0;background:#78c64a;pointer-events:none;filter:{{ sky.ground }};transition:filter 2s"></div>
+  <div style="position:absolute;right:-20%;width:70%;bottom:14%;height:22%;border-radius:50% 50% 0 0;background:#9edb6a;pointer-events:none;filter:{{ sky.ground }};transition:filter 2s"></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;height:20%;background:#67b83e;pointer-events:none;filter:{{ sky.ground }};transition:filter 2s"></div>
+  <!-- grass blades -->
+  <div style="position:absolute;left:0;right:0;bottom:calc(19% - 4px);height:26px;display:flex;justify-content:space-between;padding:0 3%;pointer-events:none;transform-origin:bottom;animation:{{ grassAnim }}">
+    <sc-for list="{{ grass }}" as="g" hint-placeholder-count="0"><div style="width:9px;height:{{ g.h }};border-radius:99px 99px 0 0;background:#5aa634;align-self:flex-end;transform:rotate({{ g.r }});transform-origin:bottom"></div></sc-for>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:19%;height:10px;background:#5aa634;border-radius:99px;pointer-events:none"></div>
+  <!-- fence -->
+  <div style="position:absolute;left:0;right:0;bottom:19%;height:72px;display:flex;justify-content:space-around;align-items:flex-end;pointer-events:none;opacity:.95">
+    <sc-for list="{{ fence }}" as="f" hint-placeholder-count="14"><div style="width:18px;height:{{ f.h }};border-radius:6px 6px 2px 2px;background:#e8c890;border:3px solid #6b4a2b;box-sizing:border-box"></div></sc-for>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:calc(19% + 34px);height:10px;background:#e8c890;border-top:3px solid #6b4a2b;border-bottom:3px solid #6b4a2b;pointer-events:none"></div>
+  <div style="position:absolute;left:0;right:0;bottom:calc(19% + 14px);height:10px;background:#e8c890;border-top:3px solid #6b4a2b;border-bottom:3px solid #6b4a2b;pointer-events:none"></div>
+
+
+  <!-- ================= GAME ================= -->
+  <div data-screen-label="Game" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:max(10px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));box-sizing:border-box">
+    <div style="position:relative;display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px, 3vw, 40px);width:100%;max-width:1000px;height:100%;max-height:820px">
+
+      <!-- LEFT: score -->
+      <div style="position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:2px;pointer-events:none">
+        <div style="font-family:'Lilita One',sans-serif;font-size:clamp(44px, 9vw, 92px);line-height:.9;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 5px 0 #3b2a1e, 0 8px 0 rgba(0,0,0,.15);transform:rotate(-4deg);transform-origin:left bottom;transition:color .3s;color:{{ scoreColor }}">{{ score }}</div>
+        <div style="margin-top:10px;margin-left:4px;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:99px;background:#fff;border:3px solid #3b2a1e;font-weight:800;font-size:clamp(12px, 1.8vw, 15px);box-shadow:0 3px 0 #3b2a1e;width:max-content">👑 {{ best }}</div>
+      </div>
+
+      <!-- RIGHT: next + pause + evolution circle -->
+      <div style="position:absolute;right:0;top:0;z-index:5;display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center">
+            <div style="position:relative;width:clamp(56px, 8vw, 78px);height:clamp(56px, 8vw, 78px);border-radius:50%;background:#fff;border:3px solid #3b2a1e;box-shadow:0 4px 0 #3b2a1e;display:flex;align-items:center;justify-content:center;font-size:clamp(30px, 4.4vw, 44px);line-height:1;animation:bob 2.4s ease-in-out infinite">{{ nextEmoji }}<div style="position:absolute;left:-10px;bottom:-4px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid #3b2a1e"></div><div style="position:absolute;left:-18px;bottom:-14px;width:9px;height:9px;border-radius:50%;background:#fff;border:3px solid #3b2a1e"></div></div>
+            <div style="margin-top:8px;padding:2px 10px;border-radius:99px;background:#3b2a1e;color:#fff;font-weight:800;font-size:11px;letter-spacing:1px">NEXT</div>
+          </div>
+          <button onClick="{{ openPause }}" aria-label="Pause" style="width:48px;height:48px;border-radius:14px;background:#ffe36e;border:3px solid #3b2a1e;box-shadow:0 4px 0 #3b2a1e;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px" style-hover="transform:translateY(-2px)" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" stroke="#3b2a1e" stroke-width="3" stroke-linejoin="round"><rect x="4" y="4" width="6" height="16" rx="2"></rect><rect x="14" y="4" width="6" height="16" rx="2"></rect></svg></button>
+        </div>
+        <!-- evolution circle -->
+        <div style="position:relative;width:clamp(96px, 15vw, 150px);height:clamp(96px, 15vw, 150px);display:{{ circleDisplay }}">
+          <div style="position:absolute;inset:0;border-radius:50%;border:3px dashed rgba(59,42,30,.35);animation:spinSlow 90s linear infinite"></div>
+          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:36%;height:36%;border-radius:50%;background:#fff;border:3px solid #3b2a1e;display:flex;align-items:center;justify-content:center;font-size:clamp(18px, 3vw, 30px);line-height:1">{{ biggest }}</div>
+          <sc-for list="{{ circle }}" as="c" hint-placeholder-count="11">
+            <div style="position:absolute;left:{{ c.x }};top:{{ c.y }};transform:translate(-50%,-50%);font-size:{{ c.fs }};line-height:1;opacity:{{ c.op }};filter:{{ c.filter }}">{{ c.emoji }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- BOX -->
+      <div style="position:relative;height:min(100%, 78vh);aspect-ratio:5/6.2;max-width:min(92vw, 470px);margin-top:auto;animation:{{ boxAnim }};transform:{{ boxScale }};transition:transform .6s cubic-bezier(.3,1.2,.4,1);transform-origin:bottom center">
+        <sc-if value="{{ showCombo }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:50%;top:-6px;transform:translateX(-50%) rotate(-5deg);z-index:6;font-family:'Lilita One',sans-serif;font-size:clamp(24px, 4vw, 40px);color:#ffe36e;-webkit-text-stroke:1.5px #3b2a1e;text-shadow:0 4px 0 #3b2a1e;animation:popIn .3s cubic-bezier(.3,1.5,.5,1) both;white-space:nowrap;pointer-events:none">×{{ combo }} COMBO!</div>
+        </sc-if>
+        <!-- wooden walls -->
+        <div style="position:absolute;left:-18px;top:0;bottom:-14px;width:22px;border-radius:8px 4px 4px 12px;background:{{ box.wallL }};border:3px solid {{ box.edge }};box-sizing:border-box;z-index:3"></div>
+        <div style="position:absolute;right:-18px;top:0;bottom:-14px;width:22px;border-radius:4px 8px 12px 4px;background:{{ box.wallR }};border:3px solid {{ box.edge }};box-sizing:border-box;z-index:3"></div>
+        <div style="position:absolute;left:-18px;right:-18px;bottom:-14px;height:26px;border-radius:6px 6px 14px 14px;background:{{ box.base }};border:3px solid {{ box.edge }};box-sizing:border-box;z-index:4;box-shadow:0 8px 0 rgba(59,42,30,.25)"></div>
+        <div style="position:absolute;left:-22px;right:-22px;top:-6px;height:14px;border-radius:6px;background:{{ box.rim }};border:3px solid {{ box.edge }};box-sizing:border-box;z-index:4"></div>
+        <sc-if value="{{ box.isSpace }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:-14px;top:38%;width:14px;height:44px;border-radius:6px;background:#9fe0ff;border:3px solid #3b4a5e;box-sizing:border-box;z-index:5"></div><div style="position:absolute;left:-14px;top:30%;width:14px;height:14px;border-radius:50%;background:#ff7a59;border:3px solid #3b4a5e;box-sizing:border-box;z-index:5;animation:blink 1.4s ease-in-out infinite"></div></sc-if>
+        <sc-if value="{{ box.isFood }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:-22px;right:-22px;top:-6px;height:14px;border-radius:6px;background:repeating-linear-gradient(90deg,#ff7a59 0 12px,#fff 12px 24px);border:3px solid #6b4a2b;box-sizing:border-box;z-index:5;opacity:.9"></div></sc-if>
+        <!-- inside -->
+        <div onClick="{{ dropAt }}" onMouseMove="{{ aimAt }}" onTouchMove="{{ aimTouch }}" style="position:absolute;inset:0;background:{{ box.inner }};border:3px solid {{ box.edge }};border-bottom:0;box-sizing:border-box;overflow:hidden;cursor:pointer;touch-action:none;box-shadow:inset 0 -30px 40px rgba(180,120,60,.14), inset 14px 0 24px rgba(120,80,40,.14), inset -14px 0 24px rgba(120,80,40,.14), inset 0 40px 50px rgba(255,255,255,.55);z-index:2">
+          <div style="position:absolute;left:0;right:0;top:0;height:30%;background:linear-gradient(rgba(255,255,255,.5),transparent);pointer-events:none"></div>
+          <div style="position:absolute;left:0;right:0;top:16%;border-top:3px dashed {{ dangerColor }};transition:border-color .3s;animation:{{ dangerAnim }}"></div>
+          <div style="position:absolute;top:0;bottom:0;width:0;border-left:2px dashed rgba(59,42,30,.25);left:{{ dropXPct }};transition:left .08s;opacity:{{ guideOp }}"></div>
+          <sc-if value="{{ notLoading }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute;top:10px;left:{{ dropXPct }};width:0;display:flex;justify-content:center;transition:left .08s"><div style="font-size:{{ currentSize }};line-height:1;animation:hang 1.6s ease-in-out infinite;filter:drop-shadow(0 4px 0 rgba(59,42,30,.18))">{{ currentEmoji }}</div></div>
+          </sc-if>
+          <sc-for list="{{ pieces }}" as="p" hint-placeholder-count="0">
+            <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};font-size:{{ p.size }};line-height:1;transform:translate(-50%,-50%);animation:{{ p.anim }};filter:drop-shadow(0 4px 0 rgba(59,42,30,.18))">{{ p.emoji }}</div>
+          </sc-for>
+          <sc-for list="{{ dusts }}" as="d" hint-placeholder-count="0">
+            <div style="position:absolute;left:{{ d.left }};top:{{ d.top }};width:{{ d.w }};height:10px;border-radius:50%;background:rgba(180,140,90,.35);animation:dust .45s ease-out forwards;pointer-events:none"></div>
+          </sc-for>
+          <sc-for list="{{ sparks }}" as="s" hint-placeholder-count="0">
+            <div style="--a:{{ s.a }};position:absolute;left:{{ s.left }};top:{{ s.top }};width:10px;height:10px;border-radius:2px;background:{{ s.c }};border:2px solid #3b2a1e;animation:spark .6s ease-out forwards;pointer-events:none"></div>
+          </sc-for>
+          <sc-for list="{{ bursts }}" as="b" hint-placeholder-count="0">
+            <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};font-size:22px;line-height:1;animation:note 1s ease-out forwards;pointer-events:none">♪</div>
+            <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};width:{{ b.size }};height:{{ b.size }};border-radius:50%;border:5px solid #ffe36e;box-shadow:0 0 0 3px #3b2a1e;animation:ring .5s ease-out forwards;pointer-events:none"></div>
+            <div style="position:absolute;left:{{ b.left }};top:{{ b.top }};font-family:'Lilita One',sans-serif;font-size:clamp(24px,4vw,34px);color:#fff;-webkit-text-stroke:1.5px #3b2a1e;text-shadow:0 3px 0 #3b2a1e;animation:rise 1s cubic-bezier(.2,.7,.3,1) forwards;pointer-events:none;white-space:nowrap">+{{ b.pts }}</div>
+          </sc-for>
+          <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);font-weight:800;font-size:15px;color:#3b2a1e;opacity:.6;animation:blink 1s ease-in-out infinite;white-space:nowrap">loading…</div>
+          </sc-if>
+          <sc-if value="{{ tutTap }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:50%;top:44%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;animation:bob 1.2s ease-in-out infinite"><div style="padding:8px 14px;border-radius:14px;background:#fff;border:3px solid #3b2a1e;box-shadow:0 3px 0 #3b2a1e;font-weight:800;font-size:15px;white-space:nowrap">Tap to drop!</div><div style="font-size:30px;line-height:1">👇</div></div>
+          </sc-if>
+          <sc-if value="{{ tutMerge }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:50%;top:40%;transform:translateX(-50%);pointer-events:none;animation:bob 1.2s ease-in-out infinite"><div style="padding:8px 14px;border-radius:14px;background:#fff;border:3px solid #3b2a1e;box-shadow:0 3px 0 #3b2a1e;font-weight:800;font-size:15px;white-space:nowrap">{{ currentEmoji }} + {{ currentEmoji }} = {{ tutNext }}</div></div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ showShake }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ adRescue }}" style="position:absolute;left:50%;bottom:-70px;transform:translateX(-50%);z-index:6;border:3px solid #3b2a1e;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;font-weight:800;font-size:15px;color:#3b2a1e;background:#ffe36e;box-shadow:0 4px 0 #3b2a1e;animation:popIn .3s both;white-space:nowrap" style-hover="transform:translate(-50%,-2px)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14z"></path></svg>Shake the box!</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;top:calc(10px + env(safe-area-inset-top));z-index:40;display:flex;align-items:center;gap:10px;padding:10px 18px 10px 12px;background:#fff;border:3px solid #3b2a1e;border-radius:99px;box-shadow:0 4px 0 #3b2a1e;animation:toastIn 2.6s cubic-bezier(.3,1.2,.4,1) forwards;pointer-events:none;white-space:nowrap;font-weight:800;font-size:15px"><span style="font-size:22px;line-height:1">{{ toastIcon }}</span>{{ toastText }}</div>
+    </sc-if>
+  </div>
+
+  <!-- ================= TITLE ================= -->
+  <sc-if value="{{ isTitle }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Title" onClick="{{ startFromTitle }}" style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:rgba(111,195,240,.45);backdrop-filter:blur(3px);cursor:pointer;padding:20px;box-sizing:border-box">
+    <div style="position:absolute;left:-10%;top:-10%;width:60%;height:60%;border-radius:50%;background:#fff;animation:cloudsPart 1s ease-in .3s both;pointer-events:none"></div>
+    <div style="position:absolute;right:-10%;top:-5%;width:55%;height:55%;border-radius:50%;background:#fff;animation:cloudsPart 1s ease-in .45s both;pointer-events:none"></div>
+    <div style="position:absolute;left:20%;bottom:-20%;width:70%;height:50%;border-radius:50%;background:#fff;animation:cloudsPart 1s ease-in .6s both;pointer-events:none"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;animation:bounceIn .9s cubic-bezier(.3,.9,.4,1) 1.1s both">
+      <div style="display:flex;gap:6px;font-size:clamp(38px, 8vw, 64px);line-height:1;margin-bottom:-10px">
+        <span style="display:inline-block;animation:bob 2s ease-in-out infinite;transform:rotate(-12deg)">{{ heroA }}</span><span style="display:inline-block;animation:bob 2s ease-in-out .3s infinite">{{ heroB }}</span><span style="display:inline-block;animation:bob 2s ease-in-out .6s infinite;transform:rotate(12deg)">{{ heroC }}</span>
+      </div>
+      <div style="font-family:'Lilita One',sans-serif;font-size:clamp(64px, 15vw, 130px);line-height:.9;color:#fff;-webkit-text-stroke:3px #3b2a1e;text-shadow:0 8px 0 #3b2a1e, 0 12px 0 rgba(0,0,0,.15);transform:rotate(-4deg);text-align:center">EMOJI</div>
+      <div style="font-family:'Lilita One',sans-serif;font-size:clamp(64px, 15vw, 130px);line-height:.9;color:#ffe36e;-webkit-text-stroke:3px #3b2a1e;text-shadow:0 8px 0 #3b2a1e, 0 12px 0 rgba(0,0,0,.15);transform:rotate(-4deg) translateX(18px);margin-top:-6px;text-align:center">MERGE</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;animation:popIn .4s 1.8s both">
+      <button onClick="{{ startFromTitle }}" style="border:4px solid #3b2a1e;cursor:pointer;padding:16px 46px;border-radius:99px;background:#ff7a59;color:#fff;font-family:'Lilita One',sans-serif;font-size:clamp(26px, 5vw, 36px);letter-spacing:1px;text-shadow:0 3px 0 #3b2a1e;box-shadow:0 7px 0 #3b2a1e;animation:wiggle 1.6s ease-in-out infinite" style-hover="transform:scale(1.05)" style-active="transform:translateY(5px);box-shadow:0 2px 0 #3b2a1e">PLAY</button>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ goHowto }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:8px 16px;border-radius:99px;background:#fff;font-weight:800;font-size:15px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">How to play</button>
+        <button onClick="{{ goSettings }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:8px 16px;border-radius:99px;background:#fff;font-weight:800;font-size:15px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">Settings</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;font-weight:800;font-size:14px;color:#fff;text-shadow:0 2px 0 #3b2a1e"><span>👑 Best {{ best }}</span><span>🔥 Day {{ streak }}</span></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= PAUSE ================= -->
+  <sc-if value="{{ isPause }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Pause" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.5);backdrop-filter:blur(4px);padding:16px;box-sizing:border-box">
+    <div style="width:100%;max-width:340px;background:#fff7e0;border:4px solid #3b2a1e;border-radius:28px;box-shadow:0 8px 0 #3b2a1e;padding:26px 24px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center;animation:popIn .3s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="font-size:60px;line-height:1;transform:rotate(12deg)">😴</div>
+      <div style="font-family:'Lilita One',sans-serif;font-size:40px;line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 4px 0 #3b2a1e">PAUSED</div>
+      <div style="font-weight:800;font-size:14px;opacity:.7">{{ score }} pts · {{ merges }} merges</div>
+      <button onClick="{{ closeOverlay }}" style="width:100%;border:3px solid #3b2a1e;cursor:pointer;padding:14px;border-radius:99px;background:#ff7a59;color:#fff;font-family:'Lilita One',sans-serif;font-size:24px;text-shadow:0 2px 0 #3b2a1e;box-shadow:0 5px 0 #3b2a1e" style-active="transform:translateY(4px);box-shadow:0 1px 0 #3b2a1e">RESUME</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%">
+        <button onClick="{{ restart }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:10px;border-radius:99px;background:#fff;font-weight:800;font-size:14px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">Restart</button>
+        <button onClick="{{ goSettings }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:10px;border-radius:99px;background:#fff;font-weight:800;font-size:14px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">Settings</button>
+        <button onClick="{{ goHowto }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:10px;border-radius:99px;background:#fff;font-weight:800;font-size:14px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">How to play</button>
+        <button onClick="{{ goCollection }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:10px;border-radius:99px;background:#fff;font-weight:800;font-size:14px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">Collection</button>
+      </div>
+      <button onClick="{{ goTitle }}" style="border:0;background:transparent;cursor:pointer;padding:6px;font-weight:800;font-size:14px;color:#3b2a1e;text-decoration:underline;opacity:.7">Title screen</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= DISCOVERY ================= -->
+  <sc-if value="{{ isDiscover }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="New emoji" onClick="{{ closeOverlay }}" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.6);cursor:pointer;padding:16px;box-sizing:border-box;overflow:hidden">
+    <div style="position:absolute;left:50%;top:50%;width:1400px;height:1400px;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg, rgba(255,227,110,.22) 0 10deg, transparent 10deg 24deg);border-radius:50%;animation:spinSlow 30s linear infinite;pointer-events:none"></div>
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;animation:popIn .5s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="padding:6px 18px;border-radius:99px;background:#ffe36e;border:3px solid #3b2a1e;font-weight:800;font-size:14px;letter-spacing:1px;box-shadow:0 3px 0 #3b2a1e">NEW!</div>
+      <div style="font-size:clamp(110px, 24vw, 170px);line-height:1;filter:drop-shadow(0 10px 0 rgba(59,42,30,.4));animation:bob 1.6s ease-in-out infinite">{{ discEmoji }}</div>
+      <div style="font-family:'Lilita One',sans-serif;font-size:clamp(40px, 9vw, 64px);line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 5px 0 #3b2a1e">{{ discName }}</div>
+      <div style="font-weight:800;font-size:16px;color:#fff;text-shadow:0 2px 0 #3b2a1e;max-width:300px">{{ discDesc }}</div>
+      <div style="margin-top:6px;font-weight:800;font-size:13px;color:#ffe36e;text-shadow:0 2px 0 #3b2a1e">tap to continue</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= GAME OVER ================= -->
+  <sc-if value="{{ isGameOver }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Game Over" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.55);backdrop-filter:blur(4px);padding:16px;box-sizing:border-box;overflow:hidden">
+    <sc-if value="{{ isNewBest }}" hint-placeholder-val="{{ false }}"><sc-for list="{{ confetti }}" as="k" hint-placeholder-count="0"><div style="position:absolute;top:-20px;left:{{ k.x }};width:10px;height:16px;border-radius:3px;background:{{ k.c }};border:2px solid #3b2a1e;animation:confetti {{ k.d }} linear {{ k.delay }} infinite;pointer-events:none"></div></sc-for></sc-if>
+    <div style="position:relative;width:100%;max-width:360px;background:#fff7e0;border:4px solid #3b2a1e;border-radius:28px;box-shadow:0 8px 0 #3b2a1e;padding:30px 24px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;animation:popIn .35s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="position:absolute;left:50%;top:-52px;transform:translateX(-50%) {{ overTf }};font-size:76px;line-height:1;filter:drop-shadow(0 5px 0 rgba(59,42,30,.3))">{{ overFace }}</div>
+      <div style="margin-top:10px;font-family:'Lilita One',sans-serif;font-size:clamp(30px, 8vw, 40px);line-height:1;color:{{ overTitleColor }};-webkit-text-stroke:2px #3b2a1e;text-shadow:0 4px 0 #3b2a1e">{{ overTitle }}</div>
+      <div style="font-family:'Lilita One',sans-serif;font-size:clamp(56px, 14vw, 72px);line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 5px 0 #3b2a1e">{{ score }}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-weight:800;font-size:13px">
+        <span style="padding:5px 12px;border-radius:99px;background:#fff;border:3px solid #3b2a1e">👑 {{ best }}</span>
+        <span style="padding:5px 12px;border-radius:99px;background:#fff;border:3px solid #3b2a1e">biggest {{ biggest }}</span>
+        <span style="padding:5px 12px;border-radius:99px;background:#fff;border:3px solid #3b2a1e">#{{ myRank }} this week</span>
+      </div>
+      <sc-if value="{{ canRescue }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ adRescue }}" style="width:100%;border:3px solid #3b2a1e;cursor:pointer;padding:12px 16px;border-radius:99px;background:#ffe36e;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 0 #3b2a1e" style-active="transform:translateY(4px);box-shadow:0 1px 0 #3b2a1e"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14z"></path></svg>Save the box <span style="font-weight:600;opacity:.7;font-size:13px">· removes 3 small</span></button>
+      </sc-if>
+      <button onClick="{{ restart }}" style="width:100%;border:3px solid #3b2a1e;cursor:pointer;padding:14px;border-radius:99px;background:#ff7a59;color:#fff;font-family:'Lilita One',sans-serif;font-size:24px;text-shadow:0 2px 0 #3b2a1e;box-shadow:0 5px 0 #3b2a1e" style-active="transform:translateY(4px);box-shadow:0 1px 0 #3b2a1e">PLAY AGAIN</button>
+      <div style="display:flex;gap:18px;font-weight:800;font-size:14px"><button style="border:0;background:transparent;cursor:pointer;padding:6px;color:#3b2a1e;text-decoration:underline">Share</button><button onClick="{{ goTitle }}" style="border:0;background:transparent;cursor:pointer;padding:6px;color:#3b2a1e;text-decoration:underline">Title</button></div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= AD ================= -->
+  <sc-if value="{{ isAd }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Ad break" style="position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:#2a1d14;color:#fff7e0;padding:16px;box-sizing:border-box">
+    <div style="position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;font-weight:800;font-size:14px;opacity:.8"><span>{{ adKicker }}</span><span>{{ adT }}s</span></div>
+    <div style="width:min(100%,420px);aspect-ratio:16/10;border:3px dashed rgba(255,247,224,.4);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;box-sizing:border-box;font-weight:800"><div style="font-size:20px">Ad goes here</div><div style="font-size:13px;opacity:.7">{{ adReward }}</div></div>
+    <div style="position:absolute;bottom:26px;left:20px;right:20px;height:10px;border-radius:99px;background:rgba(255,247,224,.2);overflow:hidden"><div style="height:100%;background:#ffe36e;width:{{ adPct }};transition:width 1s linear"></div></div>
+  </div>
+  </sc-if>
+
+  <!-- ================= HOW TO ================= -->
+  <sc-if value="{{ isHowto }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="How to play" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.5);backdrop-filter:blur(4px);padding:16px;box-sizing:border-box">
+    <div style="width:100%;max-width:400px;max-height:94vh;overflow:auto;background:#fff7e0;border:4px solid #3b2a1e;border-radius:28px;box-shadow:0 8px 0 #3b2a1e;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;animation:popIn .3s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="font-family:'Lilita One',sans-serif;font-size:36px;line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 4px 0 #3b2a1e;text-align:center">HOW TO PLAY</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e"><div style="font-size:34px;line-height:1">👇</div><div style="font-weight:800;font-size:15px;line-height:1.3">Tap to drop. It falls where you tap.</div></div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e"><div style="font-size:26px;line-height:1;white-space:nowrap">{{ heroA }}+{{ heroA }}</div><div style="font-weight:800;font-size:15px;line-height:1.3">Two of the same touch → they merge into the next one!</div></div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e"><div style="width:34px;height:0;border-top:3px dashed #ff4d4d;flex:none"></div><div style="font-weight:800;font-size:15px;line-height:1.3">Don't pile past the red line, or it's game over.</div></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-end;justify-content:center;padding:12px;border-radius:18px;background:#fff;border:3px solid #3b2a1e">
+        <sc-for list="{{ chainFull }}" as="c" hint-placeholder-count="11"><div style="font-size:{{ c.fs }};line-height:1">{{ c.emoji }}</div></sc-for>
+      </div>
+      <button onClick="{{ closeOverlay }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:12px;border-radius:99px;background:#ff7a59;color:#fff;font-family:'Lilita One',sans-serif;font-size:22px;text-shadow:0 2px 0 #3b2a1e;box-shadow:0 5px 0 #3b2a1e" style-active="transform:translateY(4px);box-shadow:0 1px 0 #3b2a1e">GOT IT!</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= COLLECTION ================= -->
+  <sc-if value="{{ isCollection }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Collection" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.5);backdrop-filter:blur(4px);padding:16px;box-sizing:border-box">
+    <div style="width:100%;max-width:400px;max-height:94vh;overflow:auto;background:#fff7e0;border:4px solid #3b2a1e;border-radius:28px;box-shadow:0 8px 0 #3b2a1e;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;animation:popIn .3s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:'Lilita One',sans-serif;font-size:34px;line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 4px 0 #3b2a1e">COLLECTION</div><div style="padding:5px 12px;border-radius:99px;background:#ffe36e;border:3px solid #3b2a1e;font-weight:800;font-size:14px">{{ colDone }}/11</div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <sc-for list="{{ collection }}" as="c" hint-placeholder-count="11">
+          <div style="aspect-ratio:1;border-radius:18px;background:{{ c.bg }};border:3px solid #3b2a1e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;box-sizing:border-box;opacity:{{ c.op }}"><div style="font-size:30px;line-height:1;filter:{{ c.filter }}">{{ c.emoji }}</div><div style="font-weight:800;font-size:10px;text-align:center;line-height:1.1">{{ c.name }}</div></div>
+        </sc-for>
+      </div>
+      <button onClick="{{ closeOverlay }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:12px;border-radius:99px;background:#fff;font-weight:800;font-size:16px;box-shadow:0 4px 0 #3b2a1e" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3b2a1e">Back</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= SETTINGS ================= -->
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Settings" style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(59,42,30,.5);backdrop-filter:blur(4px);padding:16px;box-sizing:border-box">
+    <div style="width:100%;max-width:380px;max-height:94vh;overflow:auto;background:#fff7e0;border:4px solid #3b2a1e;border-radius:28px;box-shadow:0 8px 0 #3b2a1e;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:popIn .3s cubic-bezier(.3,1.4,.5,1) both">
+      <div style="font-family:'Lilita One',sans-serif;font-size:34px;line-height:1;color:#fff;-webkit-text-stroke:2px #3b2a1e;text-shadow:0 4px 0 #3b2a1e;text-align:center">SETTINGS</div>
+      <sc-for list="{{ settingRows }}" as="s" hint-placeholder-count="4">
+        <div onClick="{{ s.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e;cursor:pointer;min-height:44px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;gap:12px;font-weight:800;font-size:15px"><span style="font-size:22px;line-height:1">{{ s.icon }}</span>{{ s.label }}</div>
+          <div style="width:52px;height:30px;border-radius:99px;border:3px solid #3b2a1e;position:relative;flex:none;background:{{ s.trackBg }};transition:background .2s"><div style="position:absolute;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #3b2a1e;box-sizing:border-box;transition:left .25s cubic-bezier(.3,1.5,.5,1);left:{{ s.knobLeft }}"></div></div>
+        </div>
+      </sc-for>
+      <div style="padding:12px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e">
+        <div style="font-weight:800;font-size:15px;margin-bottom:8px">Time of day</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ dayChips }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.pick }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:6px 12px 6px 8px;border-radius:99px;display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px;background:{{ t.bg }};color:{{ t.color }};box-shadow:{{ t.shadow }}" style-active="transform:translateY(2px)"><span style="font-size:18px;line-height:1">{{ t.icon }}</span>{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:12px 14px;border-radius:18px;background:#fff;border:3px solid #3b2a1e">
+        <div style="font-weight:800;font-size:15px;margin-bottom:8px">Emoji set</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ themeChips }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.pick }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:6px 12px 6px 8px;border-radius:99px;display:flex;align-items:center;gap:6px;font-weight:800;font-size:13px;background:{{ t.bg }};color:{{ t.color }};box-shadow:{{ t.shadow }}" style-active="transform:translateY(2px)"><span style="font-size:18px;line-height:1">{{ t.icon }}</span>{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <button onClick="{{ closeOverlay }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:12px;border-radius:99px;background:#ff7a59;color:#fff;font-family:'Lilita One',sans-serif;font-size:22px;text-shadow:0 2px 0 #3b2a1e;box-shadow:0 5px 0 #3b2a1e" style-active="transform:translateY(4px);box-shadow:0 1px 0 #3b2a1e">DONE</button>
+      <sc-if value="{{ notConfirmReset }}" hint-placeholder-val="{{ true }}"><button onClick="{{ askReset }}" style="border:0;background:transparent;cursor:pointer;padding:6px;font-weight:800;font-size:13px;color:#c0392b;text-decoration:underline">Reset progress</button></sc-if>
+      <sc-if value="{{ confirmReset }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:center;align-items:center;gap:10px;font-weight:800;font-size:13px;color:#c0392b">Sure? <button onClick="{{ resetProgress }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:6px 12px;border-radius:99px;background:#c0392b;color:#fff;font-weight:800">Erase</button><button onClick="{{ cancelReset }}" style="border:3px solid #3b2a1e;cursor:pointer;padding:6px 12px;border-radius:99px;background:#fff;font-weight:800;color:#3b2a1e">Keep</button></div></sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;emojiTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;animals&quot;,&quot;food&quot;,&quot;space&quot;],&quot;default&quot;:&quot;animals&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Game&quot;},&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Monetization&quot;},&quot;firstVisit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;title&quot;,&quot;game&quot;,&quot;pause&quot;,&quot;over&quot;,&quot;howto&quot;,&quot;settings&quot;,&quot;collection&quot;],&quot;default&quot;:&quot;title&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;}}">
+const THEMES = {
+  animals: { label: 'Animals', e: ['🐛','🐌','🐸','🐣','🐥','🐰','🐱','🐶','🐼','🦄','🌈'],
+    n: ['Caterpillar','Snail','Frog','Chick','Chicken','Bunny','Kitty','Puppy','Panda','Unicorn','Rainbow'],
+    d: ['Where every story starts.','Slow, steady, a little sticky.','Jumps when you least expect it.','Just hatched and already curious.','Grown up, still fluffy.','Twice the hops, twice the ears.','Sits in the box like she owns it.','Good boy. Very good boy.','Round enough to roll.','Rare, sparkly, mildly judgmental.','The whole box lights up. You did it!'] },
+  food: { label: 'Snacks', e: ['🫐','🍒','🍓','🍋','🍑','🍎','🥥','🍍','🍈','🍉','🎂'],
+    n: ['Blueberry','Cherry','Strawberry','Lemon','Peach','Apple','Coconut','Pineapple','Melon','Watermelon','Cake'],
+    d: ['Tiny and full of promise.','Comes in pairs, merges in pairs.','Sweet with a hint of seeds.','Sour face guaranteed.','Fuzzy and forgiving.','One a day keeps the box happy.','Hard outside, soft inside.','Spiky hat, sunny heart.','Cool, round and quietly proud.','The classic. Big, juicy, iconic.','Every merge was worth it. Eat up!'] },
+  space: { label: 'Space', e: ['✨','⭐','🌟','☄️','🌙','🪐','🌍','☀️','🌌','🚀','👽'],
+    n: ['Sparkle','Star','Glow star','Comet','Moon','Planet','Earth','Sun','Galaxy','Rocket','Visitor'],
+    d: ['A flicker in the dark.','Wishes accepted.','Brighter than average.','Passing through, in a hurry.','Keeps the tides in line.','Rings included.','Home sweet home.','Do not stare directly.','Billions of stars, one box.','Leaving orbit. Hold on!','It came all this way to see your box.'] },
+};
+const SIZES = [7,8.5,10,12,14,16.5,19.5,23,27,31.5,37];
+const PTS = [1,3,6,10,15,21,28,36,45,55,66];
+const SAVED = [
+  {l:8,x:26,y:86},{l:7,x:70,y:87},{l:5,x:50,y:74},{l:4,x:12,y:70},{l:4,x:90,y:72},
+  {l:2,x:34,y:63},{l:3,x:66,y:62},{l:1,x:50,y:57},{l:0,x:22,y:58},{l:1,x:82,y:59},{l:0,x:60,y:50},
+];
+const FRESH = [{l:0,x:40,y:94},{l:1,x:66,y:93}];
+const CONF = ['#ff7a59','#ffe36e','#8fd45f','#6fc3f0','#fff'];
+const BOARD = [5210, 4470, 3990, 2880, 1610];
+const SKIES = {
+  morning: { bg:'linear-gradient(180deg,#6fc3f0 0%,#a6e0fb 55%,#d5f1ff 100%)', sun:'#ffe36e', halo:'rgba(255,227,110,.4)', face:'', stars:0, cloudOp:.95, ground:'none', label:'Day', icon:'☀️' },
+  sunset: { bg:'linear-gradient(180deg,#5b5bd6 0%,#e77aa0 45%,#ffb36b 75%,#ffd68a 100%)', sun:'#ff9a5c', halo:'rgba(255,154,92,.45)', face:'', stars:.3, cloudOp:.8, ground:'brightness(.85) saturate(.9)', label:'Sunset', icon:'🌇' },
+  night: { bg:'linear-gradient(180deg,#0f1a3a 0%,#233a6b 60%,#3a5a8a 100%)', sun:'#fff3c4', halo:'rgba(255,243,196,.25)', face:'', stars:1, cloudOp:.35, ground:'brightness(.55) saturate(.7)', label:'Night', icon:'🌙' },
+};
+const DAY_ORDER = ['morning','sunset','night'];
+const BOXES = {
+  animals: { wallL:'linear-gradient(90deg,#c98d4c,#e2ad6a)', wallR:'linear-gradient(270deg,#c98d4c,#e2ad6a)', base:'linear-gradient(#e2ad6a,#b87b3c)', rim:'#e8c890', edge:'#6b4a2b', inner:'#fff7e0' },
+  food: { wallL:'repeating-linear-gradient(0deg,#e8b56b 0 10px,#d29a4e 10px 20px)', wallR:'repeating-linear-gradient(0deg,#e8b56b 0 10px,#d29a4e 10px 20px)', base:'linear-gradient(#e8b56b,#b8823a)', rim:'#fff', edge:'#6b4a2b', inner:'#fff9ea', isFood:true },
+  space: { wallL:'linear-gradient(90deg,#8a97ab,#c4cdd9)', wallR:'linear-gradient(270deg,#8a97ab,#c4cdd9)', base:'linear-gradient(#c4cdd9,#7d8a9d)', rim:'#dfe6ee', edge:'#3b4a5e', inner:'#eef4fb', isSpace:true },
+};
+const COLL_BG = ['#ffd9d0','#ffe9c2','#fff5b8','#dff5c2','#c8f0e4','#cfeefb','#d6dcff','#ead6ff','#ffd6f0','#ffdfe5','#fff3c4'];
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const fresh = p.firstVisit ?? false;
+    this.state = {
+      title: true, loading: true, overlay: null, theme: null, confirmReset: false,
+      score: fresh ? 0 : 1240, best: fresh ? 0 : 3860, merges: fresh ? 0 : 37, games: fresh ? 0 : 42, streak: fresh ? 1 : 3,
+      dropX: 50, current: fresh ? 0 : 1, next: 0, pieces: fresh ? FRESH : SAVED, maxLevel: fresh ? 1 : 8, discovered: fresh ? 1 : 8,
+      combo: 0, bursts: [], shakeN: 0, toast: null, tut: fresh ? 0 : 2, discLevel: 0, rescueUsed: false, lastMerged: null, moodPulse: 0,
+      adT: 0, adNext: null, sound: true, music: true, haptics: false, hints: true, narrow: false,
+      dayMode: null, dusts: [], sparks: [], sunPulse: 0, introDone: false,
+    };
+  }
+  componentDidMount() {
+    this._mq = window.matchMedia('(max-width: 640px)');
+    this._onMq = () => this.setState({ narrow: this._mq.matches });
+    this._mq.addEventListener('change', this._onMq); this._onMq();
+    const s = this.props.startScreen ?? 'title';
+    const init = { loading: false, title: s === 'title' };
+    if (s === 'howto' || s === 'settings' || s === 'collection' || s === 'pause' || s === 'over') init.overlay = s;
+    this._t = setTimeout(() => this.setState(init), 1200);
+    this._t2 = setTimeout(() => this.setState({ introDone: true }), 1500);
+  }
+  componentWillUnmount() { if (this._mq) this._mq.removeEventListener('change', this._onMq); clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._toastT); clearInterval(this._adI); }
+  themeKey() { return this.state.theme ?? this.props.emojiTheme ?? 'animals'; }
+  toast(icon, text) { clearTimeout(this._toastT); this.setState({ toast: { icon, text } }); this._toastT = setTimeout(() => this.setState({ toast: null }), 2600); }
+  startAd(next) {
+    clearInterval(this._adI);
+    this.setState({ overlay: 'ad', adT: 3, adNext: next });
+    this._adI = setInterval(() => this.setState(s => {
+      if (s.adT > 1) return { adT: s.adT - 1 };
+      clearInterval(this._adI);
+      if (s.adNext === 'rescue') {
+        const sorted = [...s.pieces].sort((a, b) => a.l - b.l);
+        const pieces = sorted.slice(Math.min(3, sorted.length)).map(p => ({ ...p, y: Math.min(96, p.y + 6) }));
+        setTimeout(() => this.toast('📦', 'Saved! Three small ones gone.'), 200);
+        return { overlay: null, adT: 0, adNext: null, rescueUsed: true, pieces, shakeN: s.shakeN + 1 };
+      }
+      return { ...this.freshRound(s), overlay: null, adT: 0, adNext: null };
+    }), 1000);
+  }
+  freshRound(s) { return { score: 0, merges: 0, combo: 0, pieces: FRESH, current: 0, next: 1, dropX: 50, games: s.games + 1, rescueUsed: false, lastMerged: null }; }
+  renderVals() {
+    const st = this.state, tk = this.themeKey(), T = THEMES[tk] ?? THEMES.animals, ch = T.e;
+    const toggle = (k) => () => this.setState(s => ({ [k]: !s[k] }));
+    const row = (k, icon, label) => ({ icon, label, toggle: toggle(k), trackBg: st[k] ? '#8fd45f' : '#e6dcc8', knobLeft: st[k] ? '24px' : '2px' });
+    const topOfPile = st.pieces.length ? Math.min(...st.pieces.map(p => p.y - SIZES[p.l] * 0.36)) : 100;
+    const danger = topOfPile < 30 && !st.loading && !st.title;
+    const aimX = (clientX, el) => { const r = el.getBoundingClientRect(); return Math.max(6, Math.min(94, ((clientX - r.left) / r.width) * 100)); };
+    const aimAt = (e) => { const x = aimX(e.clientX, e.currentTarget); if (Math.abs(x - this.state.dropX) > 0.5) this.setState({ dropX: x }); };
+    const aimTouch = (e) => { if (e.touches && e.touches[0]) { const x = aimX(e.touches[0].clientX, e.currentTarget); this.setState({ dropX: x }); } };
+    const dropAt = (e) => {
+      if (this.state.loading || this.state.title || this.state.overlay) return;
+      const x = aimX(e.clientX, e.currentTarget);
+      this.setState(s => {
+        const lvl = s.current, size = SIZES[lvl];
+        const near = s.pieces.filter(p => Math.abs(p.x - x) < (SIZES[p.l] + size) / 2 * 0.8);
+        const same = near.find(p => p.l === lvl && lvl < 10);
+        let pieces, gain, combo, bursts = s.bursts, overlay = s.overlay, maxLevel = s.maxLevel, discovered = s.discovered, discLevel = s.discLevel, tut = s.tut, lastMerged = null, moodPulse = s.moodPulse;
+        const id = Date.now();
+        let dusts = s.dusts, sparks = s.sparks, sunPulse = s.sunPulse;
+        if (same) {
+          const nl = lvl + 1; combo = s.combo + 1; gain = PTS[nl] * combo; moodPulse++;
+          if (nl >= 5) sunPulse++;
+          const cols = ['#ffe36e','#ff7a59','#fff','#8fd45f','#6fc3f0'];
+          sparks = [...sparks, ...Array.from({ length: 8 }, (_, k) => ({ id: id + k, x: same.x, y: same.y, a: (k * 45) + 'deg', c: cols[k % 5] }))];
+          setTimeout(() => this.setState(q => ({ sparks: q.sparks.filter(sp => sp.id < id || sp.id > id + 8) })), 700);
+          pieces = [...s.pieces.filter(p => p !== same), { l: nl, x: same.x, y: same.y, id }];
+          lastMerged = id;
+          bursts = [...bursts, { id, x: same.x, y: same.y, pts: gain, size: SIZES[nl] }];
+          setTimeout(() => this.setState(q => ({ bursts: q.bursts.filter(b => b.id !== id) })), 1000);
+          if (nl > maxLevel) { maxLevel = nl; if (nl > discovered) { discovered = nl; overlay = 'discover'; discLevel = nl; } }
+          if (tut === 1) { tut = 2; this.toast('🎉', 'That\u2019s a merge!'); }
+        } else {
+          combo = 0; gain = 1;
+          const topY = near.length ? Math.min(...near.map(p => p.y - SIZES[p.l] * 0.36)) : 96;
+          const y = Math.max(18, topY - size * 0.36);
+          pieces = [...s.pieces, { l: lvl, x, y, id }];
+          dusts = [...dusts, { id, x, y: y + size * 0.36, w: size * 2 }];
+          setTimeout(() => this.setState(q => ({ dusts: q.dusts.filter(d => d.id !== id) })), 500);
+          if (tut === 0) tut = 1;
+          if (y <= 18) overlay = 'over';
+        }
+        const score = s.score + gain;
+        return { pieces, score, combo, bursts, overlay, maxLevel, discovered, discLevel, tut, lastMerged, moodPulse, dusts, sparks, sunPulse, merges: s.merges + (same ? 1 : 0), dropX: x,
+          shakeN: same ? s.shakeN + 1 : s.shakeN, current: s.next, next: Math.floor(Math.random() * 4), best: Math.max(s.best, score) };
+      });
+    };
+    const isNewBest = st.score >= st.best && st.score > 0;
+    const rank = BOARD.filter(b => b > st.score).length + 1;
+    const mood = danger ? 'scared' : st.combo >= 2 ? 'happy' : 'calm';
+    const faces = { calm: '🐣', happy: '🤩', scared: '😨' };
+    const N = 11, R = 50;
+    const dayKey = st.dayMode ?? this.props.timeOfDay ?? 'auto';
+    const autoDay = st.score >= 3000 ? 'night' : st.score >= 1200 ? 'sunset' : 'morning';
+    const sk = SKIES[dayKey === 'auto' ? autoDay : dayKey] ?? SKIES.morning;
+    const box = BOXES[tk] ?? BOXES.animals;
+    const flyers = { animals: '🐦', food: '🐝', space: '🛸' };
+    return {
+      sky: sk, dangerDim: danger ? 1 : 0, flyer: flyers[tk] ?? '🐦',
+      stars: Array.from({ length: 40 }, (_, i) => ({ x: ((i * 37) % 100) + '%', y: ((i * 53) % 55) + '%', s: (2 + (i % 3)) + 'px', d: (1.6 + (i % 5) * .4) + 's', delay: ((i * .23) % 2) + 's' })),
+      grass: Array.from({ length: 60 }, (_, i) => ({ h: (10 + (i * 7) % 16) + 'px', r: (((i * 13) % 20) - 10) + 'deg' })),
+      sunAnim: st.sunPulse ? `sunBlink .6s cubic-bezier(.3,1.4,.5,1) ${st.sunPulse % 2 ? '' : 'reverse'} both` : 'none',
+      hopAnim: st.sunPulse ? `cloudHop .6s cubic-bezier(.3,1.4,.5,1) ${st.sunPulse % 2 ? '' : 'reverse'} both` : 'none',
+      grassAnim: st.shakeN ? `grassSway .7s ease-out ${st.shakeN % 2 ? '' : 'reverse'} both` : 'none',
+      boxAnim: !st.introDone ? 'boxDrop 1.3s cubic-bezier(.3,.9,.4,1) .2s both' : (st.shakeN ? (st.shakeN % 2 ? 'shake .35s ease-out' : 'shake2 .35s ease-out') : 'none'),
+      boxScale: st.overlay === 'over' && isNewBest ? 'scale(.86)' : 'scale(1)',
+      box: { ...box, isFood: !!box.isFood, isSpace: !!box.isSpace },
+      dusts: st.dusts.map(d => ({ left: d.x + '%', top: d.y + '%', w: `min(${d.w * 3.8}px, ${d.w * .86}vw)` })),
+      sparks: st.sparks.map(s => ({ left: s.x + '%', top: s.y + '%', a: s.a, c: s.c })),
+      dayChips: ['auto', ...DAY_ORDER].map(k => ({ icon: k === 'auto' ? '🔄' : SKIES[k].icon, label: k === 'auto' ? 'Auto' : SKIES[k].label, pick: () => this.setState({ dayMode: k }),
+        bg: k === dayKey ? '#3b2a1e' : '#fff', color: k === dayKey ? '#fff' : '#3b2a1e', shadow: k === dayKey ? 'none' : '0 3px 0 #3b2a1e' })),
+      isTitle: st.title, isLoading: st.loading, notLoading: !st.loading,
+      isPause: st.overlay === 'pause', isGameOver: st.overlay === 'over', isDiscover: st.overlay === 'discover', isAd: st.overlay === 'ad',
+      isHowto: st.overlay === 'howto', isSettings: st.overlay === 'settings', isCollection: st.overlay === 'collection',
+      isNewBest, canRescue: !st.rescueUsed, showShake: danger && !st.rescueUsed && !st.overlay,
+      heroA: ch[2], heroB: ch[3], heroC: ch[8], biggest: ch[st.maxLevel], streak: st.streak, myRank: rank,
+      score: st.score.toLocaleString(), best: st.best.toLocaleString(), merges: st.merges, scoreColor: isNewBest ? '#ffe36e' : '#fff',
+      overTitle: isNewBest ? 'NEW BEST!' : 'GAME OVER', overTitleColor: isNewBest ? '#ffe36e' : '#ff7a59', overFace: isNewBest ? '🥳' : '😵', overTf: isNewBest ? 'rotate(-10deg)' : 'rotate(180deg)',
+      discEmoji: ch[st.discLevel], discName: T.n[st.discLevel].toUpperCase(), discDesc: T.d[st.discLevel],
+      adT: st.adT, adPct: Math.round((3 - st.adT) / 3 * 100) + '%', adKicker: st.adNext === 'rescue' ? 'Rewarded ad' : 'Ad break', adReward: st.adNext === 'rescue' ? 'Reward: shake the box, lose the 3 smallest emoji.' : 'Between rounds, never more than once in 3 minutes.',
+      confirmReset: st.confirmReset, notConfirmReset: !st.confirmReset,
+      currentEmoji: ch[st.current], nextEmoji: ch[st.next], tutNext: ch[Math.min(st.current + 1, 10)], currentSize: `min(${SIZES[st.current] * 4.2}px, ${SIZES[st.current]}vw)`,
+      dropXPct: st.dropX + '%', guideOp: st.hints ? 1 : 0,
+      dangerColor: danger ? '#ff4d4d' : 'rgba(255,77,77,.5)', dangerAnim: danger ? 'blink .7s ease-in-out infinite' : 'none',
+      showCombo: st.combo >= 2, combo: st.combo,
+      moodFace: faces[mood], moodTf: mood === 'happy' ? 'rotate(-12deg) scale(1.15)' : mood === 'scared' ? 'rotate(-4deg)' : 'rotate(6deg)',
+      moodAnim: mood === 'scared' ? 'wiggle .3s ease-in-out infinite' : st.moodPulse ? `${st.moodPulse % 2 ? 'cheer' : 'cheer2'} .45s cubic-bezier(.3,1.5,.5,1) both` : 'bob 3s ease-in-out infinite',
+      bursts: st.bursts.map(b => ({ left: b.x + '%', top: b.y + '%', pts: b.pts, size: `min(${b.size * 3.8}px, ${b.size * 0.86}vw)` })),
+      tutTap: st.tut === 0 && !st.overlay && !st.loading && !st.title, tutMerge: st.tut === 1 && !st.overlay && !st.title,
+      hasToast: !!st.toast, toastIcon: st.toast?.icon, toastText: st.toast?.text,
+      pieces: st.pieces.map((p, i) => ({ emoji: ch[p.l], left: p.x + '%', top: p.y + '%', size: `min(${SIZES[p.l] * 3.8}px, ${SIZES[p.l] * 0.86}vw)`,
+        anim: st.loading ? `land .5s cubic-bezier(.3,.9,.4,1) ${i * 0.08}s both` : p.id === st.lastMerged ? 'mergePop .45s cubic-bezier(.3,1.4,.5,1) both' : 'land .4s cubic-bezier(.3,.9,.4,1) both' })),
+      circleDisplay: st.narrow ? 'none' : 'block',
+      circle: ch.map((e, i) => { const a = -Math.PI / 2 + (i / N) * Math.PI * 2; return { emoji: e, x: (50 + R * Math.cos(a)) + '%', y: (50 + R * Math.sin(a)) + '%', fs: `clamp(${12 + i * 0.6}px, ${1.6 + i * 0.12}vw, ${16 + i * 1.1}px)`, op: i <= st.maxLevel ? 1 : .35, filter: i <= st.maxLevel ? 'none' : 'grayscale(1)' }; }),
+      chainFull: ch.map((e, i) => ({ emoji: e, fs: (18 + i * 2) + 'px' })),
+      collection: ch.map((e, i) => { const open = i <= st.discovered; return { emoji: e, bg: open ? COLL_BG[i] : '#eee6d6', filter: open ? 'none' : 'grayscale(1) contrast(0) brightness(.5)', op: open ? 1 : .55, name: open ? T.n[i] : '???' }; }),
+      colDone: st.discovered + 1,
+      confetti: Array.from({ length: 26 }, (_, i) => ({ x: (i * 3.9 + 1) + '%', c: CONF[i % 5], d: (2.2 + (i % 4) * 0.5) + 's', delay: ((i * 0.37) % 2) + 's' })),
+      fence: Array.from({ length: 14 }, (_, i) => ({ h: (56 + (i % 3) * 6) + 'px' })),
+      tufts: [['🌼','6%','21%','22px'],['🌷','14%','19.5%','26px'],['🌱','30%','20%','20px'],['🌸','62%','19.5%','24px'],['🌿','78%','20.5%','22px'],['🌼','91%','19.5%','24px'],['🍄','44%','20%','20px'],['🌻','86%','21%','26px']].map(([e,x,y,s]) => ({ e, x, y, s })),
+      settingRows: [row('sound', st.sound ? '🔊' : '🔇', 'Sounds'), row('music', '🎵', 'Music'), row('haptics', '📳', 'Vibration'), row('hints', '📏', 'Aim line')],
+      themeChips: Object.keys(THEMES).map(k => ({ icon: THEMES[k].e[5], label: THEMES[k].label, pick: () => this.setState({ theme: k }),
+        bg: k === tk ? '#3b2a1e' : '#fff', color: k === tk ? '#fff' : '#3b2a1e', shadow: k === tk ? 'none' : '0 3px 0 #3b2a1e' })),
+      startFromTitle: () => this.setState({ title: false, overlay: null }),
+      goTitle: () => this.setState({ title: true, overlay: null }),
+      goHowto: () => this.setState({ overlay: 'howto' }), goSettings: () => this.setState({ overlay: 'settings', confirmReset: false }), goCollection: () => this.setState({ overlay: 'collection' }),
+      openPause: () => this.setState({ overlay: 'pause' }),
+      closeOverlay: () => this.setState(s => ({ overlay: s.title ? null : (s.overlay === 'howto' || s.overlay === 'settings' || s.overlay === 'collection') && s._fromPause ? 'pause' : null })),
+      askReset: () => this.setState({ confirmReset: true }), cancelReset: () => this.setState({ confirmReset: false }),
+      restart: () => { if (st.overlay === 'over' && (this.props.showAds ?? true)) this.startAd('restart'); else this.setState(s => ({ ...this.freshRound(s), overlay: null })); },
+      adRescue: () => this.startAd('rescue'),
+      resetProgress: () => this.setState({ best: 0, maxLevel: 0, discovered: 0, games: 0, streak: 1, confirmReset: false }),
+      dropAt, aimAt, aimTouch,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Drop emoji, match two of a kind and merge your way up the chain. A cosy physics puzzle.">
+<title>Emoji Merge</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="src/styles.css">
+<link rel="icon" href="assets/emoji/1f43c.svg" type="image/svg+xml">
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="danger-dim" id="dangerDim"></div>
+
+  <!-- SKY -->
+  <div class="stars" id="stars"></div>
+
+  <div class="cloud cloud-1"><div class="cloud-hop" data-hop>
+    <div class="cloud-body" style="width:180px;height:38px"></div>
+    <div class="cloud-puff" style="left:30px;bottom:14px;width:70px;height:70px"></div>
+    <div class="cloud-puff" style="left:85px;bottom:10px;width:56px;height:56px"></div>
+  </div></div>
+  <div class="cloud cloud-2"><div class="cloud-hop" data-hop style="animation-delay:.08s">
+    <div class="cloud-body" style="width:120px;height:26px"></div>
+    <div class="cloud-puff" style="left:20px;bottom:10px;width:46px;height:46px"></div>
+    <div class="cloud-puff" style="left:58px;bottom:8px;width:38px;height:38px"></div>
+  </div></div>
+  <div class="cloud cloud-3"><div class="cloud-hop" data-hop style="animation-delay:.15s">
+    <div class="cloud-body" style="width:240px;height:44px"></div>
+    <div class="cloud-puff" style="left:50px;bottom:16px;width:80px;height:80px"></div>
+    <div class="cloud-puff" style="left:120px;bottom:12px;width:66px;height:66px"></div>
+  </div></div>
+
+  <div class="sun" id="sun"></div>
+
+  <!-- HILLS & GROUND -->
+  <div class="hill hill-1"></div>
+  <div class="hill hill-2"></div>
+  <div class="hill hill-3"></div>
+  <div class="ground"></div>
+  <div class="grass" id="grass"></div>
+  <div class="grass-line"></div>
+  <div class="fence" id="fence"></div>
+  <div class="fence-rail rail-top"></div>
+  <div class="fence-rail rail-bottom"></div>
+
+  <!-- ================= GAME ================= -->
+  <div class="game">
+    <div class="game-inner">
+
+      <!-- LEFT: score -->
+      <div class="hud-left">
+        <div class="score" id="score">0</div>
+        <div class="best-chip"><span class="ico">👑</span> <span id="best">0</span></div>
+      </div>
+
+      <!-- RIGHT: next + pause + evolution circle -->
+      <div class="hud-right">
+        <div class="next-row">
+          <div class="next-col">
+            <div class="next-bubble" id="nextBubble">
+              <span class="next-emoji" id="nextEmoji"></span>
+              <span class="next-dot next-dot-a"></span>
+              <span class="next-dot next-dot-b"></span>
+            </div>
+            <div class="next-label">NEXT</div>
+          </div>
+          <button class="icon-btn pause-btn" id="pauseBtn" aria-label="Pause">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" stroke="#3b2a1e" stroke-width="3" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="4" width="6" height="16" rx="2"></rect>
+              <rect x="14" y="4" width="6" height="16" rx="2"></rect>
+            </svg>
+          </button>
+        </div>
+        <div class="evo" id="evo">
+          <div class="evo-ring"></div>
+          <div class="evo-core" id="evoCore"></div>
+        </div>
+      </div>
+
+      <!-- BOX -->
+      <div class="box" id="box">
+        <div class="combo" id="combo" hidden></div>
+        <div class="wall wall-l"></div>
+        <div class="wall wall-r"></div>
+        <div class="box-base"></div>
+        <div class="box-rim"></div>
+        <div class="space-extras" hidden>
+          <div class="space-window"></div>
+          <div class="space-lamp"></div>
+        </div>
+        <div class="food-tape" hidden></div>
+
+        <div class="box-inner" id="boxInner">
+          <div class="gloss"></div>
+          <div class="danger-line" id="dangerLine"></div>
+          <div class="aim" id="aim"></div>
+          <canvas id="canvas"></canvas>
+          <div class="held" id="held"><span class="held-emoji" id="heldEmoji"></span></div>
+          <div class="fx" id="fx"></div>
+          <div class="loading" id="loading">loading…</div>
+          <div class="tut tut-tap" id="tutTap" hidden>
+            <div class="tut-bubble">Tap to drop!</div>
+            <div class="tut-hand">👇</div>
+          </div>
+          <div class="tut tut-merge" id="tutMerge" hidden>
+            <div class="tut-bubble" id="tutMergeText"></div>
+          </div>
+        </div>
+
+        <button class="shake-btn" id="shakeBtn" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14z"></path>
+          </svg>Shake the box!
+        </button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" hidden><span class="toast-ico" id="toastIcon"></span><span id="toastText"></span></div>
+  </div>
+
+  <!-- ================= TITLE ================= -->
+  <div class="overlay title-screen" id="titleScreen">
+    <div class="title-cloud tc-1"></div>
+    <div class="title-cloud tc-2"></div>
+    <div class="title-cloud tc-3"></div>
+    <div class="title-art">
+      <div class="title-heroes">
+        <span class="hero hero-a" id="heroA"></span><span class="hero hero-b" id="heroB"></span><span class="hero hero-c" id="heroC"></span>
+      </div>
+      <div class="title-word title-word-1">EMOJI</div>
+      <div class="title-word title-word-2">MERGE</div>
+    </div>
+    <div class="title-actions">
+      <button class="btn-play" id="playBtn">PLAY</button>
+      <div class="title-links">
+        <button class="btn-pill" data-open="howto">How to play</button>
+        <button class="btn-pill" data-open="settings">Settings</button>
+      </div>
+      <div class="title-stats"><span><span class="ico">👑</span> Best <span id="titleBest">0</span></span><span><span class="ico">🔥</span> Day <span id="titleStreak">1</span></span></div>
+    </div>
+  </div>
+
+  <!-- ================= PAUSE ================= -->
+  <div class="overlay scrim" id="pauseScreen" hidden>
+    <div class="card">
+      <div class="card-face">😴</div>
+      <div class="card-title">PAUSED</div>
+      <div class="card-sub"><span id="pauseScore">0</span> pts · <span id="pauseMerges">0</span> merges</div>
+      <button class="btn-primary" id="resumeBtn">RESUME</button>
+      <div class="card-grid">
+        <button class="btn-pill" id="restartFromPause">Restart</button>
+        <button class="btn-pill" data-open="settings">Settings</button>
+        <button class="btn-pill" data-open="howto">How to play</button>
+        <button class="btn-pill" data-open="collection">Collection</button>
+      </div>
+      <button class="btn-text" data-action="title">Title screen</button>
+    </div>
+  </div>
+
+  <!-- ================= DISCOVERY ================= -->
+  <div class="overlay discovery" id="discoveryScreen" hidden>
+    <div class="rays"></div>
+    <div class="discovery-inner">
+      <div class="new-badge">NEW!</div>
+      <div class="disc-emoji" id="discEmoji"></div>
+      <div class="disc-name" id="discName"></div>
+      <div class="disc-desc" id="discDesc"></div>
+      <div class="disc-hint">tap to continue</div>
+    </div>
+  </div>
+
+  <!-- ================= GAME OVER ================= -->
+  <div class="overlay scrim" id="overScreen" hidden>
+    <div class="confetti" id="confetti"></div>
+    <div class="card">
+      <div class="over-face" id="overFace">😵</div>
+      <div class="card-title over-title" id="overTitle">GAME OVER</div>
+      <div class="over-score" id="overScore">0</div>
+      <div class="chips">
+        <span class="chip"><span class="ico">👑</span> <span id="overBest">0</span></span>
+        <span class="chip">biggest <span class="chip-emoji" id="overBiggest"></span></span>
+        <span class="chip">#<span id="overRank">1</span> this week</span>
+      </div>
+      <button class="btn-reward" id="rescueBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="13" rx="2"></rect><path d="M10 9l4 2.5L10 14z"></path>
+        </svg>Save the box <span class="btn-note">· removes 3 small</span>
+      </button>
+      <button class="btn-primary" id="againBtn">PLAY AGAIN</button>
+      <div class="card-links">
+        <button class="btn-text" id="shareBtn">Share</button>
+        <button class="btn-text" data-action="title">Title</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AD PLACEHOLDER ================= -->
+  <div class="overlay ad-screen" id="adScreen" hidden>
+    <div class="ad-top"><span id="adKicker">Ad break</span><span id="adTime">3s</span></div>
+    <div class="ad-frame">
+      <div class="ad-title">Ad goes here</div>
+      <div class="ad-note" id="adNote"></div>
+    </div>
+    <div class="ad-bar"><div class="ad-fill" id="adFill"></div></div>
+  </div>
+
+  <!-- ================= HOW TO ================= -->
+  <div class="overlay scrim" id="howtoScreen" hidden>
+    <div class="card card-scroll">
+      <div class="card-title">HOW TO PLAY</div>
+      <div class="rules">
+        <div class="rule"><div class="rule-ico">👇</div><div class="rule-text">Tap to drop. It falls where you tap.</div></div>
+        <div class="rule"><div class="rule-ico rule-pair" id="howtoPair"></div><div class="rule-text">Two of the same touch → they merge into the next one!</div></div>
+        <div class="rule"><div class="rule-dash"></div><div class="rule-text">Don't pile past the red line, or it's game over.</div></div>
+      </div>
+      <div class="chain-strip" id="chainStrip"></div>
+      <button class="btn-primary" data-action="close">GOT IT!</button>
+    </div>
+  </div>
+
+  <!-- ================= COLLECTION ================= -->
+  <div class="overlay scrim" id="collectionScreen" hidden>
+    <div class="card card-scroll">
+      <div class="card-head">
+        <div class="card-title">COLLECTION</div>
+        <div class="count-chip"><span id="collCount">1</span>/11</div>
+      </div>
+      <div class="coll-grid" id="collGrid"></div>
+      <button class="btn-pill btn-wide" data-action="close">Back</button>
+    </div>
+  </div>
+
+  <!-- ================= SETTINGS ================= -->
+  <div class="overlay scrim" id="settingsScreen" hidden>
+    <div class="card card-scroll">
+      <div class="card-title">SETTINGS</div>
+      <div id="settingRows"></div>
+      <div class="panel">
+        <div class="panel-title">Time of day</div>
+        <div class="chip-row" id="dayChips"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Emoji set</div>
+        <div class="chip-row" id="themeChips"></div>
+      </div>
+      <button class="btn-primary" data-action="close">DONE</button>
+      <button class="btn-text btn-danger" id="askResetBtn">Reset progress</button>
+      <div class="confirm-row" id="confirmReset" hidden>
+        Sure? <button class="btn-erase" id="eraseBtn">Erase</button><button class="btn-keep" id="keepBtn">Keep</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Credits: required attribution for the bundled artwork and fonts. -->
+  <button class="credits-btn" id="creditsBtn" aria-label="Credits">i</button>
+  <div class="overlay scrim" id="creditsScreen" hidden>
+    <div class="card card-scroll">
+      <div class="card-title">CREDITS</div>
+      <div class="credits-body">
+        <p><strong>Emoji Merge</strong> — original game code and sound.</p>
+        <p>Emoji artwork by <strong>Twemoji</strong>, © Twitter Inc. and contributors, licensed
+           Creative Commons Attribution 4.0 International (CC-BY 4.0). The full licence text ships
+           with the game in <code>assets/emoji/LICENSE-GRAPHICS.txt</code>.</p>
+        <p>Physics by <strong>Matter.js</strong>, © Liam Brummitt and contributors, MIT licence.</p>
+        <p>Fonts <strong>Lilita One</strong> and <strong>Baloo 2</strong>, SIL Open Font License 1.1.</p>
+        <p>All sound is generated in the browser with the Web Audio API. No sampled audio is used.</p>
+      </div>
+      <button class="btn-primary" data-action="close">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/matter.min.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
