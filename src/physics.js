@@ -51,6 +51,21 @@ const ROLLING_RESISTANCE = 0.94;
 export const TRIPLE_SIZE = 3;
 export const TRIPLE_TIER_SKIP = 2;
 
+/**
+ * How much closer than touching a third piece may be and still join a merging
+ * pair, as a fraction of the contact distance.
+ *
+ * Without this the rule is unreachable. A falling piece almost never reaches
+ * both neighbours on the same physics step: a horizontal error of a single
+ * pixel is enough for one contact to register a step earlier, and the pair
+ * merges before the third is ever considered. The slack has to cover roughly
+ * one step of travel, which is about 7.5 world units at the speed cap.
+ */
+const TRIPLE_REACH = 0.16;
+
+/** Clearance kept between a freshly merged piece and the box boundary. */
+const SPAWN_MARGIN = 1.5;
+
 export function radiusOf(tier) {
   return (SIZES[tier] / 100) * WORLD_W * 0.5;
 }
@@ -312,6 +327,13 @@ export class MergeWorld {
         }
       }
 
+      // A pair that is about to merge may still be waiting on a third piece
+      // that is a hair short of contact. Pull it in rather than losing it.
+      if (group.length === 2) {
+        const third = this._findWedgedThird(group[0], group[1]);
+        if (third) group.push(third);
+      }
+
       // Take a trio while one is available, then pair off whatever is left.
       while (group.length >= 2) {
         const members = group.splice(0, group.length >= TRIPLE_SIZE ? TRIPLE_SIZE : 2);
@@ -319,6 +341,41 @@ export class MergeWorld {
         this._pendingMerges.push(members);
       }
     }
+  }
+
+  /**
+   * A same-tier piece a hair short of touching either member of a merging
+   * pair. It is the piece that would have completed the trio had it reached
+   * contact one physics step sooner.
+   *
+   * The two outer pieces of this move are deliberately far apart, so the
+   * newcomer cannot be asked to be near both — and no angle test works either,
+   * because the bridging piece sits in the wedge *on top of* the other two,
+   * making the angle at it acute for a tight gap and obtuse for a wide one.
+   * Plain proximity to the bridge is the honest test. How often it sweeps in
+   * a bystander is a matter of measurement, not geometry; see the tests.
+   */
+  _findWedgedThird(a, b) {
+    let best = null;
+    let bestSlack = Infinity;
+
+    for (const other of this.pieces) {
+      if (other === a || other === b) continue;
+      if (other.merged || other.tier !== a.tier) continue;
+
+      for (const bridge of [a, b]) {
+        const reach = (other.circleRadius + bridge.circleRadius) * (1 + TRIPLE_REACH);
+        const d = Math.hypot(other.position.x - bridge.position.x, other.position.y - bridge.position.y);
+        if (d > reach) continue;
+
+        const slack = d / reach;
+        if (slack < bestSlack) {
+          bestSlack = slack;
+          best = other;
+        }
+      }
+    }
+    return best;
   }
 
   /**
@@ -357,7 +414,16 @@ export class MergeWorld {
 
       const triple = count >= TRIPLE_SIZE;
       const nextTier = Math.min(MAX_TIER, tier + (triple ? TRIPLE_TIER_SKIP : 1));
-      const born = this.addPiece(nextTier, x, y, {
+
+      // The merged piece is bigger than any of its parents — two tiers bigger
+      // for a trio — so a centroid that was fine for them can put it inside a
+      // wall or the floor. Spawning embedded shows as a visible sink while the
+      // solver pushes it back out, so keep the centre clear of the boundary.
+      const born_r = radiusOf(nextTier) + SPAWN_MARGIN;
+      const sx = Math.min(WORLD_W - born_r, Math.max(born_r, x));
+      const sy = Math.min(WORLD_H - born_r, y);
+
+      const born = this.addPiece(nextTier, sx, sy, {
         vx: vx * 0.5,
         vy: vy * 0.5 - (triple ? 2.6 : 1.6),
         angularVelocity: spin * 0.7,
@@ -387,10 +453,16 @@ export class MergeWorld {
       if (overlap <= 0) continue;
       const nx = dx / dist;
       const ny = dy / dist;
-      const push = Math.min(overlap, r * 0.5);
+      // Cap against the piece being moved, not the one that just appeared. A
+      // trio spawns a piece two tiers up, and scaling the shove to *its*
+      // radius flung small neighbours clean through the floor.
+      const push = Math.min(overlap, other.circleRadius * 0.5);
+      const margin = other.circleRadius + SPAWN_MARGIN;
       Body.setPosition(other, {
-        x: other.position.x + nx * push * 0.6,
-        y: other.position.y + ny * push * 0.6,
+        // Never shove a neighbour out of the box: the solver would then spend
+        // several frames dragging it back, which reads as a piece sinking.
+        x: Math.min(WORLD_W - margin, Math.max(margin, other.position.x + nx * push * 0.6)),
+        y: Math.min(WORLD_H - margin, other.position.y + ny * push * 0.6),
       });
       Body.setVelocity(other, {
         x: other.velocity.x + nx * 0.6,

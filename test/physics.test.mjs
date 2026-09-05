@@ -166,6 +166,43 @@ section('a third piece landing across a gap merges all three and skips a tier');
 }
 
 // ---------------------------------------------------------------------------
+section('the trio survives an off-centre drop');
+{
+  // The bug as reported: a perfectly centred drop worked, anything a pixel
+  // off degraded to a pair, because the third piece reached one neighbour a
+  // physics step before the other. A human cannot aim to the pixel, so the
+  // rule must tolerate a realistic miss — and still refuse a wide one, or it
+  // would sweep bystanders into every ordinary pair merge.
+  const drop = (aimOffsetInRadii, heightOffsetInRadii = 0) => {
+    const merges = [];
+    const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
+    const tier = 3;
+    const r = radiusOf(tier);
+    const d = 2 * r * 1.5;
+    const cx = WORLD_W / 2;
+    world.addPiece(tier, cx - d / 2, WORLD_H - r - 2);
+    world.addPiece(tier, cx + d / 2, WORLD_H - r - 2 - heightOffsetInRadii * r);
+    run(world, 1.5);
+    world.addPiece(tier, cx + aimOffsetInRadii * r, r + 14);
+    run(world, 4.5);
+    return merges;
+  };
+
+  for (const off of [0.1, 0.2]) {
+    const merges = drop(off);
+    check(`aim ${off} radius off centre still fires a trio`, merges.some((m) => m.triple), `merges=${merges.map((m) => m.count).join(',')}`);
+  }
+  {
+    const merges = drop(0.15, 0.2);
+    check('off centre and uneven together still fires a trio', merges.some((m) => m.triple), `merges=${merges.map((m) => m.count).join(',')}`);
+  }
+  {
+    const merges = drop(0.5);
+    check('a wide miss is only a pair, not a swept bystander', !merges.some((m) => m.triple) && merges.length >= 1, `merges=${merges.map((m) => m.count).join(',')}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 section('a plain pair still merges by one tier');
 {
   const merges = [];

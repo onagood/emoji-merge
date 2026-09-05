@@ -84,16 +84,28 @@ Drop a third piece across the gap between two of a kind and all three merge at
 once, **skipping a tier**, for double points.
 
 Two pieces resting apart cannot be touching each other — they would already
-have merged — so a cluster of three only ever appears when a third lands across
-the gap in a single step. That makes the rule self-limiting: it costs no delay,
-no waiting to see whether a third arrives, and it cannot fire by accident.
+have merged — so a trio only appears when a third lands across the gap. The
+rule therefore needs no delay and no waiting to see whether a third arrives.
 
-The geometry is forgiving but bounded. The third piece wedges against both only
-while their centres are less than two diameters apart; past that it falls
-straight between them. Aim near the middle of the gap.
+**A strict contact test makes the move unreachable.** A falling piece almost
+never reaches both neighbours on the same physics step: a horizontal error of
+one pixel is enough for one contact to register a step earlier, and the pair
+merges before the third is considered. So when a pair is about to merge,
+`_findWedgedThird` also accepts a same-tier piece within `TRIPLE_REACH` of
+either member — slack sized to cover one step of travel, about 7.5 world units.
 
-In ordinary play it fires roughly **1% of merges**, so the economy of the game
-is untouched — it is a skill flourish, not a balance change. `TRIPLE_SIZE` and
+The geometry is forgiving but bounded. The third wedges against both only while
+their centres are under two diameters apart; past that it falls straight
+between them. The aim may miss the middle of the gap by about a fifth of a
+radius, and a wider miss is an ordinary pair.
+
+One consequence worth knowing: a trio spawns a piece **two** tiers up, which is
+far larger than its parents. Scaling the shove that clears its neighbours to
+*its* radius flung small pieces through the floor, so the shove is capped
+against the piece being moved and clamped to the box.
+
+In ordinary play it fires around **5% of merges**, roughly ten times a game,
+so it is a flourish rather than a change to the economy. `TRIPLE_SIZE` and
 `TRIPLE_TIER_SKIP` in `src/physics.js` and `TRIPLE_BONUS` in `src/game.js`
 control it.
 
@@ -106,6 +118,7 @@ knowing:
 | `MAX_SPEED = 15` | physics.js | Speed cap per step |
 | `ROLLING_RESISTANCE` | physics.js | Spin retained per step while resting |
 | `TRIPLE_TIER_SKIP` | physics.js | Tiers gained when three merge at once |
+| `TRIPLE_REACH` | physics.js | Slack that lets a near-touching third join |
 | `TRIPLE_BONUS` | game.js | Score multiplier for a triple |
 | `OVERFLOW_GRACE = 1.5` | game.js | Seconds above the line before the round ends |
 | `DANGER_HEIGHT` | game.js | Top 30% of the box triggers the warning |
