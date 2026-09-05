@@ -7,8 +7,9 @@
 
 import {
   THEMES, THEME_KEYS, SIZES, COLLECTION_BG, CONFETTI_COLORS,
-  LEADERBOARD, MAX_TIER, themeOf, boxOf,
+  MAX_TIER, themeOf, boxOf, sceneOf, isThemeUnlocked, THEME_UNLOCK,
 } from './themes.js';
+import { HISTORY_SIZE } from './storage.js';
 import {
   SKY_PRESETS, CYCLE, positionForScore, positionForKey, skyAt, ease,
   forwardFrom, nearestFrom,
@@ -50,7 +51,7 @@ export class UI {
       'titleBest', 'titleStreak', 'heroA', 'heroB', 'heroC', 'playBtn',
       'pauseScore', 'pauseMerges', 'resumeBtn', 'restartFromPause',
       'discEmoji', 'discName', 'discDesc',
-      'overFace', 'overTitle', 'overScore', 'overBest', 'overBiggest', 'overRank',
+      'overFace', 'overTitle', 'overScore', 'overBest', 'overBiggest', 'overRankChip', 'bestRuns',
       'rescueBtn', 'againBtn', 'shareBtn', 'confetti',
       'adKicker', 'adTime', 'adNote', 'adFill',
       'howtoPair', 'chainStrip', 'collGrid', 'collCount',
@@ -144,6 +145,19 @@ export class UI {
 
     document.querySelector('.space-extras').hidden = !box.isSpace;
     document.querySelector('.food-tape').hidden = !box.isFood;
+
+    // The backdrop follows the set: meadow, picnic, another world.
+    const scene = sceneOf(themeKey);
+    root.setProperty('--hill-1', scene.hill1);
+    root.setProperty('--hill-2', scene.hill2);
+    root.setProperty('--hill-3', scene.hill3);
+    root.setProperty('--ground', scene.ground);
+    root.setProperty('--ground-pattern', scene.groundPattern);
+    root.setProperty('--grass', scene.grass);
+    root.setProperty('--fence-fill', scene.fenceFill);
+    root.setProperty('--fence-edge', scene.fenceEdge);
+    root.setProperty('--fence-opacity', String(scene.fenceOpacity));
+    root.setProperty('--sun-ring', scene.sunRing ? '1' : '0');
 
     const chain = themeOf(themeKey).e;
     setEmoji(this.el.heroA, chain[2]);
@@ -281,6 +295,50 @@ export class UI {
 
     this.el.collGrid.replaceChildren(frag);
     this.el.collCount.textContent = String(Math.min(discovered + 1, theme.e.length));
+    this.renderBestRuns();
+  }
+
+  /** The player's own best runs, in place of a leaderboard we cannot honestly show. */
+  renderBestRuns(latestDate = null, latestScore = null) {
+    const history = this.save.get('history') ?? [];
+    const container = this.el.bestRuns;
+    if (!container) return;
+
+    if (history.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'best-runs-empty';
+      empty.textContent = 'Finish a round to start your list.';
+      container.replaceChildren(empty);
+      return;
+    }
+
+    const chain = themeOf(this.save.get('theme')).e;
+    const frag = document.createDocumentFragment();
+    history.forEach((run, i) => {
+      const row = document.createElement('div');
+      const isLatest = latestDate !== null && run.date === latestDate && run.score === latestScore;
+      row.className = `best-run${isLatest ? ' is-latest' : ''}`;
+
+      const rank = document.createElement('span');
+      rank.className = 'best-run-rank';
+      rank.textContent = `#${i + 1}`;
+
+      const score = document.createElement('span');
+      score.className = 'best-run-score';
+      score.textContent = run.score.toLocaleString('en-US');
+
+      const biggest = document.createElement('span');
+      biggest.className = 'best-run-emoji';
+      setEmoji(biggest, chain[Math.min(run.maxTier, MAX_TIER)]);
+
+      const date = document.createElement('span');
+      date.className = 'best-run-date';
+      date.textContent = run.date;
+
+      row.append(rank, score, biggest, date);
+      frag.append(row);
+    });
+    container.replaceChildren(frag);
   }
 
   buildSettings(handlers) {
@@ -328,26 +386,64 @@ export class UI {
     this.buildChips(this.el.dayChips, dayOptions, this.save.get('dayMode'),
       (k) => handlers.onDayMode?.(k));
 
-    this.buildChips(this.el.themeChips, THEME_KEYS.map((k) => ({
-      key: k,
-      icon: THEMES[k].e[5],
-      label: THEMES[k].label,
-    })), this.save.get('theme'), (k) => handlers.onTheme?.(k));
+    this._onTheme = handlers.onTheme ?? null;
+    this.refreshThemeChips();
+  }
+
+  /**
+   * Theme chips, with the ones not yet earned shown locked. Rebuilt whenever
+   * `discovered` changes, so a set unlocked mid-round is selectable at once.
+   */
+  refreshThemeChips() {
+    const discovered = this.save.get('discovered');
+    const current = this.save.get('theme');
+    const items = THEME_KEYS.map((k) => {
+      const locked = !isThemeUnlocked(k, discovered);
+      const goalTier = THEME_UNLOCK[k]?.discovered ?? 0;
+      return {
+        key: k,
+        icon: THEMES[k].e[5],
+        label: THEMES[k].label,
+        locked,
+        // The goal is named in the set the player is currently using.
+        hint: locked ? `Reach ${themeOf(current).e[goalTier]} ${themeOf(current).n[goalTier]} to unlock` : '',
+      };
+    });
+    this.buildChips(this.el.themeChips, items, current, (k, meta) => this._onTheme?.(k, meta));
+  }
+
+  /** The unlock requirement for a theme, as a toastable line. */
+  unlockHint(themeKey) {
+    const goalTier = THEME_UNLOCK[themeKey]?.discovered ?? 0;
+    const inTheme = themeOf(this.save.get('theme'));
+    return `Reach ${inTheme.e[goalTier]} ${inTheme.n[goalTier]} to unlock ${THEMES[themeKey].label}`;
   }
 
   buildChips(container, items, selected, onPick) {
     const frag = document.createDocumentFragment();
     for (const item of items) {
       const btn = document.createElement('button');
-      btn.className = `choice${item.key === selected ? ' selected' : ''}`;
+      btn.className = `choice${item.key === selected ? ' selected' : ''}${item.locked ? ' locked' : ''}`;
       btn.dataset.key = item.key;
+      if (item.hint) btn.title = item.hint;
+      btn.setAttribute('aria-disabled', item.locked ? 'true' : 'false');
       const ico = document.createElement('span');
       ico.className = 'choice-ico';
       setEmoji(ico, item.icon);
       btn.append(ico, document.createTextNode(item.label));
+      if (item.locked) {
+        const lock = document.createElement('span');
+        lock.className = 'choice-lock';
+        setEmoji(lock, '🔒');
+        btn.append(lock);
+      }
       btn.addEventListener('click', () => {
+        if (item.locked) {
+          onPick(item.key, { locked: true });
+          return;
+        }
         container.querySelectorAll('.choice').forEach((n) => n.classList.toggle('selected', n === btn));
-        onPick(item.key);
+        onPick(item.key, { locked: false });
       });
       frag.append(btn);
     }
@@ -470,13 +566,12 @@ export class UI {
   }
 
   /** The full merge flourish: sparks, an expanding ring, points and a note. */
-  mergeBurst(x, y, tier, points, { triple = false } = {}) {
+  mergeBurst(x, y, tier, points, { triple = false, jackpot = false } = {}) {
     const width = this.el.boxInner.clientWidth;
     const colors = ['#ffe36e', '#ff7a59', '#fff', '#8fd45f', '#6fc3f0'];
 
-    // A trio throws more sparks, in a ring offset so it does not sit on top of
-    // the ordinary eight.
-    const sparkCount = triple ? 16 : 8;
+    // A trio throws more sparks; a jackpot throws the most.
+    const sparkCount = jackpot ? 24 : triple ? 16 : 8;
     for (let i = 0; i < sparkCount; i++) {
       const spark = document.createElement('div');
       spark.className = 'fx-spark';
@@ -488,27 +583,27 @@ export class UI {
 
     const size = (SIZES[tier] / 100) * width;
     const ring = document.createElement('div');
-    ring.className = `fx-ring${triple ? ' fx-ring-triple' : ''}`;
+    ring.className = `fx-ring${jackpot ? ' fx-ring-jackpot' : triple ? ' fx-ring-triple' : ''}`;
     // Likewise, the `ring` keyframes centre it with translate(-50%, -50%).
     ring.style.width = `${size}px`;
     ring.style.height = `${size}px`;
     this._place(ring, x, y);
     this._spawn(ring, 540);
 
-    if (triple) {
+    if (triple || jackpot) {
       // A second, wider ring a beat later reads as "that was bigger".
       const echo = document.createElement('div');
-      echo.className = 'fx-ring fx-ring-echo';
-      echo.style.width = `${size * 1.35}px`;
-      echo.style.height = `${size * 1.35}px`;
+      echo.className = `fx-ring fx-ring-echo${jackpot ? ' fx-ring-jackpot' : ''}`;
+      echo.style.width = `${size * (jackpot ? 1.6 : 1.35)}px`;
+      echo.style.height = `${size * (jackpot ? 1.6 : 1.35)}px`;
       this._place(echo, x, y);
-      this._spawn(echo, 700);
+      this._spawn(echo, jackpot ? 900 : 700);
 
       const label = document.createElement('div');
-      label.className = 'fx-triple';
-      label.textContent = 'TRIPLE!';
+      label.className = jackpot ? 'fx-jackpot' : 'fx-triple';
+      label.textContent = jackpot ? 'JACKPOT!' : 'TRIPLE!';
       this._place(label, x, y);
-      this._spawn(label, 1040);
+      this._spawn(label, jackpot ? 1440 : 1040);
     }
 
     const note = document.createElement('div');
@@ -518,7 +613,7 @@ export class UI {
     this._spawn(note, 1040);
 
     const pts = document.createElement('div');
-    pts.className = `fx-points${triple ? ' fx-points-triple' : ''}`;
+    pts.className = `fx-points${jackpot ? ' fx-points-jackpot' : triple ? ' fx-points-triple' : ''}`;
     pts.textContent = `+${points}`;
     this._place(pts, x, y);
     this._spawn(pts, 1040);
@@ -539,6 +634,8 @@ export class UI {
     this.hideAll();
     const el = this.el[name];
     if (!el) return;
+    // The best-runs list changes at every game over; draw it fresh on open.
+    if (name === 'collection') this.renderBestRuns();
     el.hidden = false;
     this._openOverlay = name;
     this._returnTo = returnTo;
@@ -563,12 +660,14 @@ export class UI {
     return back;
   }
 
-  showGameOver({ score, best, merges, maxTier, themeKey, isNewBest }) {
+  showGameOver({ score, best, merges, maxTier, themeKey, isNewBest, rank = 0 }) {
     const chain = themeOf(themeKey).e;
     this.el.overScore.textContent = score.toLocaleString('en-US');
     this.el.overBest.textContent = best.toLocaleString('en-US');
     setEmoji(this.el.overBiggest, chain[Math.max(0, maxTier)]);
-    this.el.overRank.textContent = String(LEADERBOARD.filter((b) => b > score).length + 1);
+    // Rank among the player's own runs. The design's "#N this week" implied a
+    // leaderboard we have no server for; this says something true instead.
+    this.el.overRankChip.textContent = rank > 0 ? `#${rank} best run` : `beyond top ${HISTORY_SIZE}`;
     this.el.overTitle.textContent = isNewBest ? 'NEW BEST!' : 'GAME OVER';
     setEmoji(this.el.overFace, isNewBest ? '🥳' : '😵');
     this.el.over.classList.toggle('is-best', isNewBest);

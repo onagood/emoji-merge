@@ -109,6 +109,39 @@ so it is a flourish rather than a change to the economy. `TRIPLE_SIZE` and
 `TRIPLE_TIER_SKIP` in `src/physics.js` and `TRIPLE_BONUS` in `src/game.js`
 control it.
 
+### The summit
+
+Two pieces of the top tier **vanish** rather than growing, for `JACKPOT_POINTS`
+times the combo multiplier, with a fanfare and a `happytime` call to the
+portal. Before this the chain's top was a dead end: two of the largest piece
+sat there forever and all but guaranteed an overflow, which punished exactly
+the player who had done the hardest thing possible. Three of the top tier
+landing together vanish the same way.
+
+### Earning the sets
+
+Only *Animals* is open at first. *Snacks* opens on discovering the Puppy and
+*Space* on discovering the Unicorn (`THEME_UNLOCK` in `src/themes.js`;
+`discovered` is the highest tier ever reached, in any set). Locked sets stay
+visible in the settings, greyed with a lock, and tapping one names the goal in
+the emoji of the set the player is currently using. The unlock is announced
+once, after the discovery reveal that earned it closes, so the two moments do
+not talk over each other.
+
+Each set also changes the **backdrop** — the hills, ground, grass and fence the
+design drew for the meadow are recoloured and repatterned per theme (`SCENES`):
+a picnic with a gingham cloth and white pickets for Snacks, lilac dunes with a
+cratered floor, a metal rail and a ringed sun for Space. The sky and its day
+cycle are shared. The design canvas only styled the box; the backdrops are an
+extension of its shapes, so adjust freely.
+
+### Your best runs
+
+The design's "#N this week" chip implied a leaderboard there is no server for,
+so it now ranks the run against the player's own history: `#2 best run`, or
+`beyond top 5`. The five best runs, with date and biggest piece, are listed on
+the collection screen. `HISTORY_SIZE` in `src/storage.js`.
+
 Tuning lives at the top of `src/physics.js` and `src/game.js`. The values worth
 knowing:
 
@@ -120,6 +153,9 @@ knowing:
 | `TRIPLE_TIER_SKIP` | physics.js | Tiers gained when three merge at once |
 | `TRIPLE_REACH` | physics.js | Slack that lets a near-touching third join |
 | `TRIPLE_BONUS` | game.js | Score multiplier for a triple |
+| `JACKPOT_POINTS` | game.js | Base points when two top-tier pieces vanish |
+| `THEME_UNLOCK` | themes.js | Tier to discover before each set opens |
+| `HISTORY_SIZE` | storage.js | How many best runs are kept |
 | `OVERFLOW_GRACE = 1.5` | game.js | Seconds above the line before the round ends |
 | `DANGER_HEIGHT` | game.js | Top 30% of the box triggers the warning |
 | `COMBO_WINDOW = 1.4` | game.js | Seconds a combo survives |
@@ -137,8 +173,9 @@ node test/physics.test.mjs
 ```
 
 Runs headless against the same vendored Matter.js the browser loads. It checks
-that pieces rest where they should, that same-tier pairs merge and the top tier
-does not, that sixty drops never escape the box or leave it jittering, that a
+that pieces rest where they should, that same-tier pairs merge and two of the
+top tier vanish, that a trio fires across a gap and survives an off-centre
+drop, that sixty drops never escape the box or leave it jittering, that a
 heavy piece dropped from height cannot punch through a pile, that overflow
 detection and the rescue behave, and that a saved box restores. It also reports
 the per-frame cost.
@@ -232,6 +269,13 @@ so the game's own code stays proprietary.
   forwards — restarting at night eases through dawn rather than rewinding. A
   time picked by hand takes the shorter way round instead, and uses a faster
   half-life, so the choice feels answered.
+- **Tightening the combo window does not make the multiplier more earned.**
+  It was tried and measured. Average multiplier, blind tapping versus aiming
+  at a match: at 1.4 s, 4.8 vs 7.0; at 1.2 s, 3.9 vs 5.1; at 1.0 s, 3.3 vs
+  3.4. A deliberate cascade takes longer to resolve than an accidental one, so
+  a short window strips the skilled player's chains first and the skill gap
+  disappears. The window stays at 1.4 s. If the multiplier must be reined in,
+  count it per *drop that merged*, so a cascade is one step, not many.
 - **A CSS animation replaces the whole `transform` property.** Anything that
   positions itself with a base `translate(-50%, -50%)` loses it the moment an
   animation starts, so the keyframes for those elements fold the base

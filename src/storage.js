@@ -27,7 +27,13 @@ const DEFAULTS = {
   hints: true,
   seenTutorial: false,
   seenTriple: false,
+  /** The player's best runs, newest-scored first. Kept to HISTORY_SIZE. */
+  history: [],
+  /** Theme keys whose unlock toast has been shown. */
+  unlocksSeen: [],
 };
+
+export const HISTORY_SIZE = 5;
 
 function clampInt(value, min, max, fallback) {
   const n = Math.floor(Number(value));
@@ -58,7 +64,8 @@ function daysBetween(a, b) {
 
 export class Save {
   constructor() {
-    this.data = { ...DEFAULTS };
+    // Fresh arrays: spreading DEFAULTS would share one array across resets.
+    this.data = { ...DEFAULTS, history: [], unlocksSeen: [] };
     this._writeTimer = null;
   }
 
@@ -103,6 +110,51 @@ export class Save {
     d.hints = bool(parsed.hints, DEFAULTS.hints);
     d.seenTutorial = bool(parsed.seenTutorial, DEFAULTS.seenTutorial);
     d.seenTriple = bool(parsed.seenTriple, DEFAULTS.seenTriple);
+
+    d.history = Array.isArray(parsed.history)
+      ? parsed.history
+          .filter((r) => r && typeof r === 'object')
+          .map((r) => ({
+            score: clampInt(r.score, 0, 1e12, 0),
+            maxTier: clampInt(r.maxTier, 0, MAX_TIER, 0),
+            merges: clampInt(r.merges, 0, 1e9, 0),
+            triples: clampInt(r.triples, 0, 1e9, 0),
+            date: typeof r.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : today(),
+          }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, HISTORY_SIZE)
+      : [];
+
+    d.unlocksSeen = Array.isArray(parsed.unlocksSeen)
+      ? parsed.unlocksSeen.filter((k) => THEME_KEYS.includes(k))
+      : [];
+  }
+
+  /**
+   * Record a finished round in the best-runs list.
+   * @returns {number} this run's rank among the player's own runs, 1-based,
+   *   or 0 if it did not make the list.
+   */
+  recordRun({ score, maxTier, merges, triples }) {
+    const entry = {
+      score: Math.max(0, Math.floor(score)),
+      maxTier: Math.max(0, Math.min(MAX_TIER, maxTier)),
+      merges: Math.max(0, merges),
+      triples: Math.max(0, triples),
+      date: today(),
+    };
+    const list = [...this.data.history, entry].sort((a, b) => b.score - a.score);
+    const rank = list.indexOf(entry) + 1;
+    this.data.history = list.slice(0, HISTORY_SIZE);
+    this.save();
+    return rank <= HISTORY_SIZE ? rank : 0;
+  }
+
+  markUnlockSeen(themeKey) {
+    if (this.data.unlocksSeen.includes(themeKey)) return false;
+    this.data.unlocksSeen = [...this.data.unlocksSeen, themeKey];
+    this.save();
+    return true;
   }
 
   _updateStreak() {
@@ -159,7 +211,10 @@ export class Save {
       hints: this.data.hints,
       lastPlayed: this.data.lastPlayed,
     };
-    this.data = { ...DEFAULTS, ...keep, streak: 1, seenTutorial: false, seenTriple: false };
+    this.data = {
+      ...DEFAULTS, ...keep, streak: 1, seenTutorial: false, seenTriple: false,
+      history: [], unlocksSeen: [],
+    };
     this.flush();
   }
 }

@@ -127,15 +127,28 @@ section('two of the same tier merge into the next one');
 }
 
 // ---------------------------------------------------------------------------
-section('the top tier does not merge further');
+section('two of the top tier vanish instead of growing');
 {
   const merges = [];
   const world = new MergeWorld({ onMerge: (m) => merges.push(m) });
   world.addPiece(MAX_TIER, WORLD_W / 2 - radiusOf(MAX_TIER) * 0.8, WORLD_H - 150);
   world.addPiece(MAX_TIER, WORLD_W / 2 + radiusOf(MAX_TIER) * 0.8, WORLD_H - 150);
   run(world, 3);
-  check('no merge at the top tier', merges.length === 0, `${merges.length} merges`);
-  check('both pieces survive', world.pieces.length === 2, `${world.pieces.length} pieces`);
+  check('exactly one event fired', merges.length === 1, `${merges.length} merges`);
+  check('it is a vanish, not a merge', merges[0]?.vanish === true);
+  check('reported at the top tier', merges[0]?.tier === MAX_TIER, `tier=${merges[0]?.tier}`);
+  check('no piece is spawned', merges[0]?.body === null);
+  check('the box is empty afterwards', world.pieces.length === 0, `${world.pieces.length} pieces`);
+}
+
+// ---------------------------------------------------------------------------
+section('the top tier never grows past the chain');
+{
+  // Whatever lands on a top-tier pair, nothing above MAX_TIER may ever exist.
+  const world = new MergeWorld();
+  for (let i = 0; i < 6; i++) world.addPiece(MAX_TIER, 92 + (i % 2) * 316, 40 + i * 5);
+  run(world, 6);
+  check('no piece exceeds the top tier', world.pieces.every((p) => p.tier <= MAX_TIER));
 }
 
 // ---------------------------------------------------------------------------
@@ -332,7 +345,13 @@ section('a big piece dropped from height does not punch through');
 section('overflow detection and the rescue');
 {
   const world = new MergeWorld();
-  // Top-tier pieces never merge away, so the box genuinely fills up.
+  // This test needs a box that genuinely fills. Top-tier pieces used to be
+  // inert, but they now vanish in pairs, so merging is switched off here:
+  // queued groups are simply released again each step.
+  world._resolveMerges = () => {
+    for (const group of world._pendingMerges) for (const body of group) body.merged = false;
+    world._pendingMerges = [];
+  };
   const rBig = radiusOf(MAX_TIER);
   for (let i = 0; i < 12; i++) {
     world.addPiece(MAX_TIER, rBig + (i % 2) * (WORLD_W - rBig * 2), 40);

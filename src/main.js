@@ -10,7 +10,7 @@ import { save } from './storage.js';
 import { portal } from './sdk.js';
 import { audio } from './audio.js';
 import { preload } from './emoji.js';
-import { THEMES, THEME_KEYS, MAX_TIER, themeOf } from './themes.js';
+import { THEMES, THEME_KEYS, MAX_TIER, themeOf, isThemeUnlocked } from './themes.js';
 import { MONETISATION, shouldLoadPortalSdk, applyAdOverride } from './config.js';
 
 const params = new URLSearchParams(location.search);
@@ -26,6 +26,8 @@ const renderer = new BoxRenderer(canvas);
 let tutorialStep = null;
 let cancelAd = null;
 let loopHandle = null;
+/** A theme unlocked mid-round, announced once the discovery reveal closes. */
+let pendingUnlockToast = null;
 /** The record to beat this round; `best` itself climbs live during play. */
 let bestAtRoundStart = 0;
 
@@ -39,16 +41,24 @@ const game = new Game({
 
   onImpact: ({ speed, tier }) => audio.impact(speed, tier),
 
-  onMerge: ({ tier, x, y, gain, combo, triple }) => {
-    audio.merge(tier, combo);
-    if (triple) audio.triple(tier);
-    if (combo >= 2) audio.combo(combo);
-    ui.mergeBurst(x, y, tier, gain, { triple });
+  onMerge: ({ tier, x, y, gain, combo, triple, vanish }) => {
+    if (vanish) {
+      audio.jackpot();
+    } else {
+      audio.merge(tier, combo);
+      if (triple) audio.triple(tier);
+      if (combo >= 2) audio.combo(combo);
+    }
+    ui.mergeBurst(x, y, tier, gain, { triple, jackpot: vanish });
     ui.shakeBox();
+    if (vanish) ui.shakeBox();
     if (save.get('haptics') && navigator.vibrate) {
-      navigator.vibrate(triple ? [18, 40, 28] : combo >= 2 ? 24 : 12);
+      navigator.vibrate(vanish ? [30, 40, 30, 40, 60] : triple ? [18, 40, 28] : combo >= 2 ? 24 : 12);
     }
     if (tutorialStep === 'merge') setTutorial(null);
+
+    // Tell the portal about the moments worth celebrating.
+    if (triple || vanish) portal.happytime();
 
     const patch = { merges: save.get('merges') + 1 };
     if (triple) {
@@ -59,6 +69,9 @@ const game = new Game({
         patch.seenTriple = true;
         ui.toast('✨', 'Triple! Two tiers at once.');
       }
+    }
+    if (vanish) {
+      ui.toast(game.chain[MAX_TIER], `Jackpot! Two ${themeOf(game.themeKey).n[MAX_TIER]}s left the box.`);
     }
     save.update(patch);
   },
@@ -81,12 +94,23 @@ const game = new Game({
   },
 
   onDiscovery: (tier) => {
-    save.set('discovered', Math.max(save.get('discovered'), tier));
+    const before = save.get('discovered');
+    save.set('discovered', Math.max(before, tier));
     ui.buildEvolution(game.themeKey);
     ui.buildCollection(game.themeKey);
+    ui.refreshThemeChips();
     audio.discovery();
     portal.gameplayStop();
     ui.showDiscovery(tier, game.themeKey);
+
+    // A set that this discovery just opened is announced once, after the
+    // reveal is dismissed, so the two moments do not talk over each other.
+    for (const key of THEME_KEYS) {
+      if (isThemeUnlocked(key, before)) continue;
+      if (!isThemeUnlocked(key, save.get('discovered'))) continue;
+      if (!save.markUnlockSeen(key)) continue;
+      pendingUnlockToast = key;
+    }
   },
 
   onGameOver: ({ score, merges, maxTier }) => {
@@ -100,6 +124,7 @@ const game = new Game({
       audio.gameOver();
     }
     save.update({ games: save.get('games') + 1 });
+    const rank = save.recordRun({ score, maxTier, merges, triples: game.triples });
     portal.gameplayStop();
     ui.setRescueOffer(false);
     ui.setHeldVisible(false);
@@ -110,6 +135,7 @@ const game = new Game({
       maxTier,
       themeKey: game.themeKey,
       isNewBest,
+      rank,
     });
   },
 });
@@ -377,6 +403,11 @@ function bindUI() {
     ui.hideAll();
     game.resume();
     portal.gameplayStart();
+    if (pendingUnlockToast) {
+      const key = pendingUnlockToast;
+      pendingUnlockToast = null;
+      ui.toast('🔓', `New emoji set unlocked: ${THEMES[key].label}!`);
+    }
   });
 
   ui.el.creditsBtn.addEventListener('click', () => {
@@ -456,10 +487,15 @@ function bindUI() {
       ui.setSkyTarget(key, game.score);
       audio.click();
     },
-    onTheme: (key) => {
+    onTheme: (key, { locked = false } = {}) => {
+      if (locked) {
+        ui.toast('🔒', ui.unlockHint(key));
+        return;
+      }
       save.set('theme', key);
       game.setTheme(key);
       ui.applyTheme(key);
+      ui.refreshThemeChips();
       refreshHeld();
       audio.click();
     },
@@ -514,7 +550,12 @@ async function boot() {
   portal.loadingStart();
 
   save.load();
-  const themeKey = THEME_KEYS.includes(save.get('theme')) ? save.get('theme') : 'animals';
+  let themeKey = THEME_KEYS.includes(save.get('theme')) ? save.get('theme') : 'animals';
+  // A reset can leave a locked theme selected; fall back to the one always open.
+  if (!isThemeUnlocked(themeKey, save.get('discovered'))) {
+    themeKey = 'animals';
+    save.set('theme', themeKey);
+  }
   game.setTheme(themeKey);
 
   // Everything the interface and the box can show, fetched before first paint.

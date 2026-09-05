@@ -19,8 +19,25 @@ const OVERFLOW_GRACE = 1.5;
 const DANGER_HEIGHT = WORLD_H * 0.3;
 /** Score multiplier for landing a third piece across the gap between two. */
 const TRIPLE_BONUS = 2;
+/**
+ * Points for two top-tier pieces leaving the box. Reaching the summit twice
+ * is the hardest thing in the game, so this is sized against a whole good
+ * run rather than against one merge. The combo multiplier still applies.
+ */
+const JACKPOT_POINTS = 1000;
 
-/** Merges closer together than this keep the combo running. */
+/**
+ * Merges closer together than this keep the combo running.
+ *
+ * Do not tighten this to make the multiplier feel more earned; it was tried
+ * and measured, and it does the opposite. Average multiplier, blind tapping
+ * versus aiming at a match, 20 games each:
+ *   1.4 s  4.8 vs 7.0    1.2 s  3.9 vs 5.1    1.0 s  3.3 vs 3.4
+ * A deliberate cascade takes longer to resolve than an accidental one, so a
+ * short window strips the skilled player's chains first and the skill gap in
+ * the multiplier vanishes. If the multiplier must be reined in, count it per
+ * *drop that merged* rather than per merge, so a cascade is one step.
+ */
 const COMBO_WINDOW = 1.4;
 /** Minimum gap between drops, so a fast tapper cannot stack pieces in mid-air. */
 const DROP_COOLDOWN = 340;
@@ -62,6 +79,7 @@ export class Game {
     this.score = 0;
     this.merges = 0;
     this.triples = 0;
+    this.jackpots = 0;
     this.combo = 0;
     this.maxTierThisRound = 0;
 
@@ -112,6 +130,7 @@ export class Game {
     this.score = 0;
     this.merges = 0;
     this.triples = 0;
+    this.jackpots = 0;
     this.combo = 0;
     this.maxTierThisRound = 0;
     this.discovered = discovered;
@@ -175,7 +194,7 @@ export class Game {
     return body;
   }
 
-  _handleMerge({ tier, fromTier, x, y, count, triple }) {
+  _handleMerge({ tier, fromTier, x, y, count, triple, vanish }) {
     // The title screen runs the same physics for show. Merges there are
     // decorative and must not score or unlock anything.
     if (this.phase !== PHASE.PLAYING) return;
@@ -186,15 +205,21 @@ export class Game {
     this._sinceLastMerge = 0;
 
     const multiplier = Math.max(1, this.combo);
-    // The skipped tier is already most of the reward, since points climb with
-    // tier. The bonus on top is what makes the moment feel earned.
-    const gain = PTS[tier] * multiplier * (triple ? TRIPLE_BONUS : 1);
+    let gain;
+    if (vanish) {
+      gain = JACKPOT_POINTS * multiplier;
+      this.jackpots += 1;
+    } else {
+      // The skipped tier is already most of the reward, since points climb
+      // with tier. The bonus on top is what makes the moment feel earned.
+      gain = PTS[tier] * multiplier * (triple ? TRIPLE_BONUS : 1);
+    }
     this.score += gain;
     this.merges += 1;
     if (triple) this.triples += 1;
     if (tier > this.maxTierThisRound) this.maxTierThisRound = tier;
 
-    this.on.merge({ tier, fromTier, x, y, gain, combo: this.combo, count, triple });
+    this.on.merge({ tier, fromTier, x, y, gain, combo: this.combo, count, triple, vanish });
     this.on.score(this.score, gain);
     if (this.combo >= 2) this.on.combo(this.combo);
 

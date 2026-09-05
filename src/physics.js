@@ -300,7 +300,8 @@ export class MergeWorld {
       if (bPiece) bodyB.touching = true;
       if (!aPiece || !bPiece) continue;
       if (bodyA.merged || bodyB.merged) continue;
-      if (bodyA.tier !== bodyB.tier || bodyA.tier >= MAX_TIER) continue;
+      // The top tier merges too: two of them vanish rather than growing.
+      if (bodyA.tier !== bodyB.tier) continue;
       link(bodyA, bodyB);
     }
 
@@ -413,6 +414,18 @@ export class MergeWorld {
       for (const body of members) this.removePiece(body);
 
       const triple = count >= TRIPLE_SIZE;
+
+      // Two pieces of the top tier have nowhere to go, so they leave. Without
+      // this the chain's summit was a dead end: two of the largest piece in
+      // the game sat there forever and all but guaranteed an overflow, which
+      // punished exactly the player who had done the hardest thing possible.
+      if (tier >= MAX_TIER) {
+        if (this.onMerge) {
+          this.onMerge({ tier, fromTier: tier, x, y, count, triple, vanish: true, body: null });
+        }
+        continue;
+      }
+
       const nextTier = Math.min(MAX_TIER, tier + (triple ? TRIPLE_TIER_SKIP : 1));
 
       // The merged piece is bigger than any of its parents — two tiers bigger
@@ -435,7 +448,7 @@ export class MergeWorld {
       this._relieve(born);
 
       if (this.onMerge) {
-        this.onMerge({ tier: nextTier, fromTier: tier, x, y, count, triple, body: born });
+        this.onMerge({ tier: nextTier, fromTier: tier, x, y, count, triple, vanish: false, body: born });
       }
     }
   }

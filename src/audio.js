@@ -198,6 +198,36 @@ export class Audio {
     this._noise({ duration: 0.3, gain: 0.16, filterFreq: 3400, type: 'highpass' });
   }
 
+  /**
+   * Two of the top tier leaving the box. The one moment in the game that
+   * deserves a proper fanfare: a rising major chord, a shimmer on top, and a
+   * low thump underneath so it is felt as well as heard.
+   */
+  jackpot() {
+    if (!this._ready()) return;
+    const root = 261.63;
+    [0, 4, 7, 12, 16, 19, 24].forEach((semitone, i) => {
+      this._tone({
+        freq: root * Math.pow(2, semitone / 12),
+        type: 'triangle',
+        duration: 0.7,
+        gain: 0.28 - i * 0.02,
+        delay: i * 0.07,
+      });
+    });
+    for (let i = 0; i < 6; i++) {
+      this._tone({
+        freq: root * 4 * Math.pow(2, (i * 7) / 12),
+        type: 'sine',
+        duration: 0.4,
+        gain: 0.08,
+        delay: 0.5 + i * 0.06,
+      });
+    }
+    this._tone({ freq: root / 2, type: 'sine', duration: 1.1, gain: 0.4, sweepTo: root / 4 });
+    this._noise({ duration: 0.8, gain: 0.2, filterFreq: 5000, type: 'highpass', delay: 0.1 });
+  }
+
   /** Extra flourish layered on top of a merge when a combo is running. */
   combo(count) {
     if (!this._ready()) return;
