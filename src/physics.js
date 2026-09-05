@@ -328,16 +328,21 @@ export class MergeWorld {
         }
       }
 
+      // At the summit there is no tier to skip to, so a trio would only mean
+      // three pieces leaving for the price of two. Pairs off, third waits.
+      const canTriple = group[0].tier < MAX_TIER;
+
       // A pair that is about to merge may still be waiting on a third piece
       // that is a hair short of contact. Pull it in rather than losing it.
-      if (group.length === 2) {
+      if (canTriple && group.length === 2) {
         const third = this._findWedgedThird(group[0], group[1]);
         if (third) group.push(third);
       }
 
       // Take a trio while one is available, then pair off whatever is left.
       while (group.length >= 2) {
-        const members = group.splice(0, group.length >= TRIPLE_SIZE ? TRIPLE_SIZE : 2);
+        const take = canTriple && group.length >= TRIPLE_SIZE ? TRIPLE_SIZE : 2;
+        const members = group.splice(0, take);
         for (const body of members) body.merged = true;
         this._pendingMerges.push(members);
       }
@@ -421,7 +426,7 @@ export class MergeWorld {
       // punished exactly the player who had done the hardest thing possible.
       if (tier >= MAX_TIER) {
         if (this.onMerge) {
-          this.onMerge({ tier, fromTier: tier, x, y, count, triple, vanish: true, body: null });
+          this.onMerge({ tier, fromTier: tier, x, y, count, triple: false, vanish: true, body: null });
         }
         continue;
       }
@@ -448,7 +453,10 @@ export class MergeWorld {
       this._relieve(born);
 
       if (this.onMerge) {
-        this.onMerge({ tier: nextTier, fromTier: tier, x, y, count, triple, vanish: false, body: born });
+        // Report where the piece actually appeared, not the raw centroid: a
+        // merge against a wall is nudged inward, and the burst, the ring and
+        // the score must land on the piece rather than beside it.
+        this.onMerge({ tier: nextTier, fromTier: tier, x: sx, y: sy, count, triple, vanish: false, body: born });
       }
     }
   }

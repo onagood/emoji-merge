@@ -120,6 +120,7 @@ export class Save {
             merges: clampInt(r.merges, 0, 1e9, 0),
             triples: clampInt(r.triples, 0, 1e9, 0),
             date: typeof r.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : today(),
+            runId: typeof r.runId === 'string' ? r.runId : null,
           }))
           .sort((a, b) => b.score - a.score)
           .slice(0, HISTORY_SIZE)
@@ -135,15 +136,21 @@ export class Save {
    * @returns {number} this run's rank among the player's own runs, 1-based,
    *   or 0 if it did not make the list.
    */
-  recordRun({ score, maxTier, merges, triples }) {
+  recordRun({ score, maxTier, merges, triples }, { replaceId = null } = {}) {
     const entry = {
       score: Math.max(0, Math.floor(score)),
       maxTier: Math.max(0, Math.min(MAX_TIER, maxTier)),
       merges: Math.max(0, merges),
       triples: Math.max(0, triples),
       date: today(),
+      runId: replaceId ?? null,
     };
-    const list = [...this.data.history, entry].sort((a, b) => b.score - a.score);
+    // A rescued round ends twice; the second ending supersedes the first
+    // rather than listing the same run under two scores.
+    const kept = replaceId === null
+      ? this.data.history
+      : this.data.history.filter((r) => r.runId !== replaceId);
+    const list = [...kept, entry].sort((a, b) => b.score - a.score);
     const rank = list.indexOf(entry) + 1;
     this.data.history = list.slice(0, HISTORY_SIZE);
     this.save();

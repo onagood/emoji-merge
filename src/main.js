@@ -28,6 +28,12 @@ let cancelAd = null;
 let loopHandle = null;
 /** A theme unlocked mid-round, announced once the discovery reveal closes. */
 let pendingUnlockToast = null;
+/**
+ * A rescued round can end twice. These keep it one entry in the best-runs
+ * list and one increment of the games counter.
+ */
+let roundRecorded = false;
+let roundRecordId = null;
 /** The record to beat this round; `best` itself climbs live during play. */
 let bestAtRoundStart = 0;
 
@@ -123,8 +129,14 @@ const game = new Game({
     } else {
       audio.gameOver();
     }
-    save.update({ games: save.get('games') + 1 });
-    const rank = save.recordRun({ score, maxTier, merges, triples: game.triples });
+    // A rescued round comes back here when it overflows again. It is still
+    // one round, so replace its earlier entry rather than adding a second.
+    if (!roundRecorded) save.update({ games: save.get('games') + 1 });
+    const rank = save.recordRun(
+      { score, maxTier, merges, triples: game.triples },
+      { replaceId: roundRecordId }
+    );
+    roundRecorded = true;
     portal.gameplayStop();
     ui.setRescueOffer(false);
     ui.setHeldVisible(false);
@@ -136,6 +148,7 @@ const game = new Game({
       themeKey: game.themeKey,
       isNewBest,
       rank,
+      canRescue: game.rescueAvailable,
     });
   },
 });
@@ -171,6 +184,8 @@ function resize() {
 function startRound() {
   audio.unlock();
   bestAtRoundStart = save.get('best');
+  roundRecorded = false;
+  roundRecordId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   ui.clearEffects();
   ui.hideAll();
   ui.setDanger(false);
@@ -258,7 +273,10 @@ function playAgain() {
 }
 
 function grantRescue() {
-  game.rescue();
+  if (!game.rescue()) return;
+  // The rescue can be taken from the game-over card, which must come down
+  // before play resumes; the ad path clears it, the ad-free path did not.
+  ui.hideAll();
   audio.rescue();
   ui.shakeBox();
   ui.setRescueOffer(false);
@@ -269,6 +287,8 @@ function grantRescue() {
 }
 
 function doRescue() {
+  if (!game.rescueAvailable) return;
+
   // With ads switched off the rescue is simply given; the button, the reward
   // and the wiring are identical, so turning ads on changes nothing else.
   if (!adsActive() || !MONETISATION.rewardedRescue) {
@@ -412,7 +432,11 @@ function bindUI() {
 
   ui.el.creditsBtn.addEventListener('click', () => {
     audio.click();
-    ui.show('credits', { returnTo: ui.openOverlay });
+    // The button sits over the playfield, so reading the credits mid-round
+    // must not leave the box running underneath.
+    const from = ui.openOverlay;
+    if (game.phase === PHASE.PLAYING) pauseGame();
+    ui.show('credits', { returnTo: from });
   });
 
   // Buttons that open a panel remember where to go back to.
@@ -429,7 +453,11 @@ function bindUI() {
     btn.addEventListener('click', () => {
       audio.click();
       const back = ui.close();
-      if (!back && game.phase === PHASE.PLAYING) portal.gameplayStart();
+      if (back) return;
+      // Nothing left on screen: pick the round back up. A panel opened from
+      // play (the credits button) paused it, so resume rather than strand it.
+      if (game.phase === PHASE.PAUSED) resumeGame();
+      else if (game.phase === PHASE.PLAYING) portal.gameplayStart();
     });
   });
 
@@ -452,10 +480,18 @@ function bindUI() {
     save.resetProgress();
     ui.el.askResetBtn.hidden = false;
     ui.el.confirmReset.hidden = true;
+    // Erasing relocks the sets, so a locked theme must not stay selected.
+    if (!isThemeUnlocked(save.get('theme'), save.get('discovered'))) {
+      save.set('theme', 'animals');
+      game.setTheme('animals');
+      ui.applyTheme('animals');
+      refreshHeld();
+    }
     ui.setBest(0);
     ui.setStreak(save.get('streak'));
     ui.buildEvolution(game.themeKey);
     ui.buildCollection(game.themeKey);
+    ui.refreshThemeChips();
     ui.toast('🧹', 'Progress erased.');
   });
 
@@ -546,7 +582,11 @@ function startLoop() {
 
 async function boot() {
   ui.setLoading(true);
-  if (shouldLoadPortalSdk()) portal.init();
+  // Wait for the SDK before touching storage: on the portal the save lives in
+  // its data module, and reading first would start every visit from scratch
+  // and then flush that empty save over the real one. Off the portal nothing
+  // is loaded, so this resolves immediately.
+  if (shouldLoadPortalSdk()) await portal.init();
   portal.loadingStart();
 
   save.load();

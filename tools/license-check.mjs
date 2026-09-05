@@ -15,7 +15,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SHIP_PATHS, isExcluded } from './ship-manifest.mjs';
 
 const ROOT = path.resolve(process.argv[2] ?? path.join(path.dirname(fileURLToPath(import.meta.url)), '..'));
@@ -193,6 +193,45 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * Every emoji the shipped code can name, as artwork filenames.
+ *
+ * The game references emoji as literal characters in themes.js, main.js and
+ * index.html, while the artwork is fetched by a separate hand-kept list. When
+ * the two drift the game ships broken images, which is exactly how the lock
+ * glyphs reached the live site. Deriving the set from the code closes that.
+ */
+async function referencedEmoji() {
+  const names = new Set();
+  let codePoints;
+  try {
+    const url = pathToFileURL(path.join(ROOT, 'src', 'emoji.js')).href;
+    ({ codePoints } = await import(url));
+  } catch (error) {
+    warnings.push(`could not load the emoji naming rule (${error.message}); skipped that check`);
+    return names;
+  }
+
+  // Pictographic but text-rendered by default, so Twemoji ships no file.
+  const TEXT_ONLY = new Set(['©', '®', '™', '‼', '⁉', 'ℹ', '↔', '↕', '▪', '▫']);
+  const pattern = /\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic})*/gu;
+
+  for (const file of await shippedFiles()) {
+    const relative = path.relative(ROOT, file).split(path.sep).join('/');
+    const ext = path.extname(file);
+    if (ext !== '.js' && ext !== '.html') continue;
+    // Minified third-party code contains byte sequences that match the emoji
+    // pattern by accident; only our own source names artwork.
+    if (relative.startsWith('vendor/')) continue;
+    const text = await fs.readFile(file, 'utf8');
+    for (const match of text.matchAll(pattern)) {
+      if (match[0].length === 1 && TEXT_ONLY.has(match[0])) continue;
+      names.add(codePoints(match[0]));
+    }
+  }
+  return names;
+}
+
 // -- 3. every shipped asset is covered --------------------------------------
 
 async function checkAssetCoverage() {
@@ -216,6 +255,36 @@ async function checkAssetCoverage() {
   for (const file of unexpected) {
     fail(`assets/fonts/${file} is not covered by any licence entry.`);
   }
+
+  // Every font family named in LICENSES.md must actually have files, and every
+  // file fonts.css asks for must exist. Counting files is not enough: a build
+  // missing a whole family still had four fonts and passed.
+  for (const family of ['LilitaOne', 'Baloo2']) {
+    if (!fonts.some((f) => f.startsWith(`${family}-`))) {
+      fail(`assets/fonts holds no ${family} files, but it is declared in LICENSES.md.`);
+    }
+  }
+
+  if (await exists('assets/fonts/fonts.css')) {
+    const css = await read('assets/fonts/fonts.css');
+    const wanted = [...css.matchAll(/url\(\s*['"]?\.\/([^'")]+)['"]?\s*\)/g)].map((m) => m[1]);
+    if (wanted.length === 0) fail('assets/fonts/fonts.css declares no @font-face sources.');
+    for (const file of new Set(wanted)) {
+      if (!(await exists(`assets/fonts/${file}`))) {
+        fail(`assets/fonts/fonts.css references ${file}, which is not in the build.`);
+      }
+    }
+  } else {
+    fail('assets/fonts/fonts.css is missing, so no webfont would load.');
+  }
+
+  // The same for artwork: every emoji the game can name must be present.
+  const referenced = await referencedEmoji();
+  const missing = [...referenced].filter((name) => !emoji.includes(`${name}.svg`));
+  for (const name of missing.slice(0, 12)) {
+    fail(`assets/emoji/${name}.svg is used by the game but not in the build.`);
+  }
+  if (missing.length > 12) fail(`…and ${missing.length - 12} more emoji files are missing.`);
 
   // Anything else living in vendor/ would be third-party code nobody declared.
   if (await exists('vendor')) {

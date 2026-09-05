@@ -660,7 +660,9 @@ export class UI {
     return back;
   }
 
-  showGameOver({ score, best, merges, maxTier, themeKey, isNewBest, rank = 0 }) {
+  showGameOver({ score, best, merges, maxTier, themeKey, isNewBest, rank = 0, canRescue = true }) {
+    // One rescue per round, as in the design's `canRescue: !rescueUsed`.
+    this.el.rescueBtn.hidden = !canRescue;
     const chain = themeOf(themeKey).e;
     this.el.overScore.textContent = score.toLocaleString('en-US');
     this.el.overBest.textContent = best.toLocaleString('en-US');

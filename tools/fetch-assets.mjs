@@ -10,7 +10,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EMOJI_DIR = path.join(ROOT, 'assets', 'emoji');
@@ -20,24 +20,45 @@ const FONT_DIR = path.join(ROOT, 'assets', 'fonts');
 const TWEMOJI_TAG = '14.0.2';
 const TWEMOJI_BASE = `https://cdn.jsdelivr.net/gh/twitter/twemoji@${TWEMOJI_TAG}/assets/svg`;
 
-/** Every emoji the game can display, gathered from themes.js and the UI. */
-const CHAIN_EMOJI = [
-  // animals
-  '🐛', '🐌', '🐸', '🐣', '🐥', '🐰', '🐱', '🐶', '🐼', '🦄', '🌈',
-  // food
-  '🫐', '🍒', '🍓', '🍋', '🍑', '🍎', '🥥', '🍍', '🍈', '🍉', '🎂',
-  // space
-  '✨', '⭐', '🌟', '☄️', '🌙', '🪐', '🌍', '☀️', '🌌', '🚀', '👽',
-];
+/**
+ * Every emoji the game can display, read out of the game's own source.
+ *
+ * This used to be two hand-kept lists. They drifted from the code the first
+ * time a glyph was added to the interface without being added here, and the
+ * build shipped broken images. Scanning the source cannot drift.
+ */
+const SOURCE_GLOBS = ['index.html', 'src'];
 
-const UI_EMOJI = [
-  '👑', '🔥', '👇', '🎉', '📦', '😴', '🥳', '😵', '🤩', '😨',
-  '🔊', '🔇', '🎵', '📳', '📏', '🔄', '🌇', '🐦', '🐝', '🛸',
-  '🌼', '🌷', '🌱', '🌸', '🌿', '🍄', '🌻', '🏆', '⏱️', '🔗',
-  '🧹', '📺', '⚠️', '🔒', '🔓',
-];
+/** Pictographic but text-rendered by default, so Twemoji ships no file. */
+const TEXT_ONLY = new Set(['©', '®', '™', '‼', '⁉', 'ℹ', '↔', '↕', '▪', '▫']);
+const EMOJI_PATTERN = /\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic})*/gu;
 
-const ALL_EMOJI = [...new Set([...CHAIN_EMOJI, ...UI_EMOJI])];
+async function collectSourceFiles(entry, out = []) {
+  const full = path.join(ROOT, entry);
+  const stat = await fs.stat(full);
+  if (stat.isDirectory()) {
+    for (const name of await fs.readdir(full)) {
+      await collectSourceFiles(path.join(entry, name), out);
+    }
+  } else if (/\.(js|html)$/.test(full)) {
+    out.push(full);
+  }
+  return out;
+}
+
+async function gatherEmoji() {
+  const found = new Set();
+  for (const entry of SOURCE_GLOBS) {
+    for (const file of await collectSourceFiles(entry)) {
+      const text = await fs.readFile(file, 'utf8');
+      for (const match of text.matchAll(EMOJI_PATTERN)) {
+        if (match[0].length === 1 && TEXT_ONLY.has(match[0])) continue;
+        found.add(match[0]);
+      }
+    }
+  }
+  return [...found];
+}
 
 const FONT_CSS_URL =
   'https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@600;800&display=swap';
@@ -45,27 +66,15 @@ const FONT_CSS_URL =
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
-const U200D = '‍';
-const VARIATION_SELECTOR = /️/g;
 
-/** Twemoji's own filename rule: drop FE0F unless the sequence contains a ZWJ. */
-export function emojiFileName(emoji) {
-  const source = emoji.indexOf(U200D) < 0 ? emoji.replace(VARIATION_SELECTOR, '') : emoji;
-  const points = [];
-  let high = 0;
-  for (let i = 0; i < source.length; i++) {
-    const code = source.charCodeAt(i);
-    if (high) {
-      points.push((0x10000 + ((high - 0xd800) << 10) + (code - 0xdc00)).toString(16));
-      high = 0;
-    } else if (code >= 0xd800 && code <= 0xdbff) {
-      high = code;
-    } else {
-      points.push(code.toString(16));
-    }
-  }
-  return points.join('-');
-}
+/**
+ * Twemoji's filename rule, imported from the game so the tool and the runtime
+ * can never disagree about what a file is called.
+ */
+const { codePoints: emojiFileName } = await import(
+  pathToFileURL(path.join(ROOT, 'src', 'emoji.js')).href
+);
+export { emojiFileName };
 
 async function download(url, extra = {}) {
   const response = await fetch(url, { headers: { 'user-agent': UA, ...extra } });
@@ -75,6 +84,7 @@ async function download(url, extra = {}) {
 
 async function fetchEmoji() {
   await fs.mkdir(EMOJI_DIR, { recursive: true });
+  const ALL_EMOJI = await gatherEmoji();
   let written = 0;
   let skipped = 0;
   const missing = [];

@@ -289,14 +289,18 @@ export class Game {
     });
   }
 
-  /** Rewarded-ad rescue: drop the three smallest pieces and shake the box. */
+  /**
+   * Rewarded-ad rescue: drop the three smallest pieces and shake the box.
+   * One per round; returns false when it has already been spent.
+   */
   rescue() {
+    if (this._rescueUsed) return false;
     this._rescueUsed = true;
-    const removed = this.world.removeSmallest(3);
+    this.world.removeSmallest(3);
     this.world.shake(3.5);
     this._roundTime = 0; // fresh grace period so the round does not end at once
     if (this.phase === PHASE.OVER) this.setPhase(PHASE.PLAYING);
-    return removed;
+    return true;
   }
 
   /** True when the pile is high enough that the rescue button is worth offering. */
